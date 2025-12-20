@@ -17,12 +17,15 @@
             --term-gray: #888888;
             --term-glow: rgba(0, 255, 65, 0.6);
             
-            /* Алиасы для чертежей */
+            /* Алиасы для совместимости с чертежами */
             --primary: var(--term-green);
             --dim: var(--term-dim);
             --alert: var(--term-alert);
 
+            /* Сетка документа */
             --grid-line: rgba(0, 255, 65, 0.08);
+            
+            /* Шрифты */
             --font-ui: 'Share Tech Mono', monospace;
             --font-body: 'Rajdhani', sans-serif;
         }
@@ -74,7 +77,6 @@
         /* UI Elements */
         .logo-container svg { width: 180px; height: 180px; margin-bottom: 40px; filter: drop-shadow(0 0 10px var(--term-green)); animation: rotateLogo 20s linear infinite; }
         @keyframes rotateLogo { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
         .input-group { text-align: center; display: flex; flex-direction: column; align-items: center; }
         .input-label { letter-spacing: 3px; margin-bottom: 10px; font-weight: bold; opacity: 0.8; }
         input[type="text"], input[type="password"] {
@@ -83,10 +85,8 @@
             text-align: center; text-transform: uppercase; outline: none; box-shadow: 0 0 15px rgba(0, 255, 65, 0.1);
         }
         .error-msg { color: var(--term-alert); margin-top: 20px; height: 20px; font-weight: bold; opacity: 0; text-shadow: 0 0 5px red; }
-
         .hub-header { border-bottom: 2px solid var(--term-dim); padding-bottom: 15px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end; flex-shrink: 0; }
         
-        /* Dashboard */
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; width: 100%; }
         .menu-tile {
             border: 2px solid var(--term-dim); padding: 30px; cursor: pointer;
@@ -99,7 +99,6 @@
         .tile-title { font-size: 24px; font-weight: bold; letter-spacing: 2px; margin-bottom: 10px; }
         .tile-desc { font-size: 14px; color: #6dbf78; opacity: 0.8; }
 
-        /* Tables */
         .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; border: 1px solid var(--term-dim); }
         .data-table th { background: rgba(0, 255, 65, 0.1); text-align: left; padding: 15px; border-bottom: 2px solid var(--term-green); letter-spacing: 2px; }
         .data-table td { padding: 15px; border-bottom: 1px solid var(--term-dim); background: rgba(0,0,0,0.5); vertical-align: middle; }
@@ -119,14 +118,13 @@
         tr[data-status="ALLIANCE"] td { border-left: 3px solid var(--term-green); }
         tr[data-status="NEUTRAL"] td { border-left: 3px solid var(--term-warn); }
 
-        .nav-btn {
+        .nav-btn, .back-btn {
             background: transparent; border: 1px solid var(--term-dim); color: var(--term-green);
             padding: 10px 20px; cursor: pointer; font-family: var(--font-ui); text-transform: uppercase;
             font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; gap: 10px;
         }
-        .nav-btn:hover { background: var(--term-green); color: #000; }
+        .nav-btn:hover, .back-btn:hover { background: var(--term-green); color: #000; }
 
-        /* Project Cards */
         .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
         .project-card {
             border: 1px solid var(--term-dim); padding: 25px; cursor: pointer;
@@ -139,25 +137,19 @@
         .card-title { font-size: 20px; margin-bottom: 10px; font-weight: bold; }
         .card-desc { font-size: 14px; color: #6dbf78; word-wrap: break-word; }
 
-        /* Buttons */
         .btn-delete {
             background: transparent; border: none; color: var(--term-green);
             font-family: var(--font-ui); font-weight: bold; cursor: pointer;
             font-size: 16px; padding: 2px 8px; transition: all 0.2s;
             text-shadow: 0 0 5px var(--term-green); position: relative; overflow: hidden;
         }
-        .btn-delete:hover {
-            background: #444; color: #fff; text-shadow: none;
-            box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
-        }
+        .btn-delete:hover { background: #444; color: #fff; text-shadow: none; box-shadow: 0 0 8px rgba(255, 255, 255, 0.2); }
         .btn-delete:hover::after {
             content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.3) 3px);
-            pointer-events: none;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.3) 3px); pointer-events: none;
         }
         .card-delete-pos { position: absolute; bottom: 10px; right: 10px; z-index: 20; font-size: 14px; }
 
-        /* Doc Viewer */
         .doc-controls { position: fixed; top: 20px; left: 20px; z-index: 5000; }
         .report-container { padding: 80px 40px; max-width: 230mm; margin: 0 auto; padding-bottom: 100px; }
         .doc-page {
@@ -277,27 +269,50 @@
 </div>
 
 <div id="modal-access-denied" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">ACCESS DENIED</h1><p style="color: #fff;">ТРЕБУЕТСЯ КЛЮЧ "АРХИТЕКТОРА".</p><div style="margin-top: 30px; font-size: 60px;"><span class="blink">!</span></div><br><button class="modal-btn danger close-modal">ЗАКРЫТЬ</button></div></div>
-
+<div id="modal-corrupted" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">DATA CORRUPTED</h1><p style="color: #fff;">SOURCE FILE MISSING OR DAMAGED.</p><div style="margin-top: 30px; font-size: 40px; color: var(--term-alert);">404</div><br><button class="modal-btn danger close-modal">ЗАКРЫТЬ</button></div></div>
 <div id="modal-add-unit" class="modal-overlay"><div class="modal-box"><h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">ADD NEW UNIT</h1><p>ENTER IDENTIFICATION INDEX:</p><input type="text" id="new-unit-id" class="modal-input" placeholder="000-CODENAME" maxlength="15"><div><button id="confirm-add-unit" class="modal-btn">CONFIRM</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
 <div id="modal-delete-unit" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">TERMINATE RECORD?</h1><p>THIS ACTION CANNOT BE UNDONE.</p><div style="margin-top: 30px;"><button id="confirm-delete-unit" class="modal-btn danger">TERMINATE</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
 
-<div id="modal-add-project" class="modal-overlay"><div class="modal-box"><h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">INIT NEW PROTOCOL</h1><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">CODENAME (FILE NAME):</p><input type="text" id="new-proj-code" class="modal-input" placeholder="e.g. GBS-5" style="margin: 0 0 15px 0;"><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">DESCRIPTION:</p><input type="text" id="new-proj-desc" class="modal-input" placeholder="BRIEF SUMMARY" style="margin: 0 0 15px 0;"><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">ACCESS CLEARANCE:</p><select id="new-proj-status" class="term-select" style="margin-bottom: 20px;"><option value="ALPHA">ALPHA</option><option value="BETA">BETA (CURRENT)</option><option value="OMEGA">OMEGA</option></select><div><button id="confirm-add-proj" class="modal-btn">INITIALIZE</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
-<div id="modal-delete-project" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">ERASE PROTOCOL?</h1><p>CONFIRM DELETION OF PROJECT DATA.</p><div style="margin-top: 30px;"><button id="confirm-delete-proj" class="modal-btn danger">ERASE</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
+<!-- UPDATED ADD PROJECT MODAL -->
+<div id="modal-add-project" class="modal-overlay">
+    <div class="modal-box">
+        <h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">INIT NEW PROTOCOL</h1>
+        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">CODENAME (FILE NAME):</p>
+        <input type="text" id="new-proj-code" class="modal-input" placeholder="e.g. GBS-5" style="margin: 0 0 15px 0;">
+        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">DESCRIPTION:</p>
+        <input type="text" id="new-proj-desc" class="modal-input" placeholder="BRIEF SUMMARY" style="margin: 0 0 15px 0;">
+        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">ACCESS CLEARANCE:</p>
+        <select id="new-proj-status" class="term-select" style="margin-bottom: 20px;"><option value="ALPHA">ALPHA</option><option value="BETA">BETA (CURRENT)</option><option value="OMEGA">OMEGA</option></select>
+        
+        <!-- File Upload Button -->
+        <label for="project-file-upload" class="nav-btn" style="display:block; margin-bottom:15px; cursor:pointer; border-style:dashed;">
+            >> UPLOAD SOURCE FILE (.HTML)
+        </label>
+        <input type="file" id="project-file-upload" style="display:none" accept=".html">
+        <div id="file-name-display" style="color:var(--term-dim); font-size:12px; margin-bottom:20px;">NO DATA CARTRIDGE INSERTED</div>
 
+        <div><button id="confirm-add-proj" class="modal-btn">INITIALIZE</button><button class="modal-btn cancel close-modal">CANCEL</button></div>
+    </div>
+</div>
+
+<div id="modal-delete-project" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">ERASE PROTOCOL?</h1><p>CONFIRM DELETION OF PROJECT DATA.</p><div style="margin-top: 30px;"><button id="confirm-delete-proj" class="modal-btn danger">ERASE</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
 <div id="modal-add-operation" class="modal-overlay"><div class="modal-box"><h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">NEW OPERATION</h1><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">CODENAME:</p><input type="text" id="new-op-code" class="modal-input" placeholder="OP-TITAN" style="margin: 0 0 10px 0;"><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">START DATE & TIME:</p><input type="text" id="new-op-time" class="modal-input" placeholder="DD.MM.YYYY HH:MM" style="margin: 0 0 10px 0;"><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">UNIT COUNT:</p><input type="text" id="new-op-units" class="modal-input" placeholder="4" style="margin: 0 0 10px 0;"><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">SECTOR / LOCATION:</p><input type="text" id="new-op-loc" class="modal-input" placeholder="AGROPROM" style="margin: 0 0 10px 0;"><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">MISSION OBJECTIVES:</p><input type="text" id="new-op-obj" class="modal-input" placeholder="ELIMINATE TARGET / RETRIEVE DATA" style="margin: 0 0 10px 0;"><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">SECRECY STATUS:</p><select id="new-op-secrecy" class="term-select" style="margin-bottom: 20px;"><option value="SECRET">SECRET (RED)</option><option value="NON-SECRET">NON-SECRET (GREEN)</option></select><div><button id="confirm-add-op" class="modal-btn">CONFIRM</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
 <div id="modal-delete-operation" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">ABORT OPERATION?</h1><p>CONFIRM CANCELLATION OF TACTICAL MISSION.</p><div style="margin-top: 30px;"><button id="confirm-delete-op" class="modal-btn danger">ABORT</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
 
+<!-- DOC VIEWER -->
 <div id="doc-viewer" class="screen">
-    <div class="doc-controls"><button id="btn-close-doc" class="back-btn" onclick="window.closeDocument()">[ < ] CLOSE FILE</button></div>
-    <div class="report-container">
-        <!-- ZAGUSTIN CONTENT -->
-        <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><div class="hex-col">0F A1<br>B2 00<br>...</div><div style="margin-top: 200px; border-left: 4px solid var(--primary); padding-left: 20px;"><p style="font-family: var(--font-ui); letter-spacing: 3px; color: var(--dim);">ИССЛЕДОВАТЕЛЬСКИЙ ЦЕНТР "СИНГУЛЯРНОСТЬ"</p><h1 style="font-size: 64px; margin: 0; line-height: 1; border: none; color: var(--primary);">GBS-5</h1><h1 style="font-size: 64px; margin: 0; line-height: 1; border: none; color: var(--dim);">"ЗАГУСТИН"</h1></div><div style="margin-top: 100px; font-family: var(--font-ui);"><p><strong>ОБЪЕКТ:</strong> ХИМИЧЕСКИЙ КОАГУЛЯНТ СВЕРХБЫСТРОГО ДЕЙСТВИЯ</p><p><strong>ЦЕЛЬ:</strong> СОХРАНЕНИЕ БИОМАССЫ В АГРЕССИВНОЙ СРЕДЕ</p><p><strong>СТАТУС:</strong> УТВЕРЖДЕНО ДЛЯ "ИСКУПЛЕННЫХ"</p></div><div style="position: absolute; bottom: 60px; right: 50px; text-align: right; font-family: var(--font-ui);"><p>КУРАТОР ПРОЕКТА:</p><p style="font-size: 18px; color: var(--primary);">ВЫЧИСЛИТЕЛЬ [ДАННЫЕ УДАЛЕНЫ]</p><p>ИСПОЛНИТЕЛЬ:</p><p style="font-size: 18px; color: var(--primary);">КОГНИТОР РОМАНОВ</p></div><div class="status-bar"><span>STATUS: APPROVED</span><span class="blink">_CURSOR_ACTIVE</span><span>VER: 4.0.1</span></div><div class="page-number">01 / 07</div></div>
-        <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><div class="hex-col">SYS.LOG<br>INIT..</div><h1>1.0 ВВОДНЫЕ ДАННЫЕ</h1><div style="border: 1px solid var(--dim); padding: 10px; margin-bottom: 20px;"><p style="margin:0; color: var(--alert); font-family: var(--font-ui);">[!] ОБНАРУЖЕНА КРИТИЧЕСКАЯ УЯЗВИМОСТЬ БИОМАССЫ</p></div><h2>1.1 АНАЛИЗ ПОТЕРЬ И УЯЗВИМОСТЕЙ</h2><p>Телеметрия полевых выходов демонстрирует фатальную конструктивную ошибку стандартных биологических юнитов: система кровообращения является замкнутым гидравлическим контуром.</p><p>Для примитивных фракций ("Долг", "Свобода") порог критической потери составляет 1.5 литра жидкости.</p><h2>1.2 ИСТОЧНИК ДАННЫХ</h2><p><strong>Инцидент 14-В:</strong> Наблюдательный дрон серии "Око-4" перехватил сигнал бедствия научной экспедиции Экологов.</p><h2>1.3 ЦЕЛИ СИНТЕЗА</h2><div class="data-row"><span class="data-key">OBJ_1:</span> <span class="data-val">Герметизация пробоин (1.5 сек)</span></div><div class="data-row"><span class="data-key">OBJ_2:</span> <span class="data-val">Создание твердой пробки (Био-бетон)</span></div><div class="data-row"><span class="data-key">OBJ_3:</span> <span class="data-val">Игнорирование некроза тканей</span></div><div class="status-bar"><span>MODULE: ANALYSIS</span><span>COMPLETE</span></div><div class="page-number">02 / 07</div></div>
-        <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><h1>2.0 МОЛЕКУЛЯРНАЯ АРХИТЕКТУРА</h1><div class="drawing-box"><div class="drawing-overlay"><div class="crosshair ch-tl"></div><div class="crosshair ch-tr"></div><div class="crosshair ch-bl"></div><div class="crosshair ch-br"></div><div style="position:absolute; top:5px; left:5px; font-size:8px; color:var(--primary); font-family: var(--font-ui);">SCALE: 8000:1</div></div><svg width="600" height="400" viewBox="0 0 600 400"><g transform="translate(100, 50) scale(0.9)"><path class="w-line" d="M 100 100 L 150 70 L 200 100 L 200 160 L 150 190 L 100 160 Z" /><circle cx="150" cy="130" r="30" class="w-thin" fill="none" stroke-dasharray="4,2"/><line x1="100" y1="100" x2="50" y2="70" class="w-line" /> <text x="30" y="65" class="w-text">R1</text><line x1="100" y1="160" x2="50" y2="190" class="w-line" /> <text x="25" y="205" class="w-text">NH-CO</text><line x1="200" y1="100" x2="250" y2="70" class="w-line" /> <line x1="200" y1="160" x2="250" y2="190" class="w-line" /><path class="w-line" d="M 250 70 L 280 90 L 310 70 L 340 90 L 370 70 L 400 90 L 430 70" fill="none" /><path class="w-line" d="M 250 190 L 280 170 L 310 190 L 340 170 L 370 190 L 400 170 L 430 190" fill="none" /><line x1="310" y1="70" x2="310" y2="190" class="w-dim" stroke-dasharray="4,2"/> <text x="315" y="130" class="w-dim-text">S-S BOND</text><line x1="400" y1="90" x2="400" y2="170" class="w-dim" stroke-dasharray="4,2"/><g transform="translate(430, 60)"><rect x="0" y="0" width="40" height="20" class="w-line" fill="#111"/><text x="5" y="14" class="w-text">ION+</text></g><g transform="translate(430, 180)"><rect x="0" y="0" width="40" height="20" class="w-line" fill="#111"/><text x="5" y="14" class="w-text">ION-</text></g><circle cx="150" cy="130" r="10" fill="var(--primary)" opacity="0.5"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="2s" repeatCount="indefinite" /></circle><line x1="150" y1="130" x2="100" y2="250" class="w-dim"/> <text x="50" y="265" class="w-text">ЯДРО "СЛИЗЬ" (АКТИВНОЕ)</text><line x1="340" y1="90" x2="380" y2="40" class="w-dim"/> <text x="390" y="40" class="w-text">ПОЛИМЕРНАЯ РЕШЕТКА</text></g></svg></div><h2>КОМПОНЕНТЫ РЕАКЦИИ (РАСШИРЕННЫЙ СПИСОК)</h2><p>Молекулярная структура нестабильна вне контейнера.</p><table><tr><th>ID</th><th>СУБСТАНЦИЯ</th><th>ИСТОЧНИК</th><th>МАССА</th><th>ФУНКЦИЯ</th></tr><tr><td>C-01</td><td>ЭКСТРАКТ "СЛИЗЬ"</td><td>КИСЛОТНАЯ ОБР.</td><td>15 мг</td><td>ОСНОВА (КЛЕЙ)</td></tr><tr><td>C-02</td><td>ТРОМБИН (СИНТ.)</td><td>БИО-РЕАКТОР</td><td>5 мг</td><td>КАТАЛИЗАТОР</td></tr><tr><td>C-03</td><td>ПЫЛЬЦА "ПУХ"</td><td>АНОМАЛИЯ</td><td>2 мг</td><td>ПРИЖИГАНИЕ</td></tr><tr><td>C-04</td><td>КОАГУЛЯНТ В-2</td><td>СКЛАД ГСМ</td><td>10 мл</td><td>ЗАГУСТИТЕЛЬ</td></tr><tr><td>C-05</td><td>СТАБИЛИЗАТОР X</td><td>СИНТЕЗ</td><td>3 мл</td><td>КОНСЕРВАЦИЯ</td></tr></table><div style="color: var(--alert); border: 1px solid var(--alert); padding: 10px; margin-top: 15px; font-weight: bold; background: rgba(255, 51, 51, 0.1);">[!] ВНИМАНИЕ: СУБСТАНЦИЯ ПРОЯВЛЯЕТ РАДИОАКТИВНОСТЬ (15 МКР/Ч).</div><div class="status-bar"><span>CHEM_ANALYSIS: OK</span><span>TOXICITY: HIGH</span></div><div class="page-number">03 / 07</div></div>
-        <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><h1>3.0 СИСТЕМА ВВОДА</h1><div class="drawing-box"><div class="drawing-overlay"><div style="position:absolute; bottom:5px; right:5px; font-size:8px; color:var(--primary); font-family: var(--font-ui);">PRESSURE: 6 ATM</div></div><svg width="600" height="300" viewBox="0 0 600 300"><defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#00ff41" /></marker></defs><rect x="150" y="100" width="300" height="60" rx="0" class="w-line" /><rect x="450" y="110" width="40" height="40" class="w-line" /> <line x1="490" y1="130" x2="530" y2="130" class="w-line" /> <text x="535" y="135" class="w-text">TRIG</text><path d="M 150 110 L 100 120 L 100 140 L 150 150" class="w-line" /> <line x1="100" y1="130" x2="60" y2="130" class="w-line" stroke-dasharray="0" /><line x1="60" y1="130" x2="30" y2="170" class="w-dim" stroke-dasharray="2,2"/> <text x="5" y="185" class="w-text">W-NEEDLE d=3mm</text><rect x="200" y="110" width="100" height="40" class="w-thin" stroke-dasharray="0" /> <text x="225" y="135" class="w-text" style="opacity: 0.7;">CONTAINER</text><path d="M 320 130 L 325 110 L 335 150 L 345 110 L 355 150 L 365 110 L 375 150 L 385 110 L 395 150 L 405 110 L 415 150 L 420 130" class="w-line" fill="none" /><line x1="150" y1="180" x2="450" y2="180" class="w-dim" marker-start="url(#arrow)" marker-end="url(#arrow)" /> <text x="280" y="200" class="w-text">L=150mm</text></svg></div><h2>3.1 ТЕХНИЧЕСКАЯ СПЕЦИФИКАЦИЯ</h2><p><strong>ПРИВОД:</strong> Пневматический поршень одноразового действия. Предварительное сжатие газа: 6.0 Атм.</p><p><strong>ИГЛА-ИНЪЕКТОР:</strong> Сплав ВНЖ-90 (Вольфрам-Никель-Железо). Заточка лазерная, трехгранная.</p><p><strong>КОНТЕЙНЕР:</strong> Химически инертный полимер "Фторопласт-4".</p><div style="color: var(--alert); border: 1px solid var(--alert); padding: 5px; margin-top: 15px;">WARNING: ТЕМПЕРАТУРА КРИСТАЛЛИЗАЦИИ -10°C.</div><div class="status-bar"><span>MECH_CHECK: OK</span><span>AMMO: 1</span></div><div class="page-number">04 / 07</div></div>
-        <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><h1>4.0 ПРОТОКОЛ СИНТЕЗА И ЛОГИСТИКА</h1><div style="border-bottom: 1px solid var(--primary); margin-bottom: 15px; padding-bottom: 5px;"><span class="data-key">ПРОИЗВОДСТВЕННЫЙ КЛАСТЕР:</span> <span class="data-val">СЕКТОР "ДЕЛЬТА" (ЛАБОРАТОРИЯ Х-19)</span><br><span class="data-key">ЦИКЛ:</span> <span class="data-val">НЕПРЕРЫВНЫЙ (24/7)</span><br><span class="data-key">ПРИОРИТЕТ:</span> <span class="data-val">АБСОЛЮТНЫЙ</span></div><h2>4.1 АППАРАТНОЕ ОБЕСПЕЧЕНИЕ</h2><p>Для синтеза нестабильных аномальных субстанций требуется оборудование класса защиты "А".</p><ul><li>> Центрифуга "Vortex-9" (Модиф.)</li><li>> Реактор "Саркофаг-М"</li><li>> Крио-камера "Азот"</li><li>> Линия розлива (Автомат)</li></ul><h2>4.2 МАТЕРИАЛЬНАЯ БАЗА (ПАКЕТ СИНТЕЗА #4)</h2><p>Расчет на партию в 50 единиц готового изделия.</p><table style="margin-top: 10px;"><tr><th style="width: 40%;">РЕСУРС</th><th style="width: 20%;">ОБЪЕМ</th><th>ПРИМЕЧАНИЕ</th></tr><tr><td>АРТЕФАКТ "СЛИЗЬ" (Низкосортный)</td><td>3 ЕД.</td><td>Допускается фоновая радиация.</td></tr><tr><td>КИСЛОТА СЕРНАЯ (H2SO4)</td><td>2 Л</td><td>Концентрированная.</td></tr><tr><td>БИО-СТАБИЛИЗАТОР</td><td>0.5 Л</td><td>Синтезируется из лимфы мутантов.</td></tr><tr><td>ВОЛЬФРАМ (ЛОМ)</td><td>1 КГ</td><td>Для изготовления игл инжекторов.</td></tr><tr><td>ПЛАСТИК АБС</td><td>5 КГ</td><td>Корпуса инжекторов.</td></tr></table><h2>4.3 АЛГОРИТМ СИНТЕЗА (ВЕРСИЯ 2.0)</h2><div style="font-size: 12px; border-left: 2px solid var(--dim); padding-left: 10px; margin-top: 10px;"><p><strong>ФАЗА 1: ЭКСТРАКЦИЯ.</strong> Артефакт помещается в кислотную ванну реактора.</p><p><strong>ФАЗА 2: АКТИВАЦИЯ.</strong> В полученный раствор вводится катализатор (Тромбин).</p><p><strong>ФАЗА 3: СТАБИЛИЗАЦИЯ.</strong> Ввод био-добавок.</p><p><strong>ФАЗА 4: ФАСОВКА.</strong> Разлив по капсулам под давлением 6 атм.</p></div><div class="status-bar"><span>EFFICIENCY: 94%</span><span>WASTE: TOXIC SLUDGE (RECYCLE)</span></div><div class="page-number">05 / 07</div></div>
-        <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><h1>5.0 ПРОТОКОЛ КЛИНИЧЕСКИХ ИСПЫТАНИЙ</h1><div style="border-bottom: 1px solid var(--primary); margin-bottom: 15px; padding-bottom: 5px;"><span class="data-key">ГРУППА СУБЪЕКТОВ:</span> <span class="data-val">ЗАХВАЧЕННЫЕ БИО-ЕДИНИЦЫ (ФРАКЦИЯ "БАНДИТЫ")</span><br><span class="data-key">ЛОКАЦИЯ:</span> <span class="data-val">ИЗОЛЯТОР "ХОЛОД-2"</span><br><span class="data-key">АНЕСТЕЗИЯ:</span> <span style="color: var(--alert);">ОТКЛЮЧЕНА (ДЛЯ ЧИСТОТЫ НЕВРОЛОГИЧЕСКИХ ДАННЫХ)</span></div><table><tr><th style="width: 10%;">ID</th><th style="width: 25%;">ТРАВМА</th><th style="width: 30%;">РЕАКЦИЯ ПРЕПАРАТА</th><th style="width: 35%;">СТАТУС СУБЪЕКТА / ПОБОЧНЫЕ ЭФФЕКТЫ</th></tr><tr><td>Б-091</td><td>Рваная рана бедра</td><td>Полимеризация за 1.2с.</td><td>Острая вокализация. Стабилен.</td></tr><tr><td>Б-094</td><td>Артериальное кровотечение</td><td>Мгновенная герметизация.</td><td>Инсульт. Кома.</td></tr><tr><td>Б-102</td><td>Травматическая ампутация</td><td>Прямой впрыск.</td><td>Болевой шок. Гемостаз полный.</td></tr><tr><td>Б-105</td><td>Осколочное проникающее</td><td>Заливка полости.</td><td>Перистальтика остановлена. Жив.</td></tr><tr><td>Б-110</td><td>Контрольный</td><td>Препарат не вводился.</td><td>Смерть через 180с.</td></tr></table><br><div style="border-left: 2px solid var(--alert); padding-left: 10px; background: rgba(255, 51, 51, 0.05);"><p style="color: var(--alert); font-weight: bold;">[!] КОГНИТИВНЫЙ ОТЧЕТ:</p><p>Субъекты демонстрируют запредельный уровень болевого стресса.</p></div><div class="status-bar"><span>TEST_CYCLE: COMPLETE</span><span>MORTALITY: 30%</span><span>EFFICIENCY: 100%</span></div><div class="page-number">06 / 07</div></div>
-        <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><h1>6.0 ИТОГОВЫЙ ПРОТОКОЛ</h1><p>Препарат GBS-5 "Загустин" утвержден к использованию штурмовыми группами.</p><br><div style="border: 1px solid var(--primary); padding: 10px;"><p><strong>ДИРЕКТИВА №88:</strong></p><ol><li>Начать массовый синтез.</li><li>Организовать сбор сырья.</li><li>Технологию зашифровать.</li></ol></div><div style="margin-top: 100px; display: flex; justify-content: space-between;"><div><p>INPUT:</p><p>UNIT_COGNITOR_734</p></div><div style="text-align: right;"><p>VERIFIED:</p><p>OVERSEER_AI</p><div class="status-block" style="border: 2px solid var(--primary); padding: 5px 15px; display: inline-block; margin-top: 10px;">CONFIRMED<br>HASH: X8-99</div></div></div><div class="status-bar"><span>SESSION: CLOSED</span><span>LOGOUT...</span></div><div class="page-number">07 / 07</div></div>
+    <div class="doc-controls"><button class="back-btn" onclick="window.closeDocument()">[ < ] CLOSE FILE</button></div>
+    <div class="report-container" id="doc-content-area">
+        <!-- Default Content (ZAGUSTIN) -->
+        <div id="default-zagustin">
+            <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><div class="hex-col">0F A1<br>B2 00<br>...</div><div style="margin-top: 200px; border-left: 4px solid var(--primary); padding-left: 20px;"><p style="font-family: var(--font-ui); letter-spacing: 3px; color: var(--dim);">ИССЛЕДОВАТЕЛЬСКИЙ ЦЕНТР "СИНГУЛЯРНОСТЬ"</p><h1 style="font-size: 64px; margin: 0; line-height: 1; border: none; color: var(--primary);">GBS-5</h1><h1 style="font-size: 64px; margin: 0; line-height: 1; border: none; color: var(--dim);">"ЗАГУСТИН"</h1></div><div style="margin-top: 100px; font-family: var(--font-ui);"><p><strong>ОБЪЕКТ:</strong> ХИМИЧЕСКИЙ КОАГУЛЯНТ СВЕРХБЫСТРОГО ДЕЙСТВИЯ</p><p><strong>ЦЕЛЬ:</strong> СОХРАНЕНИЕ БИОМАССЫ В АГРЕССИВНОЙ СРЕДЕ</p><p><strong>СТАТУС:</strong> УТВЕРЖДЕНО ДЛЯ "ИСКУПЛЕННЫХ"</p></div><div style="position: absolute; bottom: 60px; right: 50px; text-align: right; font-family: var(--font-ui);"><p>КУРАТОР ПРОЕКТА:</p><p style="font-size: 18px; color: var(--primary);">ВЫЧИСЛИТЕЛЬ [ДАННЫЕ УДАЛЕНЫ]</p><p>ИСПОЛНИТЕЛЬ:</p><p style="font-size: 18px; color: var(--primary);">КОГНИТОР РОМАНОВ</p></div><div class="status-bar"><span>STATUS: APPROVED</span><span class="blink">_CURSOR_ACTIVE</span><span>VER: 4.0.1</span></div><div class="page-number">01 / 07</div></div>
+            <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><div class="hex-col">SYS.LOG<br>INIT..</div><h1>1.0 ВВОДНЫЕ ДАННЫЕ</h1><div style="border: 1px solid var(--dim); padding: 10px; margin-bottom: 20px;"><p style="margin:0; color: var(--alert); font-family: var(--font-ui);">[!] ОБНАРУЖЕНА КРИТИЧЕСКАЯ УЯЗВИМОСТЬ БИОМАССЫ</p></div><h2>1.1 АНАЛИЗ ПОТЕРЬ И УЯЗВИМОСТЕЙ</h2><p>Телеметрия полевых выходов демонстрирует фатальную конструктивную ошибку стандартных биологических юнитов: система кровообращения является замкнутым гидравлическим контуром.</p><p>Для примитивных фракций ("Долг", "Свобода") порог критической потери составляет 1.5 литра жидкости.</p><h2>1.2 ИСТОЧНИК ДАННЫХ</h2><p><strong>Инцидент 14-В:</strong> Наблюдательный дрон серии "Око-4" перехватил сигнал бедствия научной экспедиции Экологов.</p><h2>1.3 ЦЕЛИ СИНТЕЗА</h2><div class="data-row"><span class="data-key">OBJ_1:</span> <span class="data-val">Герметизация пробоин (1.5 сек)</span></div><div class="data-row"><span class="data-key">OBJ_2:</span> <span class="data-val">Создание твердой пробки (Био-бетон)</span></div><div class="data-row"><span class="data-key">OBJ_3:</span> <span class="data-val">Игнорирование некроза тканей</span></div><div class="status-bar"><span>MODULE: ANALYSIS</span><span>COMPLETE</span></div><div class="page-number">02 / 07</div></div>
+            <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><h1>2.0 МОЛЕКУЛЯРНАЯ АРХИТЕКТУРА</h1><div class="drawing-box"><div class="drawing-overlay"><div class="crosshair ch-tl"></div><div class="crosshair ch-tr"></div><div class="crosshair ch-bl"></div><div class="crosshair ch-br"></div><div style="position:absolute; top:5px; left:5px; font-size:8px; color:var(--primary); font-family: var(--font-ui);">SCALE: 8000:1</div></div><svg width="600" height="400" viewBox="0 0 600 400"><g transform="translate(100, 50) scale(0.9)"><path class="w-line" d="M 100 100 L 150 70 L 200 100 L 200 160 L 150 190 L 100 160 Z" /><circle cx="150" cy="130" r="30" class="w-thin" fill="none" stroke-dasharray="4,2"/><line x1="100" y1="100" x2="50" y2="70" class="w-line" /> <text x="30" y="65" class="w-text">R1</text><line x1="100" y1="160" x2="50" y2="190" class="w-line" /> <text x="25" y="205" class="w-text">NH-CO</text><line x1="200" y1="100" x2="250" y2="70" class="w-line" /> <line x1="200" y1="160" x2="250" y2="190" class="w-line" /><path class="w-line" d="M 250 70 L 280 90 L 310 70 L 340 90 L 370 70 L 400 90 L 430 70" fill="none" /><path class="w-line" d="M 250 190 L 280 170 L 310 190 L 340 170 L 370 190 L 400 170 L 430 190" fill="none" /><line x1="310" y1="70" x2="310" y2="190" class="w-dim" stroke-dasharray="4,2"/> <text x="315" y="130" class="w-dim-text">S-S BOND</text><line x1="400" y1="90" x2="400" y2="170" class="w-dim" stroke-dasharray="4,2"/><g transform="translate(430, 60)"><rect x="0" y="0" width="40" height="20" class="w-line" fill="#111"/><text x="5" y="14" class="w-text">ION+</text></g><g transform="translate(430, 180)"><rect x="0" y="0" width="40" height="20" class="w-line" fill="#111"/><text x="5" y="14" class="w-text">ION-</text></g><circle cx="150" cy="130" r="10" fill="var(--primary)" opacity="0.5"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="2s" repeatCount="indefinite" /></circle><line x1="150" y1="130" x2="100" y2="250" class="w-dim"/> <text x="50" y="265" class="w-text">ЯДРО "СЛИЗЬ" (АКТИВНОЕ)</text><line x1="340" y1="90" x2="380" y2="40" class="w-dim"/> <text x="390" y="40" class="w-text">ПОЛИМЕРНАЯ РЕШЕТКА</text></g></svg></div><h2>КОМПОНЕНТЫ РЕАКЦИИ (РАСШИРЕННЫЙ СПИСОК)</h2><p>Молекулярная структура нестабильна вне контейнера.</p><table><tr><th>ID</th><th>СУБСТАНЦИЯ</th><th>ИСТОЧНИК</th><th>МАССА</th><th>ФУНКЦИЯ</th></tr><tr><td>C-01</td><td>ЭКСТРАКТ "СЛИЗЬ"</td><td>КИСЛОТНАЯ ОБР.</td><td>15 мг</td><td>ОСНОВА (КЛЕЙ)</td></tr><tr><td>C-02</td><td>ТРОМБИН (СИНТ.)</td><td>БИО-РЕАКТОР</td><td>5 мг</td><td>КАТАЛИЗАТОР</td></tr><tr><td>C-03</td><td>ПЫЛЬЦА "ПУХ"</td><td>АНОМАЛИЯ</td><td>2 мг</td><td>ПРИЖИГАНИЕ</td></tr><tr><td>C-04</td><td>КОАГУЛЯНТ В-2</td><td>СКЛАД ГСМ</td><td>10 мл</td><td>ЗАГУСТИТЕЛЬ</td></tr><tr><td>C-05</td><td>СТАБИЛИЗАТОР X</td><td>СИНТЕЗ</td><td>3 мл</td><td>КОНСЕРВАЦИЯ</td></tr></table><div style="color: var(--alert); border: 1px solid var(--alert); padding: 10px; margin-top: 15px; font-weight: bold; background: rgba(255, 51, 51, 0.1);">[!] ВНИМАНИЕ: СУБСТАНЦИЯ ПРОЯВЛЯЕТ РАДИОАКТИВНОСТЬ (15 МКР/Ч).</div><div class="status-bar"><span>CHEM_ANALYSIS: OK</span><span>TOXICITY: HIGH</span></div><div class="page-number">03 / 07</div></div>
+            <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><h1>3.0 СИСТЕМА ВВОДА</h1><div class="drawing-box"><div class="drawing-overlay"><div style="position:absolute; bottom:5px; right:5px; font-size:8px; color:var(--primary); font-family: var(--font-ui);">PRESSURE: 6 ATM</div></div><svg width="600" height="300" viewBox="0 0 600 300"><defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#00ff41" /></marker></defs><rect x="150" y="100" width="300" height="60" rx="0" class="w-line" /><rect x="450" y="110" width="40" height="40" class="w-line" /> <line x1="490" y1="130" x2="530" y2="130" class="w-line" /> <text x="535" y="135" class="w-text">TRIG</text><path d="M 150 110 L 100 120 L 100 140 L 150 150" class="w-line" /> <line x1="100" y1="130" x2="60" y2="130" class="w-line" stroke-dasharray="0" /><line x1="60" y1="130" x2="30" y2="170" class="w-dim" stroke-dasharray="2,2"/> <text x="5" y="185" class="w-text">W-NEEDLE d=3mm</text><rect x="200" y="110" width="100" height="40" class="w-thin" stroke-dasharray="0" /> <text x="225" y="135" class="w-text" style="opacity: 0.7;">CONTAINER</text><path d="M 320 130 L 325 110 L 335 150 L 345 110 L 355 150 L 365 110 L 375 150 L 385 110 L 395 150 L 405 110 L 415 150 L 420 130" class="w-line" fill="none" /><line x1="150" y1="180" x2="450" y2="180" class="w-dim" marker-start="url(#arrow)" marker-end="url(#arrow)" /> <text x="280" y="200" class="w-text">L=150mm</text></svg></div><h2>3.1 ТЕХНИЧЕСКАЯ СПЕЦИФИКАЦИЯ</h2><p><strong>ПРИВОД:</strong> Пневматический поршень одноразового действия. Предварительное сжатие газа: 6.0 Атм.</p><p><strong>ИГЛА-ИНЪЕКТОР:</strong> Сплав ВНЖ-90 (Вольфрам-Никель-Железо). Заточка лазерная, трехгранная.</p><p><strong>КОНТЕЙНЕР:</strong> Химически инертный полимер "Фторопласт-4".</p><div style="color: var(--alert); border: 1px solid var(--alert); padding: 5px; margin-top: 15px;">WARNING: ТЕМПЕРАТУРА КРИСТАЛЛИЗАЦИИ -10°C.</div><div class="status-bar"><span>MECH_CHECK: OK</span><span>AMMO: 1</span></div><div class="page-number">04 / 07</div></div>
+            <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><h1>4.0 ПРОТОКОЛ СИНТЕЗА И ЛОГИСТИКА</h1><div style="border-bottom: 1px solid var(--primary); margin-bottom: 15px; padding-bottom: 5px;"><span class="data-key">ПРОИЗВОДСТВЕННЫЙ КЛАСТЕР:</span> <span class="data-val">СЕКТОР "ДЕЛЬТА" (ЛАБОРАТОРИЯ Х-19)</span><br><span class="data-key">ЦИКЛ:</span> <span class="data-val">НЕПРЕРЫВНЫЙ (24/7)</span><br><span class="data-key">ПРИОРИТЕТ:</span> <span class="data-val">АБСОЛЮТНЫЙ</span></div><h2>4.1 АППАРАТНОЕ ОБЕСПЕЧЕНИЕ</h2><p>Для синтеза нестабильных аномальных субстанций требуется оборудование класса защиты "А".</p><ul><li>> Центрифуга "Vortex-9" (Модиф.)</li><li>> Реактор "Саркофаг-М"</li><li>> Крио-камера "Азот"</li><li>> Линия розлива (Автомат)</li></ul><h2>4.2 МАТЕРИАЛЬНАЯ БАЗА (ПАКЕТ СИНТЕЗА #4)</h2><p>Расчет на партию в 50 единиц готового изделия.</p><table style="margin-top: 10px;"><tr><th style="width: 40%;">РЕСУРС</th><th style="width: 20%;">ОБЪЕМ</th><th>ПРИМЕЧАНИЕ</th></tr><tr><td>АРТЕФАКТ "СЛИЗЬ" (Низкосортный)</td><td>3 ЕД.</td><td>Допускается фоновая радиация.</td></tr><tr><td>КИСЛОТА СЕРНАЯ (H2SO4)</td><td>2 Л</td><td>Концентрированная.</td></tr><tr><td>БИО-СТАБИЛИЗАТОР</td><td>0.5 Л</td><td>Синтезируется из лимфы мутантов.</td></tr><tr><td>ВОЛЬФРАМ (ЛОМ)</td><td>1 КГ</td><td>Для изготовления игл инжекторов.</td></tr><tr><td>ПЛАСТИК АБС</td><td>5 КГ</td><td>Корпуса инжекторов.</td></tr></table><h2>4.3 АЛГОРИТМ СИНТЕЗА (ВЕРСИЯ 2.0)</h2><div style="font-size: 12px; border-left: 2px solid var(--dim); padding-left: 10px; margin-top: 10px;"><p><strong>ФАЗА 1: ЭКСТРАКЦИЯ.</strong> Артефакт помещается в кислотную ванну реактора.</p><p><strong>ФАЗА 2: АКТИВАЦИЯ.</strong> В полученный раствор вводится катализатор (Тромбин).</p><p><strong>ФАЗА 3: СТАБИЛИЗАЦИЯ.</strong> Ввод био-добавок.</p><p><strong>ФАЗА 4: ФАСОВКА.</strong> Разлив по капсулам под давлением 6 атм.</p></div><div class="status-bar"><span>EFFICIENCY: 94%</span><span>WASTE: TOXIC SLUDGE (RECYCLE)</span></div><div class="page-number">05 / 07</div></div>
+            <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><h1>5.0 ПРОТОКОЛ КЛИНИЧЕСКИХ ИСПЫТАНИЙ</h1><div style="border-bottom: 1px solid var(--primary); margin-bottom: 15px; padding-bottom: 5px;"><span class="data-key">ГРУППА СУБЪЕКТОВ:</span> <span class="data-val">ЗАХВАЧЕННЫЕ БИО-ЕДИНИЦЫ (ФРАКЦИЯ "БАНДИТЫ")</span><br><span class="data-key">ЛОКАЦИЯ:</span> <span class="data-val">ИЗОЛЯТОР "ХОЛОД-2"</span><br><span class="data-key">АНЕСТЕЗИЯ:</span> <span style="color: var(--alert);">ОТКЛЮЧЕНА (ДЛЯ ЧИСТОТЫ НЕВРОЛОГИЧЕСКИХ ДАННЫХ)</span></div><table><tr><th style="width: 10%;">ID</th><th style="width: 25%;">ТРАВМА</th><th style="width: 30%;">РЕАКЦИЯ ПРЕПАРАТА</th><th style="width: 35%;">СТАТУС СУБЪЕКТА / ПОБОЧНЫЕ ЭФФЕКТЫ</th></tr><tr><td>Б-091</td><td>Рваная рана бедра</td><td>Полимеризация за 1.2с.</td><td>Острая вокализация. Стабилен.</td></tr><tr><td>Б-094</td><td>Артериальное кровотечение</td><td>Мгновенная герметизация.</td><td>Инсульт. Кома.</td></tr><tr><td>Б-102</td><td>Травматическая ампутация</td><td>Прямой впрыск.</td><td>Болевой шок. Гемостаз полный.</td></tr><tr><td>Б-105</td><td>Осколочное проникающее</td><td>Заливка полости.</td><td>Перистальтика остановлена. Жив.</td></tr><tr><td>Б-110</td><td>Контрольный</td><td>Препарат не вводился.</td><td>Смерть через 180с.</td></tr></table><br><div style="border-left: 2px solid var(--alert); padding-left: 10px; background: rgba(255, 51, 51, 0.05);"><p style="color: var(--alert); font-weight: bold;">[!] КОГНИТИВНЫЙ ОТЧЕТ:</p><p>Субъекты демонстрируют запредельный уровень болевого стресса.</p></div><div class="status-bar"><span>TEST_CYCLE: COMPLETE</span><span>MORTALITY: 30%</span><span>EFFICIENCY: 100%</span></div><div class="page-number">06 / 07</div></div>
+            <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><h1>6.0 ИТОГОВЫЙ ПРОТОКОЛ</h1><p>Препарат GBS-5 "Загустин" утвержден к использованию штурмовыми группами.</p><br><div style="border: 1px solid var(--primary); padding: 10px;"><p><strong>ДИРЕКТИВА №88:</strong></p><ol><li>Начать массовый синтез.</li><li>Организовать сбор сырья.</li><li>Технологию зашифровать.</li></ol></div><div style="margin-top: 100px; display: flex; justify-content: space-between;"><div><p>INPUT:</p><p>UNIT_COGNITOR_734</p></div><div style="text-align: right;"><p>VERIFIED:</p><p>OVERSEER_AI</p><div class="status-block" style="border: 2px solid var(--primary); padding: 5px 15px; display: inline-block; margin-top: 10px;">CONFIRMED<br>HASH: X8-99</div></div></div><div class="status-bar"><span>SESSION: CLOSED</span><span>LOGOUT...</span></div><div class="page-number">07 / 07</div></div>
+        </div>
     </div>
 </div>
 
@@ -306,6 +321,7 @@
     import { getFirestore, collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+    // Initialize Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyDItyHZsBjradE8WE-qtIutVKXux-mWoiI",
         authDomain: "last-day-terminal.firebaseapp.com",
@@ -319,7 +335,15 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // GLOBAL DEFAULTS
+    // --- GLOBAL SCOPE ---
+    const SECRET_KEY = "LD-X7-OMEGA";
+    let delDocId = null;
+    let delCollection = null;
+    
+    // File content buffer
+    let uploadedFileContent = null;
+
+    // --- DEFAULTS ---
     const defaultFactions = [
         { name: "ОДИНОЧКИ (LONERS)", status: "NEUTRAL" }, { name: "ДОЛГ (DUTY)", status: "WAR" }, { name: "СВОБОДА (FREEDOM)", status: "WAR" }, 
         { name: "БАНДИТЫ (BANDITS)", status: "ALLIANCE" }, { name: "НАЕМНИКИ (MERCS)", status: "NEUTRAL" }, { name: "ВОЕННЫЕ (MILITARY)", status: "WAR" }, 
@@ -339,13 +363,10 @@
         { code: "PSIONIC", title: "PROJECT: PSIONIC", desc: "Эмиттер \"Выжигатель\". Прототипы шлемов.", status: "OMEGA", type: "hardcoded" }
     ];
 
-    // --- VARIABLES ---
-    let delDocId = null;
-    let delCollection = null;
-
-    // --- DB ACTIONS ---
+    // --- DB HELPERS ---
     async function updateDocField(collectionName, docId, field, value) {
-        await updateDoc(doc(db, collectionName, docId), { [field]: value });
+        const ref = doc(db, collectionName, docId);
+        await updateDoc(ref, { [field]: value });
     }
 
     async function deleteDocument(collectionName, docId) {
@@ -361,11 +382,23 @@
         const tbody = document.getElementById('relations-body');
         tbody.innerHTML = '';
         data.sort((a, b) => a.name.localeCompare(b.name));
+        
         data.forEach(item => {
             const tr = document.createElement('tr');
             tr.setAttribute('data-status', item.status);
             let threat = item.status === "WAR" ? "CRITICAL" : item.status === "ALLIANCE" ? "MINIMAL" : "MODERATE";
-            tr.innerHTML = `<td style="font-weight:bold;">${item.name}</td><td><select class="term-select" style="background:#000;"><option value="NEUTRAL" ${item.status === 'NEUTRAL'?'selected':''}>НЕЙТРАЛИТЕТ</option><option value="ALLIANCE" ${item.status === 'ALLIANCE'?'selected':''}>СОЮЗ</option><option value="WAR" ${item.status === 'WAR'?'selected':''}>ВОЙНА</option></select></td><td style="color:${item.status==='WAR'?'#ff3333':'#00ff41'}">${threat}</td>`;
+            
+            tr.innerHTML = `
+                <td style="font-weight:bold;">${item.name}</td>
+                <td>
+                    <select class="term-select" style="background:#000;">
+                        <option value="NEUTRAL" ${item.status === 'NEUTRAL'?'selected':''}>НЕЙТРАЛИТЕТ</option>
+                        <option value="ALLIANCE" ${item.status === 'ALLIANCE'?'selected':''}>СОЮЗ</option>
+                        <option value="WAR" ${item.status === 'WAR'?'selected':''}>ВОЙНА</option>
+                    </select>
+                </td>
+                <td style="color:${item.status==='WAR'?'#ff3333':'#00ff41'}">${threat}</td>
+            `;
             if (item.id) tr.querySelector('select').addEventListener('change', (e) => updateDocField('factions', item.id, 'status', e.target.value));
             tbody.appendChild(tr);
         });
@@ -375,28 +408,37 @@
         const tbody = document.getElementById('roster-body');
         tbody.innerHTML = '';
         data.sort((a, b) => a.timestamp - b.timestamp);
+
         data.forEach(u => {
             const tr = document.createElement('tr');
             let hc = u.health==="WOUNDED"?"#ffcc00":u.health==="CRITICAL"||u.health==="DECEASED"?"#ff3333":u.health==="M.I.A."?"#888":"#00ff41";
-            tr.innerHTML = `<td style="font-weight:bold; color:#fff;">${u.unitId}</td><td><select class="term-select rank-select" style="border:none; background:transparent; padding:0;"><option ${u.rank==='ARCHITECT'?'selected':''}>ARCHITECT</option><option ${u.rank==='COGNITOR'?'selected':''}>COGNITOR</option><option ${u.rank==='OPERATOR'?'selected':''}>OPERATOR</option><option ${u.rank==='REDEEMED'?'selected':''}>REDEEMED</option><option ${u.rank==='NEOPHYTE'?'selected':''}>NEOPHYTE</option></select></td><td><select class="term-select health-select" style="color:${hc}; border-color:${hc}; background:transparent;"><option value="ACTIVE" ${u.health==='ACTIVE'?'selected':''}>ACTIVE</option><option value="WOUNDED" ${u.health==='WOUNDED'?'selected':''}>WOUNDED</option><option value="CRITICAL" ${u.health==='CRITICAL'?'selected':''}>CRITICAL</option><option value="M.I.A." ${u.health==='M.I.A.'?'selected':''}>M.I.A.</option><option value="DECEASED" ${u.health==='DECEASED'?'selected':''}>DECEASED</option></select></td><td><button class="btn-delete">[ X ]</button></td>`;
+            
+            tr.innerHTML = `
+                <td style="font-weight:bold; color:#fff;">${u.unitId}</td>
+                <td><select class="term-select rank-select" style="border:none; background:transparent; padding:0;">
+                    <option ${u.rank==='ARCHITECT'?'selected':''}>ARCHITECT</option>
+                    <option ${u.rank==='COGNITOR'?'selected':''}>COGNITOR</option>
+                    <option ${u.rank==='OPERATOR'?'selected':''}>OPERATOR</option>
+                    <option ${u.rank==='REDEEMED'?'selected':''}>REDEEMED</option>
+                    <option ${u.rank==='NEOPHYTE'?'selected':''}>NEOPHYTE</option>
+                </select></td>
+                <td><select class="term-select health-select" style="color:${hc}; border-color:${hc}; background:transparent;">
+                    <option value="ACTIVE" ${u.health==='ACTIVE'?'selected':''}>ACTIVE</option>
+                    <option value="WOUNDED" ${u.health==='WOUNDED'?'selected':''}>WOUNDED</option>
+                    <option value="CRITICAL" ${u.health==='CRITICAL'?'selected':''}>CRITICAL</option>
+                    <option value="M.I.A." ${u.health==='M.I.A.'?'selected':''}>M.I.A.</option>
+                    <option value="DECEASED" ${u.health==='DECEASED'?'selected':''}>DECEASED</option>
+                </select></td>
+                <td><button class="btn-delete">[ X ]</button></td>
+            `;
+
             tr.querySelector('.rank-select').addEventListener('change', (e) => updateDocField('roster', u.id, 'rank', e.target.value));
             tr.querySelector('.health-select').addEventListener('change', (e) => updateDocField('roster', u.id, 'health', e.target.value));
-            tr.querySelector('.btn-delete').addEventListener('click', () => { delDocId = u.id; delCollection = 'roster'; document.getElementById('modal-delete-unit').style.display = 'flex'; });
-            tbody.appendChild(tr);
-        });
-    }
+            tr.querySelector('.btn-delete').addEventListener('click', () => {
+                delDocId = u.id; delCollection = 'roster';
+                document.getElementById('modal-delete-unit').style.display = 'flex';
+            });
 
-    function renderOperations(data) {
-        const tbody = document.getElementById('operations-body');
-        tbody.innerHTML = '';
-        data.sort((a, b) => a.timestamp - b.timestamp);
-        data.forEach(op => {
-            const tr = document.createElement('tr');
-            let sc = op.secrecy === "SECRET" ? "color:var(--term-alert);" : "color:var(--term-green);";
-            let stc = op.status==="COMPLETED"?"var(--term-green)":op.status==="FAILED"?"var(--term-alert)":op.status==="IN_PROGRESS"?"var(--term-warn)":op.status==="DECLASSIFIED"?"var(--term-orange)":"#888";
-            tr.innerHTML = `<td style="font-weight:bold; color:#fff;">${op.code}</td><td>${op.time}</td><td>${op.units}</td><td>${op.sector}</td><td style="font-size:12px; color:#aaa;">${op.objectives||'N/A'}</td><td style="${sc} font-weight:bold;">${op.secrecy}</td><td><select class="term-select status-select" style="color:${stc}; border-color:${stc}; background:#000;"><option value="PENDING" ${op.status==='PENDING'?'selected':''}>PENDING</option><option value="IN_PROGRESS" ${op.status==='IN_PROGRESS'?'selected':''}>IN PROGRESS</option><option value="COMPLETED" ${op.status==='COMPLETED'?'selected':''}>COMPLETED</option><option value="FAILED" ${op.status==='FAILED'?'selected':''}>FAILED</option><option value="DECLASSIFIED" ${op.status==='DECLASSIFIED'?'selected':''}>DECLASSIFIED</option></select></td><td><button class="btn-delete">[ X ]</button></td>`;
-            tr.querySelector('.status-select').addEventListener('change', (e) => updateDocField('operations', op.id, 'status', e.target.value));
-            tr.querySelector('.btn-delete').addEventListener('click', () => { delDocId = op.id; delCollection = 'operations'; document.getElementById('modal-delete-operation').style.display = 'flex'; });
             tbody.appendChild(tr);
         });
     }
@@ -404,8 +446,11 @@
     function renderProjects(userProjects) {
         const container = document.getElementById('research-grid');
         container.innerHTML = '';
+        
+        // Hardcoded
         hardcodedProjects.forEach(p => {
-            const div = document.createElement('div'); div.className = "project-card";
+            const div = document.createElement('div');
+            div.className = "project-card";
             if(p.status === "BETA") {
                 div.innerHTML = `<div class="card-status status-open">AVAILABLE</div><div class="card-title">${p.title}</div><div class="card-desc">${p.desc}</div><div style="margin-top: 20px; color: var(--term-dim); font-size: 12px; border-top: 1px dashed var(--term-dim); padding-top: 5px;">>> CLICK TO ACCESS</div>`;
                 div.addEventListener('click', () => window.openDocument('zagustin'));
@@ -415,64 +460,289 @@
             }
             container.appendChild(div);
         });
+
+        // User Projects
         userProjects.sort((a, b) => a.timestamp - b.timestamp);
         userProjects.forEach(p => {
-            const div = document.createElement('div'); div.className = "project-card";
+            const div = document.createElement('div');
+            div.className = "project-card";
+            
+            let statusText = p.status === "BETA" ? "AVAILABLE" : "RESTRICTED";
+            let statusClass = p.status === "BETA" ? "status-open" : "status-locked";
+            let footer = p.status === "BETA" ? ">> CLICK TO ACCESS" : `>> LEVEL_${p.status}_REQ`;
             let footerColor = p.status === "BETA" ? "var(--term-dim)" : "var(--term-alert)";
-            div.innerHTML = `<div class="card-status ${p.status==='BETA'?'status-open':'status-locked'}">${p.status==='BETA'?'AVAILABLE':'RESTRICTED'}</div><div class="card-title">${p.title}</div><div class="card-desc">${p.desc}</div><div style="margin-top: 20px; color: ${footerColor}; font-size: 12px; border-top: 1px dashed var(--term-dim); padding-top: 5px;">${p.status==='BETA'?'>> CLICK TO ACCESS':'>> LEVEL_'+p.status+'_REQ'}</div>`;
-            div.addEventListener('click', () => { if(p.status==='BETA') window.location.href = p.code + ".html"; else window.accessDenied(); });
-            const delBtn = document.createElement('button'); delBtn.className = "btn-delete card-delete-pos"; delBtn.innerText = "[ X ]";
-            delBtn.addEventListener('click', (e) => { e.stopPropagation(); delDocId = p.id; delCollection = 'projects'; document.getElementById('modal-delete-project').style.display = 'flex'; });
-            div.appendChild(delBtn); container.appendChild(div);
+
+            div.innerHTML = `<div class="card-status ${statusClass}">${statusText}</div><div class="card-title">${p.title}</div><div class="card-desc">${p.desc}</div><div style="margin-top: 20px; color: ${footerColor}; font-size: 12px; border-top: 1px dashed var(--term-dim); padding-top: 5px;">${footer}</div>`;
+            
+            div.addEventListener('click', () => { 
+                if(p.status === "BETA") {
+                    if (p.content) {
+                        window.openUserProject(p.content);
+                    } else {
+                        window.openCorrupted();
+                    }
+                } else {
+                    window.accessDenied();
+                }
+            });
+
+            const delBtn = document.createElement('button');
+            delBtn.className = "btn-delete card-delete-pos";
+            delBtn.innerText = "[ X ]";
+            delBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                delDocId = p.id; delCollection = 'projects';
+                document.getElementById('modal-delete-project').style.display = 'flex';
+            });
+
+            div.appendChild(delBtn);
+            container.appendChild(div);
         });
     }
 
-    // --- INIT ---
+    function renderOperations(data) {
+        const tbody = document.getElementById('operations-body');
+        tbody.innerHTML = '';
+        data.sort((a, b) => a.timestamp - b.timestamp);
+
+        data.forEach(op => {
+            const tr = document.createElement('tr');
+            let sc = op.secrecy === "SECRET" ? "color:var(--term-alert);" : "color:var(--term-green);";
+            let stc = op.status==="COMPLETED"?"var(--term-green)":op.status==="FAILED"?"var(--term-alert)":op.status==="IN_PROGRESS"?"var(--term-warn)":op.status==="DECLASSIFIED"?"var(--term-orange)":"#888";
+            
+            tr.innerHTML = `
+                <td style="font-weight:bold; color:#fff;">${op.code}</td>
+                <td>${op.time}</td>
+                <td>${op.units}</td>
+                <td>${op.sector}</td>
+                <td style="font-size:12px; color:#aaa;">${op.objectives||'N/A'}</td>
+                <td style="${sc} font-weight:bold;">${op.secrecy}</td>
+                <td><select class="term-select status-select" style="color:${stc}; border-color:${stc}; background:#000;">
+                    <option value="PENDING" ${op.status==='PENDING'?'selected':''}>PENDING</option>
+                    <option value="IN_PROGRESS" ${op.status==='IN_PROGRESS'?'selected':''}>IN PROGRESS</option>
+                    <option value="COMPLETED" ${op.status==='COMPLETED'?'selected':''}>COMPLETED</option>
+                    <option value="FAILED" ${op.status==='FAILED'?'selected':''}>FAILED</option>
+                    <option value="DECLASSIFIED" ${op.status==='DECLASSIFIED'?'selected':''}>DECLASSIFIED</option>
+                </select></td>
+                <td><button class="btn-delete">[ X ]</button></td>
+            `;
+
+            tr.querySelector('.status-select').addEventListener('change', (e) => updateDocField('operations', op.id, 'status', e.target.value));
+            tr.querySelector('.btn-delete').addEventListener('click', () => {
+                delDocId = op.id; delCollection = 'operations';
+                document.getElementById('modal-delete-operation').style.display = 'flex';
+            });
+            tbody.appendChild(tr);
+        });
+    }
+
+    // --- APP INIT ---
     async function initApp() {
         renderFactions(defaultFactions); renderProjects([]); renderRoster([]); renderOperations([]);
         try {
             await signInAnonymously(auth);
-            onSnapshot(collection(db, "factions"), (s) => { if(s.empty) defaultFactions.forEach(f => addDocument('factions', f)); else renderFactions(s.docs.map(d => ({id: d.id, ...d.data()}))); });
-            onSnapshot(collection(db, "roster"), (s) => renderRoster(s.docs.map(d => ({id: d.id, ...d.data()}))));
-            onSnapshot(collection(db, "projects"), (s) => renderProjects(s.docs.map(d => ({id: d.id, ...d.data()}))));
-            onSnapshot(collection(db, "operations"), (s) => renderOperations(s.docs.map(d => ({id: d.id, ...d.data()}))));
-        } catch (e) { console.error("Firebase Error:", e); }
+
+            onSnapshot(collection(db, "factions"), (snapshot) => {
+                if(snapshot.empty) {
+                    defaultFactions.forEach(f => addDocument('factions', f));
+                } else {
+                    renderFactions(snapshot.docs.map(d => ({id: d.id, ...d.data()})));
+                }
+            });
+
+            onSnapshot(collection(db, "roster"), (snapshot) => {
+                renderRoster(snapshot.docs.map(d => ({id: d.id, ...d.data()})));
+            });
+
+            onSnapshot(collection(db, "projects"), (snapshot) => {
+                renderProjects(snapshot.docs.map(d => ({id: d.id, ...d.data()})));
+            });
+
+            onSnapshot(collection(db, "operations"), (snapshot) => {
+                renderOperations(snapshot.docs.map(d => ({id: d.id, ...d.data()})));
+            });
+        } catch (error) {
+            console.error("Firebase init error:", error);
+        }
     }
+
     initApp();
 
+    // --- FILE UPLOAD LISTENER ---
+    document.getElementById('project-file-upload').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        const display = document.getElementById('file-name-display');
+        
+        if (!file) {
+            display.textContent = "NO DATA CARTRIDGE INSERTED";
+            display.style.color = "var(--term-dim)";
+            uploadedFileContent = null;
+            return;
+        }
+
+        if (file.type !== 'text/html' && !file.name.toLowerCase().endsWith('.html')) {
+            display.textContent = "ENCRYPTION MISMATCH: ONLY .HTML DATA ACCEPTED";
+            display.style.color = "var(--term-alert)";
+            uploadedFileContent = null;
+            e.target.value = ''; // Reset input
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            uploadedFileContent = event.target.result;
+            display.textContent = "DATA LOADED: " + file.name.toUpperCase();
+            display.style.color = "var(--term-green)";
+        };
+        reader.readAsText(file);
+    });
+
     // --- GLOBAL WINDOW EXPORTS ---
-    window.openScreen = (id) => { document.querySelectorAll('.screen').forEach(el => {el.style.display='none';el.classList.remove('screen-transition')}); const t = document.getElementById(id); t.style.display = (id === 'doc-viewer') ? 'block' : 'flex'; t.classList.add('screen-transition'); };
-    window.closeDocument = () => { document.getElementById('doc-viewer').scrollTop = 0; window.openScreen('main-hub'); };
+    
+    // Navigation
+    window.openScreen = (screenId) => {
+        document.querySelectorAll('.screen').forEach(el => { el.style.display = 'none'; el.classList.remove('screen-transition'); });
+        const target = document.getElementById(screenId);
+        target.style.display = (screenId === 'doc-viewer') ? 'block' : 'flex';
+        target.classList.add('screen-transition');
+    };
+
+    window.closeDocument = () => window.openScreen('main-hub');
     window.accessDenied = () => document.getElementById('modal-access-denied').style.display = 'flex';
-    window.openDocument = (id) => { if (id === 'zagustin') window.openScreen('doc-viewer'); };
+    window.openCorrupted = () => document.getElementById('modal-corrupted').style.display = 'flex';
+    
+    window.openDocument = (docId) => { 
+        if (docId === 'zagustin') {
+            document.getElementById('doc-content-area').innerHTML = document.getElementById('default-zagustin').innerHTML;
+            window.openScreen('doc-viewer'); 
+        }
+    };
+
+    window.openUserProject = (content) => {
+        // Simple HTML injection. 
+        // NOTE: In production, sanitize this content to prevent XSS. 
+        // For local RP tool among trusted friends, innerHTML is acceptable risk.
+        document.getElementById('doc-content-area').innerHTML = content;
+        window.openScreen('doc-viewer');
+    }
+
     window.logout = () => { document.getElementById('password-input').value = ""; document.getElementById('password-input').style.borderColor = "#00661a"; window.openScreen('login-screen'); };
-    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+
+    // Modals
+    window.closeModal = (id) => {
+        document.getElementById(id).style.display = 'none';
+        // Cleanup file input on close
+        if (id === 'modal-add-project') {
+            document.getElementById('project-file-upload').value = '';
+            document.getElementById('file-name-display').textContent = "NO DATA CARTRIDGE INSERTED";
+            document.getElementById('file-name-display').style.color = "var(--term-dim)";
+            uploadedFileContent = null;
+        }
+    };
+    
+    // Add Handlers
     window.openAddModal = () => { document.getElementById('modal-add-unit').style.display = 'flex'; document.getElementById('new-unit-id').value = ''; document.getElementById('new-unit-id').focus(); };
     window.openAddProjectModal = () => { document.getElementById('modal-add-project').style.display = 'flex'; document.getElementById('new-proj-code').value=''; document.getElementById('new-proj-desc').value=''; };
     window.openAddOperationModal = () => { document.getElementById('modal-add-operation').style.display = 'flex'; document.getElementById('new-op-code').value=''; document.getElementById('new-op-time').value=''; };
-    
-    // --- CONFIRM BUTTONS ---
-    const performDelete = async (modalId) => { if(delDocId && delCollection) { await deleteDocument(delCollection, delDocId); delDocId = null; delCollection = null; window.closeModal(modalId); } };
+
+    // Confirm Actions
+    document.getElementById('confirm-add-unit').addEventListener('click', () => {
+        const v = document.getElementById('new-unit-id').value.trim().toUpperCase();
+        if(v) {
+            addDocument('roster', { unitId: v, rank: "NEOPHYTE", health: "ACTIVE" });
+            window.closeModal('modal-add-unit');
+        }
+    });
+
+    document.getElementById('confirm-add-proj').addEventListener('click', () => {
+        const c = document.getElementById('new-proj-code').value.trim().toUpperCase();
+        const d = document.getElementById('new-proj-desc').value.trim();
+        const s = document.getElementById('new-proj-status').value;
+        if(c && d) {
+            addDocument('projects', { code: c, title: "PROJECT: " + c, desc: d, status: s, content: uploadedFileContent });
+            window.closeModal('modal-add-project');
+        }
+    });
+
+    document.getElementById('confirm-add-op').addEventListener('click', () => {
+        const c = document.getElementById('new-op-code').value.trim().toUpperCase();
+        const t = document.getElementById('new-op-time').value.trim();
+        const u = document.getElementById('new-op-units').value.trim();
+        const s = document.getElementById('new-op-loc').value.trim().toUpperCase();
+        const o = document.getElementById('new-op-obj').value.trim().toUpperCase();
+        const sec = document.getElementById('new-op-secrecy').value;
+        if(c && t) {
+            addDocument('operations', { code:c, time:t, units:u, sector:s, objectives:o, secrecy:sec, status: "PENDING" });
+            window.closeModal('modal-add-operation');
+        }
+    });
+
+    // Universal Delete
+    const performDelete = async (modalId) => {
+        if(delDocId && delCollection) {
+            await deleteDocument(delCollection, delDocId);
+            delDocId = null; delCollection = null;
+            window.closeModal(modalId);
+        }
+    };
+
     document.getElementById('confirm-delete-unit').addEventListener('click', () => performDelete('modal-delete-unit'));
     document.getElementById('confirm-delete-proj').addEventListener('click', () => performDelete('modal-delete-project'));
     document.getElementById('confirm-delete-op').addEventListener('click', () => performDelete('modal-delete-operation'));
-    document.getElementById('confirm-add-unit').addEventListener('click', () => { const v = document.getElementById('new-unit-id').value.trim().toUpperCase(); if(v) { addDocument('roster', { unitId: v, rank: "NEOPHYTE", health: "ACTIVE" }); window.closeModal('modal-add-unit'); } });
-    document.getElementById('confirm-add-proj').addEventListener('click', () => { const c = document.getElementById('new-proj-code').value.trim().toUpperCase(), d = document.getElementById('new-proj-desc').value.trim(), s = document.getElementById('new-proj-status').value; if(c && d) { addDocument('projects', { code: c, title: "PROJECT: " + c, desc: d, status: s }); window.closeModal('modal-add-project'); } });
-    document.getElementById('confirm-add-op').addEventListener('click', () => { const c = document.getElementById('new-op-code').value.trim().toUpperCase(), t = document.getElementById('new-op-time').value.trim(), u = document.getElementById('new-op-units').value.trim(), s = document.getElementById('new-op-loc').value.trim().toUpperCase(), o = document.getElementById('new-op-obj').value.trim().toUpperCase(), sec = document.getElementById('new-op-secrecy').value; if(c && t) { addDocument('operations', { code:c, time:t, units:u, sector:s, objectives:o, secrecy:sec, status: "PENDING" }); window.closeModal('modal-add-operation'); } });
-    document.querySelectorAll('.close-modal').forEach(b => b.addEventListener('click', (e) => e.target.closest('.modal-overlay').style.display = 'none'));
 
-    // --- BOOT ---
+    // Modal Close Buttons (Classes)
+    document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.target.closest('.modal-overlay').style.display = 'none';
+        });
+    });
+
+    // Boot & Login Logic
     const bootLines = ["LAST DAY OS v.5.0.3", "INITIALIZING NETWORK...", "CONNECTING TO FIREBASE... ESTABLISHED", "SYNCING NOOSPHERE... OK", "SYSTEM READY."];
     let lineIndex = 0;
     const bootScreen = document.getElementById('boot-screen');
-    function typeBoot() { if (lineIndex < bootLines.length) { const p = document.createElement('div'); p.style.fontFamily = "Share Tech Mono"; p.innerHTML = `> ${bootLines[lineIndex]}`; bootScreen.appendChild(p); lineIndex++; setTimeout(typeBoot, 150); } else { setTimeout(() => { bootScreen.style.display = 'none'; document.getElementById('login-screen').style.display = 'flex'; document.getElementById('password-input').focus(); }, 1000); } }
+    const loginScreen = document.getElementById('login-screen');
+    const passInput = document.getElementById('password-input');
+
+    function typeBoot() {
+        if (lineIndex < bootLines.length) {
+            const p = document.createElement('div');
+            p.style.fontFamily = "Share Tech Mono";
+            p.innerHTML = `> ${bootLines[lineIndex]}`;
+            bootScreen.appendChild(p);
+            lineIndex++;
+            setTimeout(typeBoot, 150);
+        } else {
+            setTimeout(() => {
+                bootScreen.style.display = 'none';
+                loginScreen.style.display = 'flex';
+                passInput.focus();
+            }, 1000);
+        }
+    }
     window.onload = typeBoot;
-    document.getElementById('password-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') { if (e.target.value.toUpperCase().trim() === "LD-X7-OMEGA") { e.target.style.borderColor = "#00ff41"; setTimeout(() => window.openScreen('dashboard-screen'), 500); } else { document.getElementById('error-msg').style.opacity = 1; e.target.value = ""; setTimeout(() => document.getElementById('error-msg').style.opacity = 0, 2000); } } });
+
+    passInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            if (passInput.value.toUpperCase().trim() === SECRET_KEY) {
+                passInput.style.borderColor = "#00ff41";
+                setTimeout(() => window.openScreen('dashboard-screen'), 500);
+            } else {
+                document.getElementById('error-msg').style.opacity = 1;
+                passInput.value = "";
+                setTimeout(() => document.getElementById('error-msg').style.opacity = 0, 2000);
+            }
+        }
+    });
+
+    // Event Listeners for Nav Tiles
     document.getElementById('btn-open-relations').addEventListener('click', () => window.openScreen('relations-screen'));
     document.getElementById('btn-open-roster').addEventListener('click', () => window.openScreen('roster-screen'));
     document.getElementById('btn-open-ops').addEventListener('click', () => window.openScreen('operations-screen'));
     document.getElementById('btn-open-research').addEventListener('click', () => window.openScreen('main-hub'));
-    document.querySelectorAll('.btn-back-dash').forEach(b => b.addEventListener('click', () => window.openScreen('dashboard-screen')));
+    
+    // Back Buttons
+    document.querySelectorAll('.btn-back-dash').forEach(btn => btn.addEventListener('click', () => window.openScreen('dashboard-screen')));
     document.getElementById('btn-add-unit').addEventListener('click', window.openAddModal);
     document.getElementById('btn-add-proj').addEventListener('click', window.openAddProjectModal);
     document.getElementById('btn-add-op').addEventListener('click', window.openAddOperationModal);

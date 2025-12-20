@@ -230,29 +230,34 @@
     </div>
 </div>
 
+<!-- DIPLOMACY -->
 <div id="relations-screen" class="screen">
     <div class="hub-header"><div style="font-size: 24px; font-weight: bold;">FACTION RELATIONS</div><button class="nav-btn btn-back-dash"><< DASHBOARD</button></div>
     <p style="color: var(--term-dim); margin-bottom: 20px;">>> LIVE SYNCHRONIZATION: NOOSPHERE NET</p>
     <table class="data-table"><thead><tr><th style="width: 40%">FACTION NAME</th><th style="width: 40%">CURRENT STATUS</th><th style="width: 20%">THREAT LEVEL</th></tr></thead><tbody id="relations-body"></tbody></table>
 </div>
 
+<!-- PERSONNEL -->
 <div id="roster-screen" class="screen">
     <div class="hub-header"><div style="font-size: 24px; font-weight: bold;">UNIT ROSTER</div><button class="nav-btn btn-back-dash"><< DASHBOARD</button></div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><p style="color: var(--term-dim); margin: 0;">>> LIVE BIOMETRIC FEED</p><button id="btn-add-unit" class="nav-btn" style="font-size: 12px;">+ ADD UNIT</button></div>
     <table class="data-table"><thead><tr><th style="width: 20%">ID INDEX</th><th style="width: 30%">RANK / ROLE</th><th style="width: 30%">VITALS STATUS</th><th style="width: 20%">ACTION</th></tr></thead><tbody id="roster-body"></tbody></table>
 </div>
 
+<!-- OPERATIONS (TACTICAL) -->
 <div id="operations-screen" class="screen">
     <div class="hub-header"><div style="font-size: 24px; font-weight: bold;">TACTICAL OPERATIONS</div><button class="nav-btn btn-back-dash"><< DASHBOARD</button></div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><p style="color: var(--term-dim); margin: 0;">>> MISSION CONTROL</p><button id="btn-add-op" class="nav-btn" style="font-size: 12px;">+ ADD OPERATION</button></div>
     <table class="data-table"><thead><tr><th style="width: 10%">CODENAME</th><th style="width: 15%">START</th><th style="width: 5%">UNITS</th><th style="width: 10%">SECTOR</th><th style="width: 25%">OBJECTIVES</th><th style="width: 10%">SECRECY</th><th style="width: 15%">STATUS</th><th style="width: 10%">ACTION</th></tr></thead><tbody id="operations-body"></tbody></table>
 </div>
 
+<!-- RESEARCH HUB -->
 <div id="main-hub" class="screen">
     <div class="hub-header"><div><div style="font-size: 24px; font-weight: bold;">RESEARCH DATABASE</div><div style="font-size: 12px; color: var(--term-dim);">ACCESS LEVEL: BETA</div></div><div style="text-align: right;"><button class="nav-btn btn-back-dash"><< DASHBOARD</button><button id="btn-add-proj" class="nav-btn" style="margin-top: 5px;">+ ADD PROJECT</button></div></div>
     <div class="grid-container" id="research-grid"></div>
 </div>
 
+<!-- MODALS -->
 <div id="modal-access-denied" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">ACCESS DENIED</h1><p style="color: #fff;">ТРЕБУЕТСЯ КЛЮЧ "АРХИТЕКТОРА".</p><div style="margin-top: 30px; font-size: 60px;"><span class="blink">!</span></div><br><button class="modal-btn danger close-modal">ЗАКРЫТЬ</button></div></div>
 <div id="modal-corrupted" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">DATA CORRUPTED</h1><p style="color: #fff;">SOURCE FILE MISSING OR DAMAGED.</p><div style="margin-top: 30px; font-size: 40px; color: var(--term-alert);">404</div><br><button class="modal-btn danger close-modal">ЗАКРЫТЬ</button></div></div>
 
@@ -333,13 +338,27 @@
     }
 
     // --- RENDERERS ---
+    // Fix for duplicate factions: deduplicate by name
     function renderFactions(data) {
         const tbody = document.getElementById('relations-body');
         if (!tbody) return;
         tbody.innerHTML = '';
-        data.sort((a, b) => a.name.localeCompare(b.name));
         
-        data.forEach(item => {
+        // Use default data if no data from DB, but avoid mixing both if DB has data
+        let factionsToRender = (data && data.length > 0) ? data : defaultFactions;
+        
+        // Deduplicate: Keep only the first occurrence of each faction name
+        const seen = new Set();
+        factionsToRender = factionsToRender.filter(item => {
+            const duplicate = seen.has(item.name);
+            seen.add(item.name);
+            return !duplicate;
+        });
+
+        // Sort
+        factionsToRender.sort((a, b) => a.name.localeCompare(b.name));
+        
+        factionsToRender.forEach(item => {
             const tr = document.createElement('tr');
             tr.setAttribute('data-status', item.status);
             let threat = item.status === "WAR" ? "CRITICAL" : item.status === "ALLIANCE" ? "MINIMAL" : "MODERATE";
@@ -371,8 +390,9 @@
                 const tr = document.createElement('tr');
                 let hc = u.health==="WOUNDED"?"#ffcc00":u.health==="CRITICAL"||u.health==="DECEASED"?"#ff3333":u.health==="M.I.A."?"#888":"#00ff41";
                 
+                // Color fix: ID column is now explicitly term-green
                 tr.innerHTML = `
-                    <td style="font-weight:bold; color:#fff;">${u.unitId}</td>
+                    <td style="font-weight:bold; color:var(--term-green);">${u.unitId}</td>
                     <td><select class="term-select rank-select" style="border:none; background:transparent; padding:0;">
                         <option ${u.rank==='ARCHITECT'?'selected':''}>ARCHITECT</option>
                         <option ${u.rank==='COGNITOR'?'selected':''}>COGNITOR</option>
@@ -430,8 +450,11 @@
                 
                 div.addEventListener('click', () => { 
                     if(p.status === "BETA") {
-                        if (p.content) window.openUserProject(p.content);
-                        else window.openCorrupted();
+                        if (p.content) {
+                            window.openUserProject(p.content);
+                        } else {
+                            window.openCorrupted();
+                        }
                     } else {
                         window.accessDenied();
                     }
@@ -456,13 +479,32 @@
         const tbody = document.getElementById('operations-body');
         if (!tbody) return;
         tbody.innerHTML = '';
+        
         if (data && data.length > 0) {
             data.sort((a, b) => a.timestamp - b.timestamp);
             data.forEach(op => {
                 const tr = document.createElement('tr');
                 let sc = op.secrecy === "SECRET" ? "color:var(--term-alert);" : "color:var(--term-green);";
                 let stc = op.status==="COMPLETED"?"var(--term-green)":op.status==="FAILED"?"var(--term-alert)":op.status==="IN_PROGRESS"?"var(--term-warn)":op.status==="DECLASSIFIED"?"var(--term-orange)":"#888";
-                tr.innerHTML = `<td style="font-weight:bold; color:#fff;">${op.code}</td><td>${op.time}</td><td>${op.units}</td><td>${op.sector}</td><td style="font-size:12px; color:#aaa;">${op.objectives||'N/A'}</td><td style="${sc} font-weight:bold;">${op.secrecy}</td><td><select class="term-select status-select" style="color:${stc}; border-color:${stc}; background:#000;"><option value="PENDING" ${op.status==='PENDING'?'selected':''}>PENDING</option><option value="IN_PROGRESS" ${op.status==='IN_PROGRESS'?'selected':''}>IN PROGRESS</option><option value="COMPLETED" ${op.status==='COMPLETED'?'selected':''}>COMPLETED</option><option value="FAILED" ${op.status==='FAILED'?'selected':''}>FAILED</option><option value="DECLASSIFIED" ${op.status==='DECLASSIFIED'?'selected':''}>DECLASSIFIED</option></select></td><td><button class="btn-delete">[ X ]</button></td>`;
+                
+                // Color fix: Code column now explicitly green
+                tr.innerHTML = `
+                    <td style="font-weight:bold; color:var(--term-green);">${op.code}</td>
+                    <td>${op.time}</td>
+                    <td>${op.units}</td>
+                    <td>${op.sector}</td>
+                    <td style="font-size:12px; color:#aaa;">${op.objectives||'N/A'}</td>
+                    <td style="${sc} font-weight:bold;">${op.secrecy}</td>
+                    <td><select class="term-select status-select" style="color:${stc}; border-color:${stc}; background:#000;">
+                        <option value="PENDING" ${op.status==='PENDING'?'selected':''}>PENDING</option>
+                        <option value="IN_PROGRESS" ${op.status==='IN_PROGRESS'?'selected':''}>IN PROGRESS</option>
+                        <option value="COMPLETED" ${op.status==='COMPLETED'?'selected':''}>COMPLETED</option>
+                        <option value="FAILED" ${op.status==='FAILED'?'selected':''}>FAILED</option>
+                        <option value="DECLASSIFIED" ${op.status==='DECLASSIFIED'?'selected':''}>DECLASSIFIED</option>
+                    </select></td>
+                    <td><button class="btn-delete">[ X ]</button></td>
+                `;
+
                 tr.querySelector('.status-select').addEventListener('change', (e) => updateDocField('operations', op.id, 'status', e.target.value));
                 tr.querySelector('.btn-delete').addEventListener('click', () => {
                     delDocId = op.id; delCollection = 'operations';
@@ -475,6 +517,7 @@
 
     // --- APP INIT ---
     async function initApp() {
+        // Initial render with empty/default data
         renderFactions(defaultFactions); renderProjects([]); renderRoster([]); renderOperations([]);
         try {
             await signInAnonymously(auth);

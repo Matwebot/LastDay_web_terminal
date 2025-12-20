@@ -257,7 +257,7 @@
     <table class="data-table"><thead><tr><th style="width: 40%">FACTION NAME</th><th style="width: 40%">CURRENT STATUS</th><th style="width: 20%">THREAT LEVEL</th></tr></thead><tbody id="relations-body"></tbody></table>
 </div>
 
-<!-- PERSONNEL (UPDATED FOR DISCORD) -->
+<!-- PERSONNEL -->
 <div id="roster-screen" class="screen">
     <div class="hub-header"><div style="font-size: 24px; font-weight: bold;">UNIT ROSTER</div><button class="nav-btn btn-back-dash"><< DASHBOARD</button></div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><p style="color: var(--term-dim); margin: 0;">>> LIVE BIOMETRIC FEED</p><button id="btn-add-unit" class="nav-btn" style="font-size: 12px;">+ ADD UNIT</button></div>
@@ -292,7 +292,7 @@
 <div id="modal-access-denied" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">ACCESS DENIED</h1><p style="color: #fff;">ТРЕБУЕТСЯ КЛЮЧ "АРХИТЕКТОРА".</p><div style="margin-top: 30px; font-size: 60px;"><span class="blink">!</span></div><br><button class="modal-btn danger close-modal">ЗАКРЫТЬ</button></div></div>
 <div id="modal-corrupted" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">DATA CORRUPTED</h1><p style="color: #fff;">SOURCE FILE MISSING OR DAMAGED.</p><div style="margin-top: 30px; font-size: 40px; color: var(--term-alert);">404</div><br><button class="modal-btn danger close-modal">ЗАКРЫТЬ</button></div></div>
 
-<!-- UPDATED ADD UNIT MODAL -->
+<!-- ADD UNIT MODAL -->
 <div id="modal-add-unit" class="modal-overlay">
     <div class="modal-box">
         <h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">ADD NEW UNIT</h1>
@@ -333,21 +333,127 @@
     import { getFirestore, collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-    // Initialize Firebase
-    const firebaseConfig = JSON.parse(__firebase_config);
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
     // --- GLOBAL SCOPE ---
     const SECRET_KEY = "LD-X7-OMEGA";
     let delDocId = null;
     let delCollection = null;
-    
-    // File content buffer
     let uploadedFileContent = null;
     let currentUser = null;
+    let db = null;
+    let auth = null;
+    let appId = 'last-day-terminal-standalone'; // Fallback App ID
+
+    // --- BOOT LOGIC (Must run independently of Firebase) ---
+    const bootLines = ["LAST DAY OS v.5.0.3", "INITIALIZING NETWORK...", "CONNECTING TO FIREBASE...", "SYNCING NOOSPHERE...", "SYSTEM READY."];
+    let lineIndex = 0;
+    const bootScreen = document.getElementById('boot-screen');
+    const loginScreen = document.getElementById('login-screen');
+    const passInput = document.getElementById('password-input');
+
+    function typeBoot() {
+        if (lineIndex < bootLines.length) {
+            const p = document.createElement('div');
+            p.style.fontFamily = "Share Tech Mono";
+            p.innerHTML = `> ${bootLines[lineIndex]}`;
+            bootScreen.appendChild(p);
+            lineIndex++;
+            setTimeout(typeBoot, 150);
+        } else {
+            setTimeout(() => { bootScreen.style.display = 'none'; loginScreen.style.display = 'flex'; passInput.focus(); }, 1000);
+        }
+    }
+    
+    // Explicitly attach to window to ensure it runs even if modules delay
+    window.onload = typeBoot;
+
+
+    // --- FIREBASE INIT ---
+    async function initFirebase() {
+        try {
+            // --- MANUAL CONFIG (ЗАПОЛНИТЕ ЭТО ДЛЯ ХОСТИНГА) ---
+            // Если вы загружаете это на хостинг, раскомментируйте и заполните данные ниже:
+            
+            const manualConfig = {
+                apiKey: "AIzaSyDItyHZsBjradE8WE-qtIutVKXux-mWoiI",
+                authDomain: "last-day-terminal.firebaseapp.com",
+                projectId: "last-day-terminal",
+                storageBucket: "last-day-terminal.firebasestorage.app",
+                messagingSenderId: "283501483006",
+                appId: "1:283501483006:web:68888bf5ea676579d9e6af"
+            };
+            
+
+            // Автоматическое определение конфига (Canvas vs Hosting)
+            let firebaseConfig;
+            
+            if (typeof __firebase_config !== 'undefined') {
+                // Мы в среде Canvas
+                firebaseConfig = JSON.parse(__firebase_config);
+                appId = typeof __app_id !== 'undefined' ? __app_id : appId;
+            } else if (typeof manualConfig !== 'undefined') {
+                 // Мы на хостинге с ручным конфигом
+                 firebaseConfig = manualConfig;
+            } else {
+                // Фолбэк чтобы не крашился скрипт (но данные не сохранятся)
+                console.warn("WARNING: Firebase Config not found. Using placeholder.");
+                firebaseConfig = { apiKey: "placeholder", projectId: "placeholder" }; 
+            }
+
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            // Auth Flow
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+
+            // Listeners
+            onAuthStateChanged(auth, (user) => {
+                currentUser = user;
+                if (user) {
+                    setupListeners();
+                }
+            });
+
+        } catch (error) {
+            console.error("Firebase Init Failed:", error);
+            // Визуально сообщаем об ошибке подключения, но не крашим интерфейс
+            const p = document.createElement('div');
+            p.style.color = 'red';
+            p.innerHTML = `> CONNECTION ERROR: ${error.message}`;
+            bootScreen.appendChild(p);
+        }
+    }
+
+    // --- DB HELPERS ---
+    function getColRef(colName) {
+        if (!db) return null;
+        return collection(db, 'artifacts', appId, 'public', 'data', colName);
+    }
+    
+    function getDocRef(colName, docId) {
+        if (!db) return null;
+        return doc(db, 'artifacts', appId, 'public', 'data', colName, docId);
+    }
+
+    async function updateDocField(collectionName, docId, field, value) {
+        if (!currentUser || !db) return;
+        const ref = getDocRef(collectionName, docId);
+        await updateDoc(ref, { [field]: value });
+    }
+
+    async function deleteDocument(collectionName, docId) {
+        if (!currentUser || !db) return;
+        await deleteDoc(getDocRef(collectionName, docId));
+    }
+
+    async function addDocument(collectionName, data) {
+        if (!currentUser || !db) return;
+        await addDoc(getColRef(collectionName), { ...data, timestamp: Date.now() });
+    }
 
     // --- DEFAULTS ---
     const defaultFactions = [
@@ -366,31 +472,6 @@
 
     const hardcodedProjects = [];
 
-    // --- DB HELPERS ---
-    function getColRef(colName) {
-        return collection(db, 'artifacts', appId, 'public', 'data', colName);
-    }
-    
-    function getDocRef(colName, docId) {
-        return doc(db, 'artifacts', appId, 'public', 'data', colName, docId);
-    }
-
-    async function updateDocField(collectionName, docId, field, value) {
-        if (!currentUser) return;
-        const ref = getDocRef(collectionName, docId);
-        await updateDoc(ref, { [field]: value });
-    }
-
-    async function deleteDocument(collectionName, docId) {
-        if (!currentUser) return;
-        await deleteDoc(getDocRef(collectionName, docId));
-    }
-
-    async function addDocument(collectionName, data) {
-        if (!currentUser) return;
-        await addDoc(getColRef(collectionName), { ...data, timestamp: Date.now() });
-    }
-
     // --- RENDERERS ---
     function renderFactions(data) {
         const tbody = document.getElementById('relations-body');
@@ -398,32 +479,22 @@
         tbody.innerHTML = '';
         
         let factionsToRender = (data && data.length > 0) ? data : defaultFactions;
-        
         const seen = new Set();
         factionsToRender = factionsToRender.filter(item => {
             const duplicate = seen.has(item.name);
             seen.add(item.name);
             return !duplicate;
         });
-
         factionsToRender.sort((a, b) => a.name.localeCompare(b.name));
         
         factionsToRender.forEach(item => {
             const tr = document.createElement('tr');
             tr.setAttribute('data-status', item.status);
             let threat = item.status === "WAR" ? "CRITICAL" : item.status === "ALLIANCE" ? "MINIMAL" : "MODERATE";
-            
             tr.innerHTML = `
                 <td style="font-weight:bold;">${item.name}</td>
-                <td>
-                    <select class="term-select" style="background:#000;">
-                        <option value="NEUTRAL" ${item.status === 'NEUTRAL'?'selected':''}>НЕЙТРАЛИТЕТ</option>
-                        <option value="ALLIANCE" ${item.status === 'ALLIANCE'?'selected':''}>СОЮЗ</option>
-                        <option value="WAR" ${item.status === 'WAR'?'selected':''}>ВОЙНА</option>
-                    </select>
-                </td>
-                <td style="color:${item.status==='WAR'?'#ff3333':'#00ff41'}">${threat}</td>
-            `;
+                <td><select class="term-select" style="background:#000;"><option value="NEUTRAL" ${item.status === 'NEUTRAL'?'selected':''}>НЕЙТРАЛИТЕТ</option><option value="ALLIANCE" ${item.status === 'ALLIANCE'?'selected':''}>СОЮЗ</option><option value="WAR" ${item.status === 'WAR'?'selected':''}>ВОЙНА</option></select></td>
+                <td style="color:${item.status==='WAR'?'#ff3333':'#00ff41'}">${threat}</td>`;
             if (item.id) tr.querySelector('select').addEventListener('change', (e) => updateDocField('factions', item.id, 'status', e.target.value));
             tbody.appendChild(tr);
         });
@@ -433,43 +504,21 @@
         const tbody = document.getElementById('roster-body');
         if (!tbody) return;
         tbody.innerHTML = '';
-        
         if (data && data.length > 0) {
              data.sort((a, b) => a.timestamp - b.timestamp);
              data.forEach(u => {
                 const tr = document.createElement('tr');
                 let hc = u.health==="WOUNDED"?"#ffcc00":u.health==="CRITICAL"||u.health==="DECEASED"?"#ff3333":u.health==="M.I.A."?"#888":"#00ff41";
-                
-                // ADDED: Discord Column
                 let discordDisplay = u.discordId ? `<span style="color:#7289da; font-size: 14px;">${u.discordId}</span>` : `<span style="color:#444; font-size: 10px;">// OFFLINE</span>`;
-
                 tr.innerHTML = `
                     <td style="font-weight:bold; color:var(--term-green);">${u.unitId}</td>
                     <td>${discordDisplay}</td>
-                    <td><select class="term-select rank-select" style="border:none; background:transparent; padding:0;">
-                        <option ${u.rank==='ARCHITECT'?'selected':''}>ARCHITECT</option>
-                        <option ${u.rank==='COGNITOR'?'selected':''}>COGNITOR</option>
-                        <option ${u.rank==='OPERATOR'?'selected':''}>OPERATOR</option>
-                        <option ${u.rank==='REDEEMED'?'selected':''}>REDEEMED</option>
-                        <option ${u.rank==='NEOPHYTE'?'selected':''}>NEOPHYTE</option>
-                    </select></td>
-                    <td><select class="term-select health-select" style="color:${hc}; border-color:${hc}; background:transparent;">
-                        <option value="ACTIVE" ${u.health==='ACTIVE'?'selected':''}>ACTIVE</option>
-                        <option value="WOUNDED" ${u.health==='WOUNDED'?'selected':''}>WOUNDED</option>
-                        <option value="CRITICAL" ${u.health==='CRITICAL'?'selected':''}>CRITICAL</option>
-                        <option value="M.I.A." ${u.health==='M.I.A.'?'selected':''}>M.I.A.</option>
-                        <option value="DECEASED" ${u.health==='DECEASED'?'selected':''}>DECEASED</option>
-                    </select></td>
-                    <td><button class="btn-delete">[ X ]</button></td>
-                `;
-
+                    <td><select class="term-select rank-select" style="border:none; background:transparent; padding:0;"><option ${u.rank==='ARCHITECT'?'selected':''}>ARCHITECT</option><option ${u.rank==='COGNITOR'?'selected':''}>COGNITOR</option><option ${u.rank==='OPERATOR'?'selected':''}>OPERATOR</option><option ${u.rank==='REDEEMED'?'selected':''}>REDEEMED</option><option ${u.rank==='NEOPHYTE'?'selected':''}>NEOPHYTE</option></select></td>
+                    <td><select class="term-select health-select" style="color:${hc}; border-color:${hc}; background:transparent;"><option value="ACTIVE" ${u.health==='ACTIVE'?'selected':''}>ACTIVE</option><option value="WOUNDED" ${u.health==='WOUNDED'?'selected':''}>WOUNDED</option><option value="CRITICAL" ${u.health==='CRITICAL'?'selected':''}>CRITICAL</option><option value="M.I.A." ${u.health==='M.I.A.'?'selected':''}>M.I.A.</option><option value="DECEASED" ${u.health==='DECEASED'?'selected':''}>DECEASED</option></select></td>
+                    <td><button class="btn-delete">[ X ]</button></td>`;
                 tr.querySelector('.rank-select').addEventListener('change', (e) => updateDocField('roster', u.id, 'rank', e.target.value));
                 tr.querySelector('.health-select').addEventListener('change', (e) => updateDocField('roster', u.id, 'health', e.target.value));
-                tr.querySelector('.btn-delete').addEventListener('click', () => {
-                    delDocId = u.id; delCollection = 'roster';
-                    document.getElementById('modal-delete-unit').style.display = 'flex';
-                });
-
+                tr.querySelector('.btn-delete').addEventListener('click', () => { delDocId = u.id; delCollection = 'roster'; document.getElementById('modal-delete-unit').style.display = 'flex'; });
                 tbody.appendChild(tr);
             });
         }
@@ -479,49 +528,21 @@
         const container = document.getElementById('research-grid');
         if (!container) return;
         container.innerHTML = '';
-        
-        hardcodedProjects.forEach(p => {
-            const div = document.createElement('div');
-            div.className = "project-card";
-            container.appendChild(div);
-        });
-
+        hardcodedProjects.forEach(p => { const div = document.createElement('div'); div.className = "project-card"; container.appendChild(div); });
         if (userProjects && userProjects.length > 0) {
             userProjects.sort((a, b) => a.timestamp - b.timestamp);
             userProjects.forEach(p => {
                 const div = document.createElement('div');
                 div.className = "project-card";
-                
                 let statusText = p.status === "BETA" ? "AVAILABLE" : "RESTRICTED";
                 let statusClass = p.status === "BETA" ? "status-open" : "status-locked";
                 let footer = p.status === "BETA" ? ">> CLICK TO ACCESS" : `>> LEVEL_${p.status}_REQ`;
                 let footerColor = p.status === "BETA" ? "var(--term-dim)" : "var(--term-alert)";
-
                 div.innerHTML = `<div class="card-status ${statusClass}">${statusText}</div><div class="card-title">${p.title}</div><div class="card-desc">${p.desc}</div><div style="margin-top: 20px; color: ${footerColor}; font-size: 12px; border-top: 1px dashed var(--term-dim); padding-top: 5px;">${footer}</div>`;
-                
-                div.addEventListener('click', () => { 
-                    if(p.status === "BETA") {
-                        if (p.content) {
-                            window.openUserProject(p.content);
-                        } else {
-                            window.openCorrupted();
-                        }
-                    } else {
-                        window.accessDenied();
-                    }
-                });
-
-                const delBtn = document.createElement('button');
-                delBtn.className = "btn-delete card-delete-pos";
-                delBtn.innerText = "[ X ]";
-                delBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    delDocId = p.id; delCollection = 'projects';
-                    document.getElementById('modal-delete-project').style.display = 'flex';
-                });
-
-                div.appendChild(delBtn);
-                container.appendChild(div);
+                div.addEventListener('click', () => { if(p.status === "BETA") { if (p.content) { window.openUserProject(p.content); } else { window.openCorrupted(); } } else { window.accessDenied(); } });
+                const delBtn = document.createElement('button'); delBtn.className = "btn-delete card-delete-pos"; delBtn.innerText = "[ X ]";
+                delBtn.addEventListener('click', (e) => { e.stopPropagation(); delDocId = p.id; delCollection = 'projects'; document.getElementById('modal-delete-project').style.display = 'flex'; });
+                div.appendChild(delBtn); container.appendChild(div);
             });
         }
     }
@@ -530,231 +551,65 @@
         const tbody = document.getElementById('operations-body');
         if (!tbody) return;
         tbody.innerHTML = '';
-        
         if (data && data.length > 0) {
             data.sort((a, b) => a.timestamp - b.timestamp);
             data.forEach(op => {
                 const tr = document.createElement('tr');
                 let sc = op.secrecy === "SECRET" ? "color:var(--term-alert);" : "color:var(--term-green);";
                 let stc = op.status==="COMPLETED"?"var(--term-green)":op.status==="FAILED"?"var(--term-alert)":op.status==="IN_PROGRESS"?"var(--term-warn)":op.status==="DECLASSIFIED"?"var(--term-orange)":"#888";
-                
                 tr.innerHTML = `
-                    <td style="font-weight:bold; color:var(--term-green);">${op.code}</td>
-                    <td>${op.time}</td>
-                    <td>${op.units}</td>
-                    <td>${op.sector}</td>
-                    <td style="font-size:12px; color:#aaa;">${op.objectives||'N/A'}</td>
-                    <td style="${sc} font-weight:bold;">${op.secrecy}</td>
-                    <td><select class="term-select status-select" style="color:${stc}; border-color:${stc}; background:#000;">
-                        <option value="PENDING" ${op.status==='PENDING'?'selected':''}>PENDING</option>
-                        <option value="IN_PROGRESS" ${op.status==='IN_PROGRESS'?'selected':''}>IN PROGRESS</option>
-                        <option value="COMPLETED" ${op.status==='COMPLETED'?'selected':''}>COMPLETED</option>
-                        <option value="FAILED" ${op.status==='FAILED'?'selected':''}>FAILED</option>
-                        <option value="DECLASSIFIED" ${op.status==='DECLASSIFIED'?'selected':''}>DECLASSIFIED</option>
-                    </select></td>
-                    <td><button class="btn-delete">[ X ]</button></td>
-                `;
-
+                    <td style="font-weight:bold; color:var(--term-green);">${op.code}</td><td>${op.time}</td><td>${op.units}</td><td>${op.sector}</td><td style="font-size:12px; color:#aaa;">${op.objectives||'N/A'}</td><td style="${sc} font-weight:bold;">${op.secrecy}</td>
+                    <td><select class="term-select status-select" style="color:${stc}; border-color:${stc}; background:#000;"><option value="PENDING" ${op.status==='PENDING'?'selected':''}>PENDING</option><option value="IN_PROGRESS" ${op.status==='IN_PROGRESS'?'selected':''}>IN PROGRESS</option><option value="COMPLETED" ${op.status==='COMPLETED'?'selected':''}>COMPLETED</option><option value="FAILED" ${op.status==='FAILED'?'selected':''}>FAILED</option><option value="DECLASSIFIED" ${op.status==='DECLASSIFIED'?'selected':''}>DECLASSIFIED</option></select></td>
+                    <td><button class="btn-delete">[ X ]</button></td>`;
                 tr.querySelector('.status-select').addEventListener('change', (e) => updateDocField('operations', op.id, 'status', e.target.value));
-                tr.querySelector('.btn-delete').addEventListener('click', () => {
-                    delDocId = op.id; delCollection = 'operations';
-                    document.getElementById('modal-delete-operation').style.display = 'flex';
-                });
+                tr.querySelector('.btn-delete').addEventListener('click', () => { delDocId = op.id; delCollection = 'operations'; document.getElementById('modal-delete-operation').style.display = 'flex'; });
                 tbody.appendChild(tr);
             });
         }
     }
 
-    // --- APP INIT ---
-    async function initApp() {
-        renderFactions(defaultFactions); renderProjects([]); renderRoster([]); renderOperations([]);
-        
-        try {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
-            }
-        } catch (error) {
-            console.error("Auth error:", error);
-        }
-
-        onAuthStateChanged(auth, (user) => {
-            currentUser = user;
-            if (user) {
-                // Factions
-                onSnapshot(getColRef("factions"), (snapshot) => {
-                    if(snapshot.empty) {
-                        defaultFactions.forEach(f => addDocument('factions', f));
-                    } else {
-                        renderFactions(snapshot.docs.map(d => ({id: d.id, ...d.data()})));
-                    }
-                });
-                // Roster
-                onSnapshot(getColRef("roster"), (snapshot) => {
-                    renderRoster(snapshot.docs.map(d => ({id: d.id, ...d.data()})));
-                });
-                // Projects
-                onSnapshot(getColRef("projects"), (snapshot) => {
-                    renderProjects(snapshot.docs.map(d => ({id: d.id, ...d.data()})));
-                });
-                // Operations
-                onSnapshot(getColRef("operations"), (snapshot) => {
-                    renderOperations(snapshot.docs.map(d => ({id: d.id, ...d.data()})));
-                });
-            }
-        });
+    function setupListeners() {
+        if (!db) return;
+        onSnapshot(getColRef("factions"), (snapshot) => { if(snapshot.empty) { defaultFactions.forEach(f => addDocument('factions', f)); } else { renderFactions(snapshot.docs.map(d => ({id: d.id, ...d.data()}))); } });
+        onSnapshot(getColRef("roster"), (snapshot) => { renderRoster(snapshot.docs.map(d => ({id: d.id, ...d.data()}))); });
+        onSnapshot(getColRef("projects"), (snapshot) => { renderProjects(snapshot.docs.map(d => ({id: d.id, ...d.data()}))); });
+        onSnapshot(getColRef("operations"), (snapshot) => { renderOperations(snapshot.docs.map(d => ({id: d.id, ...d.data()}))); });
     }
 
-    initApp();
+    // Call init
+    initFirebase();
+    renderFactions(defaultFactions); renderProjects([]); renderRoster([]); renderOperations([]);
 
     // --- FILE UPLOAD LISTENER ---
     document.getElementById('project-file-upload').addEventListener('change', (e) => {
         const file = e.target.files[0];
         const display = document.getElementById('file-name-display');
-        
-        if (!file) {
-            display.textContent = "NO DATA CARTRIDGE INSERTED";
-            display.style.color = "var(--term-dim)";
-            uploadedFileContent = null;
-            return;
-        }
-
-        if (file.type !== 'text/html' && !file.name.toLowerCase().endsWith('.html')) {
-            display.textContent = "ENCRYPTION MISMATCH: ONLY .HTML DATA ACCEPTED";
-            display.style.color = "var(--term-alert)";
-            uploadedFileContent = null;
-            e.target.value = ''; 
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            uploadedFileContent = event.target.result;
-            display.textContent = "DATA LOADED: " + file.name.toUpperCase();
-            display.style.color = "var(--term-green)";
-        };
-        reader.readAsText(file);
+        if (!file) { display.textContent = "NO DATA CARTRIDGE INSERTED"; display.style.color = "var(--term-dim)"; uploadedFileContent = null; return; }
+        if (file.type !== 'text/html' && !file.name.toLowerCase().endsWith('.html')) { display.textContent = "ENCRYPTION MISMATCH: ONLY .HTML DATA ACCEPTED"; display.style.color = "var(--term-alert)"; uploadedFileContent = null; e.target.value = ''; return; }
+        const reader = new FileReader(); reader.onload = (event) => { uploadedFileContent = event.target.result; display.textContent = "DATA LOADED: " + file.name.toUpperCase(); display.style.color = "var(--term-green)"; }; reader.readAsText(file);
     });
 
     // --- GLOBAL WINDOW EXPORTS ---
-    
-    // Navigation
-    window.openScreen = (screenId) => {
-        document.querySelectorAll('.screen').forEach(el => { el.style.display = 'none'; el.classList.remove('screen-transition'); });
-        const target = document.getElementById(screenId);
-        target.style.display = (screenId === 'doc-viewer') ? 'flex' : 'flex'; 
-        target.classList.add('screen-transition');
-    };
-
-    window.closeDocument = () => {
-        const frame = document.getElementById('doc-frame');
-        frame.src = "about:blank";
-        window.openScreen('main-hub'); 
-    };
-    
+    window.openScreen = (screenId) => { document.querySelectorAll('.screen').forEach(el => { el.style.display = 'none'; el.classList.remove('screen-transition'); }); const target = document.getElementById(screenId); target.style.display = (screenId === 'doc-viewer') ? 'flex' : 'flex'; target.classList.add('screen-transition'); };
+    window.closeDocument = () => { const frame = document.getElementById('doc-frame'); frame.src = "about:blank"; window.openScreen('main-hub'); };
     window.accessDenied = () => document.getElementById('modal-access-denied').style.display = 'flex';
     window.openCorrupted = () => document.getElementById('modal-corrupted').style.display = 'flex';
-    
-    window.openUserProject = (content) => {
-        const frame = document.getElementById('doc-frame');
-        const doc = frame.contentWindow.document;
-        doc.open();
-        doc.write(content);
-        doc.close();
-        window.openScreen('doc-viewer');
-    }
-
+    window.openUserProject = (content) => { const frame = document.getElementById('doc-frame'); const doc = frame.contentWindow.document; doc.open(); doc.write(content); doc.close(); window.openScreen('doc-viewer'); }
     window.logout = () => { document.getElementById('password-input').value = ""; document.getElementById('password-input').style.borderColor = "#00661a"; window.openScreen('login-screen'); };
-
-    // Modals
-    window.closeModal = (id) => {
-        document.getElementById(id).style.display = 'none';
-        if (id === 'modal-add-project') {
-            document.getElementById('project-file-upload').value = '';
-            document.getElementById('file-name-display').textContent = "NO DATA CARTRIDGE INSERTED";
-            document.getElementById('file-name-display').style.color = "var(--term-dim)";
-            uploadedFileContent = null;
-        }
-    };
-    
-    window.openAddModal = () => { 
-        document.getElementById('modal-add-unit').style.display = 'flex'; 
-        document.getElementById('new-unit-id').value = ''; 
-        document.getElementById('new-unit-discord').value = ''; // Reset discord field
-        document.getElementById('new-unit-id').focus(); 
-    };
+    window.closeModal = (id) => { document.getElementById(id).style.display = 'none'; if (id === 'modal-add-project') { document.getElementById('project-file-upload').value = ''; document.getElementById('file-name-display').textContent = "NO DATA CARTRIDGE INSERTED"; document.getElementById('file-name-display').style.color = "var(--term-dim)"; uploadedFileContent = null; } };
+    window.openAddModal = () => { document.getElementById('modal-add-unit').style.display = 'flex'; document.getElementById('new-unit-id').value = ''; document.getElementById('new-unit-discord').value = ''; document.getElementById('new-unit-id').focus(); };
     window.openAddProjectModal = () => { document.getElementById('modal-add-project').style.display = 'flex'; document.getElementById('new-proj-code').value=''; document.getElementById('new-proj-desc').value=''; };
     window.openAddOperationModal = () => { document.getElementById('modal-add-operation').style.display = 'flex'; document.getElementById('new-op-code').value=''; document.getElementById('new-op-time').value=''; };
 
-    // Confirm Actions - UPDATED FOR DISCORD
-    document.getElementById('confirm-add-unit').addEventListener('click', () => {
-        const v = document.getElementById('new-unit-id').value.trim().toUpperCase();
-        const d = document.getElementById('new-unit-discord').value.trim(); // Discord ID
-        
-        if(v) { 
-            addDocument('roster', { 
-                unitId: v, 
-                rank: "NEOPHYTE", 
-                health: "ACTIVE",
-                discordId: d // Save discord field
-            }); 
-            window.closeModal('modal-add-unit'); 
-        }
-    });
+    document.getElementById('confirm-add-unit').addEventListener('click', () => { const v = document.getElementById('new-unit-id').value.trim().toUpperCase(); const d = document.getElementById('new-unit-discord').value.trim(); if(v) { addDocument('roster', { unitId: v, rank: "NEOPHYTE", health: "ACTIVE", discordId: d }); window.closeModal('modal-add-unit'); } });
+    document.getElementById('confirm-add-proj').addEventListener('click', () => { const c = document.getElementById('new-proj-code').value.trim().toUpperCase(); const d = document.getElementById('new-proj-desc').value.trim(); const s = document.getElementById('new-proj-status').value; if(c && d) { addDocument('projects', { code: c, title: "PROJECT: " + c, desc: d, status: s, content: uploadedFileContent }); window.closeModal('modal-add-project'); } });
+    document.getElementById('confirm-add-op').addEventListener('click', () => { const c = document.getElementById('new-op-code').value.trim().toUpperCase(); const t = document.getElementById('new-op-time').value.trim(); const u = document.getElementById('new-op-units').value.trim(); const s = document.getElementById('new-op-loc').value.trim().toUpperCase(); const o = document.getElementById('new-op-obj').value.trim().toUpperCase(); const sec = document.getElementById('new-op-secrecy').value; if(c && t) { addDocument('operations', { code:c, time:t, units:u, sector:s, objectives:o, secrecy:sec, status: "PENDING" }); window.closeModal('modal-add-operation'); } });
 
-    document.getElementById('confirm-add-proj').addEventListener('click', () => {
-        const c = document.getElementById('new-proj-code').value.trim().toUpperCase();
-        const d = document.getElementById('new-proj-desc').value.trim();
-        const s = document.getElementById('new-proj-status').value;
-        if(c && d) { addDocument('projects', { code: c, title: "PROJECT: " + c, desc: d, status: s, content: uploadedFileContent }); window.closeModal('modal-add-project'); }
-    });
-
-    document.getElementById('confirm-add-op').addEventListener('click', () => {
-        const c = document.getElementById('new-op-code').value.trim().toUpperCase();
-        const t = document.getElementById('new-op-time').value.trim();
-        const u = document.getElementById('new-op-units').value.trim();
-        const s = document.getElementById('new-op-loc').value.trim().toUpperCase();
-        const o = document.getElementById('new-op-obj').value.trim().toUpperCase();
-        const sec = document.getElementById('new-op-secrecy').value;
-        if(c && t) { addDocument('operations', { code:c, time:t, units:u, sector:s, objectives:o, secrecy:sec, status: "PENDING" }); window.closeModal('modal-add-operation'); }
-    });
-
-    const performDelete = async (modalId) => {
-        if(delDocId && delCollection) {
-            await deleteDocument(delCollection, delDocId);
-            delDocId = null; delCollection = null;
-            window.closeModal(modalId);
-        }
-    };
-
+    const performDelete = async (modalId) => { if(delDocId && delCollection) { await deleteDocument(delCollection, delDocId); delDocId = null; delCollection = null; window.closeModal(modalId); } };
     document.getElementById('confirm-delete-unit').addEventListener('click', () => performDelete('modal-delete-unit'));
     document.getElementById('confirm-delete-proj').addEventListener('click', () => performDelete('modal-delete-project'));
     document.getElementById('confirm-delete-op').addEventListener('click', () => performDelete('modal-delete-operation'));
-
-    document.querySelectorAll('.close-modal').forEach(btn => {
-        btn.addEventListener('click', (e) => { e.target.closest('.modal-overlay').style.display = 'none'; });
-    });
-
-    const bootLines = ["LAST DAY OS v.5.0.3", "INITIALIZING NETWORK...", "CONNECTING TO FIREBASE... ESTABLISHED", "SYNCING NOOSPHERE... OK", "SYSTEM READY."];
-    let lineIndex = 0;
-    const bootScreen = document.getElementById('boot-screen');
-    const loginScreen = document.getElementById('login-screen');
-    const passInput = document.getElementById('password-input');
-
-    function typeBoot() {
-        if (lineIndex < bootLines.length) {
-            const p = document.createElement('div');
-            p.style.fontFamily = "Share Tech Mono";
-            p.innerHTML = `> ${bootLines[lineIndex]}`;
-            bootScreen.appendChild(p);
-            lineIndex++;
-            setTimeout(typeBoot, 150);
-        } else {
-            setTimeout(() => { bootScreen.style.display = 'none'; loginScreen.style.display = 'flex'; passInput.focus(); }, 1000);
-        }
-    }
-    window.onload = typeBoot;
+    document.querySelectorAll('.close-modal').forEach(btn => { btn.addEventListener('click', (e) => { e.target.closest('.modal-overlay').style.display = 'none'; }); });
 
     passInput.addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {

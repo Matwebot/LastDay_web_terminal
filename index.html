@@ -122,7 +122,7 @@
 
         .input-group { text-align: center; display: flex; flex-direction: column; align-items: center; }
         .input-label { letter-spacing: 3px; margin-bottom: 10px; font-weight: bold; opacity: 0.8; }
-        input[type="text"] {
+        input[type="text"], input[type="password"] {
             background: rgba(0, 20, 0, 0.5); border: 2px solid var(--term-dim); color: var(--term-green); 
             font-family: var(--font-ui); font-size: 28px; padding: 10px 20px; width: 350px; 
             text-align: center; text-transform: uppercase; outline: none; box-shadow: 0 0 15px rgba(0, 255, 65, 0.1);
@@ -355,10 +355,10 @@
     </div>
     <div class="input-group">
         <label class="input-label">SECURE LOGIN REQUIRED</label>
-        <input type="text" id="password-input" maxlength="20" placeholder="_ _ _ _ _ _" autocomplete="off">
+        <input type="password" id="password-input" maxlength="20" placeholder="_ _ _ _ _ _" autocomplete="off">
         <div class="error-msg" id="error-msg">>> ACCESS DENIED: INVALID HASH <<</div>
     </div>
-    <div style="margin-top: 40px; font-size: 10px; color: var(--term-dim); text-align: center;">LAST DAY NETWORK // VER 5.0.2</div>
+    <div style="margin-top: 40px; font-size: 10px; color: var(--term-dim); text-align: center;">LAST DAY NETWORK // V.5.0.3 (CLOUD)</div>
 </div>
 
 <!-- DASHBOARD -->
@@ -422,7 +422,7 @@
         <div style="font-size: 24px; font-weight: bold;">FACTION RELATIONS PROTOCOL</div>
         <button onclick="openScreen('dashboard-screen')" class="nav-btn"><< DASHBOARD</button>
     </div>
-    <p style="color: var(--term-dim); margin-bottom: 20px;">>> ИЗМЕНЕНИЯ СИНХРОНИЗИРУЮТСЯ С NOOSPHERE NET (AUTO-SAVE)</p>
+    <p style="color: var(--term-dim); margin-bottom: 20px;">>> LIVE SYNCHRONIZATION: NOOSPHERE NET</p>
     <table class="data-table">
         <thead>
             <tr><th style="width: 40%">FACTION NAME</th><th style="width: 40%">CURRENT STATUS</th><th style="width: 20%">THREAT LEVEL</th></tr>
@@ -509,10 +509,7 @@
         <h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">ADD NEW UNIT</h1>
         <p>ENTER IDENTIFICATION INDEX:</p>
         <input type="text" id="new-unit-id" class="modal-input" placeholder="000-CODENAME" maxlength="15">
-        <div>
-            <button onclick="confirmAddUnit()" class="modal-btn">CONFIRM</button>
-            <button onclick="closeModal('modal-add-unit')" class="modal-btn cancel">CANCEL</button>
-        </div>
+        <div><button onclick="confirmAddUnit()" class="modal-btn">CONFIRM</button><button onclick="closeModal('modal-add-unit')" class="modal-btn cancel">CANCEL</button></div>
     </div>
 </div>
 
@@ -560,38 +557,6 @@
     </div>
 </div>
 
-<div id="modal-add-operation" class="modal-overlay">
-    <div class="modal-box">
-        <h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">NEW OPERATION</h1>
-        
-        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">CODENAME:</p>
-        <input type="text" id="new-op-code" class="modal-input" placeholder="OP-TITAN" style="margin: 0 0 10px 0;">
-
-        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">START DATE & TIME:</p>
-        <input type="text" id="new-op-time" class="modal-input" placeholder="DD.MM.YYYY HH:MM" style="margin: 0 0 10px 0;">
-
-        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">UNIT COUNT:</p>
-        <input type="text" id="new-op-units" class="modal-input" placeholder="4" style="margin: 0 0 10px 0;">
-
-        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">SECTOR / LOCATION:</p>
-        <input type="text" id="new-op-loc" class="modal-input" placeholder="AGROPROM" style="margin: 0 0 10px 0;">
-
-        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">MISSION OBJECTIVES:</p>
-        <input type="text" id="new-op-obj" class="modal-input" placeholder="ELIMINATE TARGET / RETRIEVE DATA" style="margin: 0 0 10px 0;">
-        
-        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">SECRECY STATUS:</p>
-        <select id="new-op-secrecy" class="term-select" style="margin-bottom: 20px;">
-            <option value="SECRET">SECRET (RED)</option>
-            <option value="NON-SECRET">NON-SECRET (GREEN)</option>
-        </select>
-
-        <div>
-            <button onclick="confirmAddOperation()" class="modal-btn">CONFIRM</button>
-            <button onclick="closeModal('modal-add-operation')" class="modal-btn cancel">CANCEL</button>
-        </div>
-    </div>
-</div>
-
 <div id="modal-delete-operation" class="modal-overlay">
     <div class="modal-box alert">
         <h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">ABORT OPERATION?</h1>
@@ -600,10 +565,35 @@
     </div>
 </div>
 
+<div id="modal-add-operation" class="modal-overlay">
+    <div class="modal-box">
+        <h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">NEW OPERATION</h1>
+        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">CODENAME:</p>
+        <input type="text" id="new-op-code" class="modal-input" placeholder="OP-TITAN" style="margin: 0 0 10px 0;">
+        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">START DATE & TIME:</p>
+        <input type="text" id="new-op-time" class="modal-input" placeholder="DD.MM.YYYY HH:MM" style="margin: 0 0 10px 0;">
+        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">UNIT COUNT:</p>
+        <input type="text" id="new-op-units" class="modal-input" placeholder="4" style="margin: 0 0 10px 0;">
+        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">SECTOR / LOCATION:</p>
+        <input type="text" id="new-op-loc" class="modal-input" placeholder="AGROPROM" style="margin: 0 0 10px 0;">
+        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">MISSION OBJECTIVES:</p>
+        <input type="text" id="new-op-obj" class="modal-input" placeholder="ELIMINATE TARGET / RETRIEVE DATA" style="margin: 0 0 10px 0;">
+        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">SECRECY STATUS:</p>
+        <select id="new-op-secrecy" class="term-select" style="margin-bottom: 20px;">
+            <option value="SECRET">SECRET (RED)</option>
+            <option value="NON-SECRET">NON-SECRET (GREEN)</option>
+        </select>
+        <div>
+            <button onclick="confirmAddOperation()" class="modal-btn">CONFIRM</button>
+            <button onclick="closeModal('modal-add-operation')" class="modal-btn cancel">CANCEL</button>
+        </div>
+    </div>
+</div>
+
 <!-- DOC VIEWER -->
 <div id="doc-viewer" class="screen">
     <div class="doc-controls">
-        <button class="back-btn" onclick="closeDocument()">[ < ] CLOSE FILE</button>
+        <button class="back-btn" onclick="window.closeDocument()">[ < ] CLOSE FILE</button>
     </div>
     
     <div class="report-container">
@@ -1003,28 +993,24 @@
 </div>
 
 <script>
-    // --- AUTH & NAVIGATION ---
+    // DEFINE FUNCTIONS FIRST TO AVOID HOISTING ISSUES
     const SECRET_KEY = "LD-X7-OMEGA";
-    
-    // --- MODALS STATE ---
     let delIdx = null; 
-    let delProjIdx = null;
+    let delProjIdx = null; 
     let delOpIdx = null;
 
-    // --- DATA DEFAULTS ---
+    // DATA DEFAULTS
     const defaultFactions = [
-        { name: "ОДИНОЧКИ (LONERS)", status: "NEUTRAL" }, { name: "ДОЛГ (DUTY)", status: "WAR" },
-        { name: "СВОБОДА (FREEDOM)", status: "WAR" }, { name: "БАНДИТЫ (BANDITS)", status: "ALLIANCE" },
-        { name: "НАЕМНИКИ (MERCS)", status: "NEUTRAL" }, { name: "ВОЕННЫЕ (MILITARY)", status: "WAR" },
-        { name: "УЧЕНЫЕ (ECOLOGISTS)", status: "NEUTRAL" }, { name: "МОНОЛИТ (MONOLITH)", status: "ALLIANCE" },
-        { name: "ЧИСТОЕ НЕБО (CLEAR SKY)", status: "WAR" },
-        { name: "РЕНЕГАТЫ (RENEGADES)", status: "NEUTRAL" }, { name: "ЧЕРНЫЙ РЫНОК (BLACK MARKET)", status: "NEUTRAL" },
-        { name: "ВОЕННЫЕ СТАЛКЕРЫ (MILITARY STALKERS)", status: "WAR" }, { name: "ИИГ (ISG)", status: "WAR" },
-        { name: "ГРЕХ (SIN)", status: "ALLIANCE" }, { name: "ТЕМНЫЕ СТАЛКЕРЫ (DARK STALKERS)", status: "NEUTRAL" },
-        { name: "СБУ (SBU)", status: "WAR" }, { name: "ОХРАНА ДЕРЕВНИ (VILLAGE GUARD)", status: "WAR" },
-        { name: "ОХРАНА ЯНОВА (YANOV GUARD)", status: "WAR" }, { name: "РЕЙДЕРЫ (RAIDERS)", status: "WAR" },
-        { name: "ТЕНИ (SHADOWS)", status: "NEUTRAL" }, { name: "КАМФОГОР (KAMFOGOR)", status: "NEUTRAL" },
-        { name: "МОНОЛИТ-СЕВЕР (MONOLITH NORTH)", status: "ALLIANCE" }, { name: "СВОБОДА-СЕВЕР (FREEDOM NORTH)", status: "WAR" },
+        { name: "ОДИНОЧКИ (LONERS)", status: "NEUTRAL" }, { name: "ДОЛГ (DUTY)", status: "WAR" }, { name: "СВОБОДА (FREEDOM)", status: "WAR" }, 
+        { name: "БАНДИТЫ (BANDITS)", status: "ALLIANCE" }, { name: "НАЕМНИКИ (MERCS)", status: "NEUTRAL" }, { name: "ВОЕННЫЕ (MILITARY)", status: "WAR" }, 
+        { name: "УЧЕНЫЕ (ECOLOGISTS)", status: "NEUTRAL" }, { name: "МОНОЛИТ (MONOLITH)", status: "ALLIANCE" }, { name: "ЧИСТОЕ НЕБО (CLEAR SKY)", status: "WAR" }, 
+        { name: "РЕНЕГАТЫ (RENEGADES)", status: "NEUTRAL" }, { name: "ЧЕРНЫЙ РЫНОК (BLACK MARKET)", status: "NEUTRAL" }, 
+        { name: "ВОЕННЫЕ СТАЛКЕРЫ (MILITARY STALKERS)", status: "WAR" }, { name: "ИИГ (ISG)", status: "WAR" }, 
+        { name: "ГРЕХ (SIN)", status: "ALLIANCE" }, { name: "ТЕМНЫЕ СТАЛКЕРЫ (DARK STALKERS)", status: "NEUTRAL" }, 
+        { name: "СБУ (SBU)", status: "WAR" }, { name: "ОХРАНА ДЕРЕВНИ (VILLAGE GUARD)", status: "WAR" }, 
+        { name: "ОХРАНА ЯНОВА (YANOV GUARD)", status: "WAR" }, { name: "РЕЙДЕРЫ (RAIDERS)", status: "WAR" }, 
+        { name: "ТЕНИ (SHADOWS)", status: "NEUTRAL" }, { name: "КАМФОГОР (KAMFOGOR)", status: "NEUTRAL" }, 
+        { name: "МОНОЛИТ-СЕВЕР (MONOLITH NORTH)", status: "ALLIANCE" }, { name: "СВОБОДА-СЕВЕР (FREEDOM NORTH)", status: "WAR" }, 
         { name: "БАНДИТЫ-СЕВЕР (BANDITS NORTH)", status: "ALLIANCE" }
     ];
 
@@ -1045,11 +1031,10 @@
         { code: "OP-SHADOW", time: "25.11.2014 22:30", units: "4", sector: "RED FOREST", objectives: "RECON & INTERCEPT", secrecy: "SECRET", status: "IN_PROGRESS" }
     ];
 
-    // --- DATA FUNCTIONS ---
-
+    // DATA GETTERS/SETTERS
     function getFactions() { try { const s = localStorage.getItem('ld_factions'); return s ? JSON.parse(s) : defaultFactions; } catch(e) { return defaultFactions; } }
     function saveFactionStatus(i, v) { const f = getFactions(); f[i].status = v; localStorage.setItem('ld_factions', JSON.stringify(f)); renderFactions(); }
-
+    
     function getRoster() { try { const s = localStorage.getItem('ld_roster'); return s ? JSON.parse(s) : defaultRoster; } catch(e) { return defaultRoster; } }
     function saveRosterUnit(i, f, v) { const r = getRoster(); r[i][f] = v; localStorage.setItem('ld_roster', JSON.stringify(r)); renderRoster(); }
 
@@ -1062,100 +1047,36 @@
     function addOperation(op) { const o = getOperations(); o.push(op); localStorage.setItem('ld_operations', JSON.stringify(o)); renderOperations(); }
     function deleteOperation(i) { const o = getOperations(); o.splice(i, 1); localStorage.setItem('ld_operations', JSON.stringify(o)); renderOperations(); }
 
-    // --- RENDER FUNCTIONS ---
-
+    // RENDER FUNCTIONS (DEFINED BEFORE USE)
     function renderFactions() {
-        const tbody = document.getElementById('relations-body');
+        const tbody = document.getElementById('relations-body'); 
         if(!tbody) return;
         tbody.innerHTML = '';
         getFactions().forEach((f, i) => {
             const tr = document.createElement('tr');
             tr.setAttribute('data-status', f.status);
             let threat = f.status === "WAR" ? "CRITICAL" : f.status === "ALLIANCE" ? "MINIMAL" : "MODERATE";
-            tr.innerHTML = `
-                <td style="font-weight:bold;">${f.name}</td>
-                <td>
-                    <select class="term-select" onchange="saveFactionStatus(${i}, this.value)">
-                        <option value="NEUTRAL" ${f.status === 'NEUTRAL'?'selected':''}>НЕЙТРАЛИТЕТ</option>
-                        <option value="ALLIANCE" ${f.status === 'ALLIANCE'?'selected':''}>СОЮЗ</option>
-                        <option value="WAR" ${f.status === 'WAR'?'selected':''}>ВОЙНА</option>
-                    </select>
-                </td>
-                <td style="color:${f.status==='WAR'?'#ff3333':'#00ff41'}">${threat}</td>
-            `;
+            tr.innerHTML = `<td style="font-weight:bold;">${f.name}</td><td><select class="term-select" style="background:#000;" onchange="saveFactionStatus(${i}, this.value)"><option value="NEUTRAL" ${f.status === 'NEUTRAL'?'selected':''}>НЕЙТРАЛИТЕТ</option><option value="ALLIANCE" ${f.status === 'ALLIANCE'?'selected':''}>СОЮЗ</option><option value="WAR" ${f.status === 'WAR'?'selected':''}>ВОЙНА</option></select></td><td style="color:${f.status==='WAR'?'#ff3333':'#00ff41'}">${threat}</td>`;
             tbody.appendChild(tr);
         });
     }
 
     function renderRoster() {
-        const tbody = document.getElementById('roster-body');
+        const tbody = document.getElementById('roster-body'); 
         if(!tbody) return;
         tbody.innerHTML = '';
         getRoster().forEach((u, i) => {
             const tr = document.createElement('tr');
             let hc = u.health==="WOUNDED"?"#ffcc00":u.health==="CRITICAL"||u.health==="DECEASED"?"#ff3333":u.health==="M.I.A."?"#888":"#00ff41";
-            tr.innerHTML = `
-                <td style="font-weight:bold; color:#fff;">${u.id}</td>
-                <td>
-                    <select class="term-select" style="border:none; background:transparent; padding:0;" onchange="saveRosterUnit(${i},'rank',this.value)">
-                        <option ${u.rank==='ARCHITECT'?'selected':''}>ARCHITECT</option>
-                        <option ${u.rank==='COGNITOR'?'selected':''}>COGNITOR</option>
-                        <option ${u.rank==='OPERATOR'?'selected':''}>OPERATOR</option>
-                        <option ${u.rank==='REDEEMED'?'selected':''}>REDEEMED</option>
-                        <option ${u.rank==='NEOPHYTE'?'selected':''}>NEOPHYTE</option>
-                    </select>
-                </td>
-                <td>
-                    <select class="term-select" style="color:${hc}; border-color:${hc}; background:transparent;" onchange="saveRosterUnit(${i},'health',this.value)">
-                        <option value="ACTIVE" ${u.health==='ACTIVE'?'selected':''}>ACTIVE</option>
-                        <option value="WOUNDED" ${u.health==='WOUNDED'?'selected':''}>WOUNDED</option>
-                        <option value="CRITICAL" ${u.health==='CRITICAL'?'selected':''}>CRITICAL</option>
-                        <option value="M.I.A." ${u.health==='M.I.A.'?'selected':''}>M.I.A.</option>
-                        <option value="DECEASED" ${u.health==='DECEASED'?'selected':''}>DECEASED</option>
-                    </select>
-                </td>
-                <td><button onclick="openDeleteModal(${i})" class="btn-delete">[ X ]</button></td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function renderOperations() {
-        const tbody = document.getElementById('operations-body');
-        if(!tbody) return;
-        tbody.innerHTML = '';
-        getOperations().forEach((op, i) => {
-            const tr = document.createElement('tr');
-            let sc = op.secrecy === "SECRET" ? "color:var(--term-alert);" : "color:var(--term-green);";
-            let stc = op.status==="COMPLETED"?"var(--term-green)":op.status==="FAILED"?"var(--term-alert)":op.status==="IN_PROGRESS"?"var(--term-warn)":op.status==="DECLASSIFIED"?"var(--term-orange)":"#888";
-            tr.innerHTML = `
-                <td style="font-weight:bold; color:#fff;">${op.code}</td>
-                <td>${op.time}</td>
-                <td>${op.units}</td>
-                <td>${op.sector}</td>
-                <td style="font-size:12px; color:#aaa;">${op.objectives||'N/A'}</td>
-                <td style="${sc} font-weight:bold;">${op.secrecy}</td>
-                <td>
-                    <select class="term-select" style="color:${stc}; border-color:${stc}; background:transparent;" onchange="saveOperationStatus(${i}, this.value)">
-                        <option value="PENDING" ${op.status==='PENDING'?'selected':''}>PENDING</option>
-                        <option value="IN_PROGRESS" ${op.status==='IN_PROGRESS'?'selected':''}>IN PROGRESS</option>
-                        <option value="COMPLETED" ${op.status==='COMPLETED'?'selected':''}>COMPLETED</option>
-                        <option value="FAILED" ${op.status==='FAILED'?'selected':''}>FAILED</option>
-                        <option value="DECLASSIFIED" ${op.status==='DECLASSIFIED'?'selected':''}>DECLASSIFIED</option>
-                    </select>
-                </td>
-                <td><button onclick="openDeleteOperationModal(${i})" class="btn-delete">[ X ]</button></td>
-            `;
+            tr.innerHTML = `<td style="font-weight:bold; color:#fff;">${u.id}</td><td><select class="term-select" style="border:none; background:transparent; padding:0;" onchange="saveRosterUnit(${i},'rank',this.value)"><option ${u.rank==='ARCHITECT'?'selected':''}>ARCHITECT</option><option ${u.rank==='COGNITOR'?'selected':''}>COGNITOR</option><option ${u.rank==='OPERATOR'?'selected':''}>OPERATOR</option><option ${u.rank==='REDEEMED'?'selected':''}>REDEEMED</option><option ${u.rank==='NEOPHYTE'?'selected':''}>NEOPHYTE</option></select></td><td><select class="term-select" style="color:${hc}; border-color:${hc}; background:transparent;" onchange="saveRosterUnit(${i},'health',this.value)"><option value="ACTIVE" ${u.health==='ACTIVE'?'selected':''}>ACTIVE</option><option value="WOUNDED" ${u.health==='WOUNDED'?'selected':''}>WOUNDED</option><option value="CRITICAL" ${u.health==='CRITICAL'?'selected':''}>CRITICAL</option><option value="M.I.A." ${u.health==='M.I.A.'?'selected':''}>M.I.A.</option><option value="DECEASED" ${u.health==='DECEASED'?'selected':''}>DECEASED</option></select></td><td><button onclick="openDeleteModal(${i})" class="btn-delete">[ X ]</button></td>`;
             tbody.appendChild(tr);
         });
     }
 
     function renderProjects() {
-        const container = document.getElementById('research-grid');
+        const container = document.getElementById('research-grid'); 
         if(!container) return;
         container.innerHTML = '';
-        
-        // Hardcoded
         hardcodedProjects.forEach(p => {
             const div = document.createElement('div'); div.className = "project-card";
             if(p.status === "BETA") {
@@ -1167,8 +1088,6 @@
             }
             container.appendChild(div);
         });
-
-        // User Added
         getUserProjects().forEach((p, index) => {
             const div = document.createElement('div'); div.className = "project-card";
             if(p.status === "BETA") {
@@ -1178,30 +1097,32 @@
                 div.innerHTML = `<div class="card-status status-locked">RESTRICTED</div><div class="card-title">${p.title}</div><div class="card-desc">${p.desc}</div><div style="margin-top: 20px; color: var(--term-alert); font-size: 12px;">>> LEVEL_${p.status}_REQ</div>`;
                 div.onclick = () => accessDenied();
             }
-            // Delete Button
-            const delBtn = document.createElement('button');
-            delBtn.className = "btn-delete card-delete-pos";
-            delBtn.innerText = "[ X ]";
-            delBtn.onclick = (e) => {
-                e.stopPropagation();
-                openDeleteProjectModal(index);
-            };
+            const delBtn = document.createElement('button'); delBtn.className = "btn-delete card-delete-pos"; delBtn.innerText = "[ X ]";
+            delBtn.onclick = (e) => { e.stopPropagation(); openDeleteProjectModal(index); };
             div.appendChild(delBtn);
             container.appendChild(div);
         });
     }
 
+    function renderOperations() {
+        const tbody = document.getElementById('operations-body'); 
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        getOperations().forEach((op, i) => {
+            const tr = document.createElement('tr');
+            let sc = op.secrecy === "SECRET" ? "color:var(--term-alert);" : "color:var(--term-green);";
+            let stc = op.status==="COMPLETED"?"var(--term-green)":op.status==="FAILED"?"var(--term-alert)":op.status==="IN_PROGRESS"?"var(--term-warn)":op.status==="DECLASSIFIED"?"var(--term-orange)":"#888";
+            tr.innerHTML = `<td style="font-weight:bold; color:#fff;">${op.code}</td><td>${op.time}</td><td>${op.units}</td><td>${op.sector}</td><td style="font-size:12px; color:#aaa;">${op.objectives||'N/A'}</td><td style="${sc} font-weight:bold;">${op.secrecy}</td><td><select class="term-select" style="color:${stc}; border-color:${stc}; background:#000;" onchange="saveOperationStatus(${i}, this.value)"><option value="PENDING" ${op.status==='PENDING'?'selected':''}>PENDING</option><option value="IN_PROGRESS" ${op.status==='IN_PROGRESS'?'selected':''}>IN PROGRESS</option><option value="COMPLETED" ${op.status==='COMPLETED'?'selected':''}>COMPLETED</option><option value="FAILED" ${op.status==='FAILED'?'selected':''}>FAILED</option><option value="DECLASSIFIED" ${op.status==='DECLASSIFIED'?'selected':''}>DECLASSIFIED</option></select></td><td><button onclick="openDeleteOperationModal(${i})" class="btn-delete">[ X ]</button></td>`;
+            tbody.appendChild(tr);
+        });
+    }
+
     // --- INTERFACE CONTROL ---
     function openScreen(screenId) {
-        document.querySelectorAll('.screen').forEach(el => { 
-            el.style.display = 'none'; 
-            el.classList.remove('screen-transition'); 
-        });
-        
+        document.querySelectorAll('.screen').forEach(el => { el.style.display = 'none'; el.classList.remove('screen-transition'); });
         const target = document.getElementById(screenId);
         target.style.display = (screenId === 'doc-viewer') ? 'block' : 'flex';
         target.classList.add('screen-transition');
-
         if(screenId === 'relations-screen') renderFactions();
         if(screenId === 'roster-screen') renderRoster();
         if(screenId === 'main-hub') renderProjects();
@@ -1215,73 +1136,26 @@
     function accessDenied() { document.getElementById('modal-access-denied').style.display = 'flex'; }
 
     // Unit Actions
-    function openAddModal() { 
-        document.getElementById('modal-add-unit').style.display = 'flex'; 
-        document.getElementById('new-unit-id').value = ''; 
-        document.getElementById('new-unit-id').focus(); 
-    }
-    function confirmAddUnit() { 
-        const v = document.getElementById('new-unit-id').value.trim().toUpperCase(); 
-        if(v){ 
-            const r = getRoster(); 
-            r.push({id:v, rank:"NEOPHYTE", health:"ACTIVE"}); 
-            localStorage.setItem('ld_roster', JSON.stringify(r)); 
-            renderRoster(); 
-            closeModal('modal-add-unit'); 
-        } 
-    }
-    function openDeleteModal(i) { 
-        delIdx = i; 
-        document.getElementById('modal-delete-unit').style.display = 'flex'; 
-    }
-    function confirmDeleteUnit() { 
-        if(delIdx!==null){ 
-            const r = getRoster(); 
-            r.splice(delIdx, 1); 
-            localStorage.setItem('ld_roster', JSON.stringify(r)); 
-            renderRoster(); 
-            closeModal('modal-delete-unit'); 
-            delIdx = null; 
-        } 
-    }
-
+    function openAddModal() { document.getElementById('modal-add-unit').style.display = 'flex'; document.getElementById('new-unit-id').value = ''; document.getElementById('new-unit-id').focus(); }
+    function confirmAddUnit() { const v = document.getElementById('new-unit-id').value.trim().toUpperCase(); if(v){ const r = getRoster(); r.push({id:v, rank:"NEOPHYTE", health:"ACTIVE"}); localStorage.setItem('ld_roster', JSON.stringify(r)); renderRoster(); closeModal('modal-add-unit'); } }
+    function openDeleteModal(i) { delIdx = i; document.getElementById('modal-delete-unit').style.display = 'flex'; }
+    function confirmDeleteUnit() { if(delIdx!==null){ const r = getRoster(); r.splice(delIdx, 1); localStorage.setItem('ld_roster', JSON.stringify(r)); renderRoster(); closeModal('modal-delete-unit'); delIdx = null; } }
+    
     // Project Actions
-    function openAddProjectModal() { 
-        document.getElementById('modal-add-project').style.display = 'flex'; 
-        document.getElementById('new-proj-code').value=''; 
-        document.getElementById('new-proj-desc').value=''; 
-        document.getElementById('new-proj-status').value='ALPHA'; 
-    }
-    function confirmAddProject() { 
-        const code = document.getElementById('new-proj-code').value.trim().toUpperCase();
-        const desc = document.getElementById('new-proj-desc').value.trim();
-        const status = document.getElementById('new-proj-status').value;
-        if(code && desc) { 
-            addUserProject(code, desc, status); 
-            closeModal('modal-add-project'); 
-        } 
-    }
-    function openDeleteProjectModal(i) { 
-        delProjIdx = i; 
-        document.getElementById('modal-delete-project').style.display = 'flex'; 
-    }
-    function confirmDeleteProject() { 
-        if(delProjIdx!==null) { 
-            deleteUserProject(delProjIdx); 
-            closeModal('modal-delete-project'); 
-            delProjIdx = null; 
-        } 
-    }
+    function openAddProjectModal() { document.getElementById('modal-add-project').style.display = 'flex'; document.getElementById('new-proj-code').value=''; document.getElementById('new-proj-desc').value=''; document.getElementById('new-proj-status').value='ALPHA'; }
+    function confirmAddProject() { const c = document.getElementById('new-proj-code').value.trim().toUpperCase(), d = document.getElementById('new-proj-desc').value.trim(), s = document.getElementById('new-proj-status').value; if(c && d) { addUserProject(c, d, s); closeModal('modal-add-project'); } }
+    function openDeleteProjectModal(i) { delProjIdx = i; document.getElementById('modal-delete-project').style.display = 'flex'; }
+    function confirmDeleteProject() { if(delProjIdx!==null) { deleteUserProject(delProjIdx); closeModal('modal-delete-project'); delProjIdx = null; } }
 
     // Operation Actions
     function openAddOperationModal() {
         document.getElementById('modal-add-operation').style.display = 'flex';
-        document.getElementById('new-op-code').value='';
-        document.getElementById('new-op-time').value='';
-        document.getElementById('new-op-units').value='';
-        document.getElementById('new-op-loc').value='';
-        document.getElementById('new-op-obj').value='';
-        document.getElementById('new-op-secrecy').value='SECRET';
+        document.getElementById('new-op-code').value = '';
+        document.getElementById('new-op-time').value = '';
+        document.getElementById('new-op-units').value = '';
+        document.getElementById('new-op-loc').value = '';
+        document.getElementById('new-op-obj').value = '';
+        document.getElementById('new-op-secrecy').value = 'SECRET';
     }
     function confirmAddOperation() {
         const code = document.getElementById('new-op-code').value.trim().toUpperCase();
@@ -1296,25 +1170,19 @@
             closeModal('modal-add-operation');
         }
     }
-    function openDeleteOperationModal(i) { 
-        delOpIdx = i; 
-        document.getElementById('modal-delete-operation').style.display = 'flex'; 
-    }
-    function confirmDeleteOperation() { 
-        if(delOpIdx!==null) { 
-            deleteOperation(delOpIdx); 
-            closeModal('modal-delete-operation'); 
-            delOpIdx = null; 
-        } 
-    }
+    function openDeleteOperationModal(i) { delOpIdx = i; document.getElementById('modal-delete-operation').style.display = 'flex'; }
+    function confirmDeleteOperation() { if(delOpIdx!==null) { deleteOperation(delOpIdx); closeModal('modal-delete-operation'); delOpIdx = null; } }
 
-    // Doc Viewer
-    function openDocument(docId) { 
-        if (docId === 'zagustin') openScreen('doc-viewer'); 
-    }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    // DOC VIEWER
+    function openDocument(docId) { if (docId === 'zagustin') openScreen('doc-viewer'); }
     function closeDocument() { 
+        // Force scroll reset
+        document.getElementById('doc-viewer').scrollTop = 0;
         openScreen('main-hub'); 
     }
+    function accessDenied() { document.getElementById('modal-access-denied').style.display = 'flex'; }
 
     // --- BOOT & LOGIN INIT ---
     const bootLines = ["LAST DAY OS v.5.0.2", "INITIALIZING KERNEL...", "LOADING MEMORY BLOCKS... OK", "CONNECTING TO NOOSPHERE... ESTABLISHED", "SYSTEM READY."];

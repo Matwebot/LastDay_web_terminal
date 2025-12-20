@@ -16,6 +16,7 @@
             --term-orange: #ff8800;
             --term-gray: #888888;
             --term-glow: rgba(0, 255, 65, 0.6);
+            --discord-color: #5865F2; /* Цвет Discord для акцентов */
             
             /* Алиасы для совместимости с чертежами */
             --primary: var(--term-green);
@@ -172,6 +173,25 @@
         .modal-btn.danger { border-color: var(--term-alert); color: var(--term-alert); } .modal-btn.danger:hover { background: var(--term-alert); color: #fff; }
         .modal-input { background: #000; border: 1px solid var(--term-dim); color: var(--term-green); padding: 10px; font-family: var(--font-ui); font-size: 20px; text-align: center; width: 100%; margin: 15px 0; outline: none; text-transform: uppercase; }
         .modal-input:focus { border-color: var(--term-green); box-shadow: 0 0 10px var(--term-green); }
+        
+        /* Discord Field Styling */
+        .discord-input-container {
+            border: 1px dashed var(--discord-color);
+            padding: 10px;
+            margin: 15px 0;
+            background: rgba(88, 101, 242, 0.1);
+        }
+        .discord-label {
+            color: var(--discord-color);
+            font-size: 12px;
+            margin-bottom: 5px;
+            text-align: left;
+            display: block;
+        }
+        .discord-input {
+            border-color: var(--discord-color) !important;
+            color: #7289da !important;
+        }
     </style>
 </head>
 <body class="screen-flicker">
@@ -237,11 +257,22 @@
     <table class="data-table"><thead><tr><th style="width: 40%">FACTION NAME</th><th style="width: 40%">CURRENT STATUS</th><th style="width: 20%">THREAT LEVEL</th></tr></thead><tbody id="relations-body"></tbody></table>
 </div>
 
-<!-- PERSONNEL -->
+<!-- PERSONNEL (UPDATED FOR DISCORD) -->
 <div id="roster-screen" class="screen">
     <div class="hub-header"><div style="font-size: 24px; font-weight: bold;">UNIT ROSTER</div><button class="nav-btn btn-back-dash"><< DASHBOARD</button></div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><p style="color: var(--term-dim); margin: 0;">>> LIVE BIOMETRIC FEED</p><button id="btn-add-unit" class="nav-btn" style="font-size: 12px;">+ ADD UNIT</button></div>
-    <table class="data-table"><thead><tr><th style="width: 20%">ID INDEX</th><th style="width: 30%">RANK / ROLE</th><th style="width: 30%">VITALS STATUS</th><th style="width: 20%">ACTION</th></tr></thead><tbody id="roster-body"></tbody></table>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width: 15%">ID INDEX</th>
+                <th style="width: 20%; color: #5865F2;">DISCORD TAG</th>
+                <th style="width: 25%">RANK / ROLE</th>
+                <th style="width: 25%">VITALS STATUS</th>
+                <th style="width: 15%">ACTION</th>
+            </tr>
+        </thead>
+        <tbody id="roster-body"></tbody>
+    </table>
 </div>
 
 <!-- OPERATIONS (TACTICAL) -->
@@ -261,7 +292,26 @@
 <div id="modal-access-denied" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">ACCESS DENIED</h1><p style="color: #fff;">ТРЕБУЕТСЯ КЛЮЧ "АРХИТЕКТОРА".</p><div style="margin-top: 30px; font-size: 60px;"><span class="blink">!</span></div><br><button class="modal-btn danger close-modal">ЗАКРЫТЬ</button></div></div>
 <div id="modal-corrupted" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">DATA CORRUPTED</h1><p style="color: #fff;">SOURCE FILE MISSING OR DAMAGED.</p><div style="margin-top: 30px; font-size: 40px; color: var(--term-alert);">404</div><br><button class="modal-btn danger close-modal">ЗАКРЫТЬ</button></div></div>
 
-<div id="modal-add-unit" class="modal-overlay"><div class="modal-box"><h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">ADD NEW UNIT</h1><p>ENTER IDENTIFICATION INDEX:</p><input type="text" id="new-unit-id" class="modal-input" placeholder="000-CODENAME" maxlength="15"><div><button id="confirm-add-unit" class="modal-btn">CONFIRM</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
+<!-- UPDATED ADD UNIT MODAL -->
+<div id="modal-add-unit" class="modal-overlay">
+    <div class="modal-box">
+        <h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">ADD NEW UNIT</h1>
+        
+        <p style="text-align: left; margin-bottom: 5px; color: var(--term-dim); font-size: 12px;">IDENTIFICATION INDEX:</p>
+        <input type="text" id="new-unit-id" class="modal-input" placeholder="000-CODENAME" maxlength="15">
+        
+        <div class="discord-input-container">
+            <label class="discord-label">>> DISCORD COMM LINK (REQUIRED):</label>
+            <input type="text" id="new-unit-discord" class="modal-input discord-input" placeholder="User#0000 / ID" maxlength="30">
+        </div>
+
+        <div>
+            <button id="confirm-add-unit" class="modal-btn">CONFIRM</button>
+            <button class="modal-btn cancel close-modal">CANCEL</button>
+        </div>
+    </div>
+</div>
+
 <div id="modal-delete-unit" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">TERMINATE RECORD?</h1><p>THIS ACTION CANNOT BE UNDONE.</p><div style="margin-top: 30px;"><button id="confirm-delete-unit" class="modal-btn danger">TERMINATE</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
 
 <div id="modal-add-project" class="modal-overlay"><div class="modal-box"><h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">INIT NEW PROTOCOL</h1><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">CODENAME (FILE NAME):</p><input type="text" id="new-proj-code" class="modal-input" placeholder="e.g. GBS-5" style="margin: 0 0 15px 0;"><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">DESCRIPTION:</p><input type="text" id="new-proj-desc" class="modal-input" placeholder="BRIEF SUMMARY" style="margin: 0 0 15px 0;"><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">ACCESS CLEARANCE:</p><select id="new-proj-status" class="term-select" style="margin-bottom: 20px;"><option value="ALPHA">ALPHA</option><option value="BETA">BETA (CURRENT)</option><option value="OMEGA">OMEGA</option></select><label for="project-file-upload" class="nav-btn" style="display:block; margin-bottom:15px; cursor:pointer; border-style:dashed;">>> UPLOAD SOURCE FILE (.HTML)</label><input type="file" id="project-file-upload" style="display:none" accept=".html"><div id="file-name-display" style="color:var(--term-dim); font-size:12px; margin-bottom:20px;">NO DATA CARTRIDGE INSERTED</div><div><button id="confirm-add-proj" class="modal-btn">INITIALIZE</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
@@ -279,23 +329,16 @@
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
     // Initialize Firebase
-    const firebaseConfig = {
-        apiKey: "AIzaSyDItyHZsBjradE8WE-qtIutVKXux-mWoiI",
-        authDomain: "last-day-terminal.firebaseapp.com",
-        projectId: "last-day-terminal",
-        storageBucket: "last-day-terminal.firebasestorage.app",
-        messagingSenderId: "283501483006",
-        appId: "1:283501483006:web:68888bf5ea676579d9e6af"
-    };
-
+    const firebaseConfig = JSON.parse(__firebase_config);
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
     // --- GLOBAL SCOPE ---
     const SECRET_KEY = "LD-X7-OMEGA";
@@ -304,6 +347,7 @@
     
     // File content buffer
     let uploadedFileContent = null;
+    let currentUser = null;
 
     // --- DEFAULTS ---
     const defaultFactions = [
@@ -320,34 +364,41 @@
         { name: "БАНДИТЫ-СЕВЕР (BANDITS NORTH)", status: "ALLIANCE" }
     ];
 
-    // Empty array - no hardcoded projects
     const hardcodedProjects = [];
 
     // --- DB HELPERS ---
+    function getColRef(colName) {
+        return collection(db, 'artifacts', appId, 'public', 'data', colName);
+    }
+    
+    function getDocRef(colName, docId) {
+        return doc(db, 'artifacts', appId, 'public', 'data', colName, docId);
+    }
+
     async function updateDocField(collectionName, docId, field, value) {
-        const ref = doc(db, collectionName, docId);
+        if (!currentUser) return;
+        const ref = getDocRef(collectionName, docId);
         await updateDoc(ref, { [field]: value });
     }
 
     async function deleteDocument(collectionName, docId) {
-        await deleteDoc(doc(db, collectionName, docId));
+        if (!currentUser) return;
+        await deleteDoc(getDocRef(collectionName, docId));
     }
 
     async function addDocument(collectionName, data) {
-        await addDoc(collection(db, collectionName), { ...data, timestamp: Date.now() });
+        if (!currentUser) return;
+        await addDoc(getColRef(collectionName), { ...data, timestamp: Date.now() });
     }
 
     // --- RENDERERS ---
-    // Fix for duplicate factions: deduplicate by name
     function renderFactions(data) {
         const tbody = document.getElementById('relations-body');
         if (!tbody) return;
         tbody.innerHTML = '';
         
-        // Use default data if no data from DB, but avoid mixing both if DB has data
         let factionsToRender = (data && data.length > 0) ? data : defaultFactions;
         
-        // Deduplicate: Keep only the first occurrence of each faction name
         const seen = new Set();
         factionsToRender = factionsToRender.filter(item => {
             const duplicate = seen.has(item.name);
@@ -355,7 +406,6 @@
             return !duplicate;
         });
 
-        // Sort
         factionsToRender.sort((a, b) => a.name.localeCompare(b.name));
         
         factionsToRender.forEach(item => {
@@ -390,9 +440,12 @@
                 const tr = document.createElement('tr');
                 let hc = u.health==="WOUNDED"?"#ffcc00":u.health==="CRITICAL"||u.health==="DECEASED"?"#ff3333":u.health==="M.I.A."?"#888":"#00ff41";
                 
-                // Color fix: ID column is now explicitly term-green
+                // ADDED: Discord Column
+                let discordDisplay = u.discordId ? `<span style="color:#7289da; font-size: 14px;">${u.discordId}</span>` : `<span style="color:#444; font-size: 10px;">// OFFLINE</span>`;
+
                 tr.innerHTML = `
                     <td style="font-weight:bold; color:var(--term-green);">${u.unitId}</td>
+                    <td>${discordDisplay}</td>
                     <td><select class="term-select rank-select" style="border:none; background:transparent; padding:0;">
                         <option ${u.rank==='ARCHITECT'?'selected':''}>ARCHITECT</option>
                         <option ${u.rank==='COGNITOR'?'selected':''}>COGNITOR</option>
@@ -427,14 +480,12 @@
         if (!container) return;
         container.innerHTML = '';
         
-        // 1. Render Hardcoded (now empty loop)
         hardcodedProjects.forEach(p => {
             const div = document.createElement('div');
             div.className = "project-card";
             container.appendChild(div);
         });
 
-        // 2. Render User Projects (From DB)
         if (userProjects && userProjects.length > 0) {
             userProjects.sort((a, b) => a.timestamp - b.timestamp);
             userProjects.forEach(p => {
@@ -487,7 +538,6 @@
                 let sc = op.secrecy === "SECRET" ? "color:var(--term-alert);" : "color:var(--term-green);";
                 let stc = op.status==="COMPLETED"?"var(--term-green)":op.status==="FAILED"?"var(--term-alert)":op.status==="IN_PROGRESS"?"var(--term-warn)":op.status==="DECLASSIFIED"?"var(--term-orange)":"#888";
                 
-                // Color fix: Code column now explicitly green
                 tr.innerHTML = `
                     <td style="font-weight:bold; color:var(--term-green);">${op.code}</td>
                     <td>${op.time}</td>
@@ -517,33 +567,43 @@
 
     // --- APP INIT ---
     async function initApp() {
-        // Initial render with empty/default data
         renderFactions(defaultFactions); renderProjects([]); renderRoster([]); renderOperations([]);
+        
         try {
-            await signInAnonymously(auth);
-
-            onSnapshot(collection(db, "factions"), (snapshot) => {
-                if(snapshot.empty) {
-                    defaultFactions.forEach(f => addDocument('factions', f));
-                } else {
-                    renderFactions(snapshot.docs.map(d => ({id: d.id, ...d.data()})));
-                }
-            });
-
-            onSnapshot(collection(db, "roster"), (snapshot) => {
-                renderRoster(snapshot.docs.map(d => ({id: d.id, ...d.data()})));
-            });
-
-            onSnapshot(collection(db, "projects"), (snapshot) => {
-                renderProjects(snapshot.docs.map(d => ({id: d.id, ...d.data()})));
-            });
-
-            onSnapshot(collection(db, "operations"), (snapshot) => {
-                renderOperations(snapshot.docs.map(d => ({id: d.id, ...d.data()})));
-            });
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
         } catch (error) {
-            console.error("Firebase init error:", error);
+            console.error("Auth error:", error);
         }
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                // Factions
+                onSnapshot(getColRef("factions"), (snapshot) => {
+                    if(snapshot.empty) {
+                        defaultFactions.forEach(f => addDocument('factions', f));
+                    } else {
+                        renderFactions(snapshot.docs.map(d => ({id: d.id, ...d.data()})));
+                    }
+                });
+                // Roster
+                onSnapshot(getColRef("roster"), (snapshot) => {
+                    renderRoster(snapshot.docs.map(d => ({id: d.id, ...d.data()})));
+                });
+                // Projects
+                onSnapshot(getColRef("projects"), (snapshot) => {
+                    renderProjects(snapshot.docs.map(d => ({id: d.id, ...d.data()})));
+                });
+                // Operations
+                onSnapshot(getColRef("operations"), (snapshot) => {
+                    renderOperations(snapshot.docs.map(d => ({id: d.id, ...d.data()})));
+                });
+            }
+        });
     }
 
     initApp();
@@ -583,7 +643,7 @@
     window.openScreen = (screenId) => {
         document.querySelectorAll('.screen').forEach(el => { el.style.display = 'none'; el.classList.remove('screen-transition'); });
         const target = document.getElementById(screenId);
-        target.style.display = (screenId === 'doc-viewer') ? 'flex' : 'flex'; // Fix: Doc viewer needs flex for iframe layout
+        target.style.display = (screenId === 'doc-viewer') ? 'flex' : 'flex'; 
         target.classList.add('screen-transition');
     };
 
@@ -596,10 +656,6 @@
     window.accessDenied = () => document.getElementById('modal-access-denied').style.display = 'flex';
     window.openCorrupted = () => document.getElementById('modal-corrupted').style.display = 'flex';
     
-    window.openDocument = (docId) => { 
-        // Hardcode removed, kept for safety
-    };
-
     window.openUserProject = (content) => {
         const frame = document.getElementById('doc-frame');
         const doc = frame.contentWindow.document;
@@ -622,14 +678,29 @@
         }
     };
     
-    window.openAddModal = () => { document.getElementById('modal-add-unit').style.display = 'flex'; document.getElementById('new-unit-id').value = ''; document.getElementById('new-unit-id').focus(); };
+    window.openAddModal = () => { 
+        document.getElementById('modal-add-unit').style.display = 'flex'; 
+        document.getElementById('new-unit-id').value = ''; 
+        document.getElementById('new-unit-discord').value = ''; // Reset discord field
+        document.getElementById('new-unit-id').focus(); 
+    };
     window.openAddProjectModal = () => { document.getElementById('modal-add-project').style.display = 'flex'; document.getElementById('new-proj-code').value=''; document.getElementById('new-proj-desc').value=''; };
     window.openAddOperationModal = () => { document.getElementById('modal-add-operation').style.display = 'flex'; document.getElementById('new-op-code').value=''; document.getElementById('new-op-time').value=''; };
 
-    // Confirm Actions
+    // Confirm Actions - UPDATED FOR DISCORD
     document.getElementById('confirm-add-unit').addEventListener('click', () => {
         const v = document.getElementById('new-unit-id').value.trim().toUpperCase();
-        if(v) { addDocument('roster', { unitId: v, rank: "NEOPHYTE", health: "ACTIVE" }); window.closeModal('modal-add-unit'); }
+        const d = document.getElementById('new-unit-discord').value.trim(); // Discord ID
+        
+        if(v) { 
+            addDocument('roster', { 
+                unitId: v, 
+                rank: "NEOPHYTE", 
+                health: "ACTIVE",
+                discordId: d // Save discord field
+            }); 
+            window.closeModal('modal-add-unit'); 
+        }
     });
 
     document.getElementById('confirm-add-proj').addEventListener('click', () => {

@@ -17,15 +17,12 @@
             --term-gray: #888888;
             --term-glow: rgba(0, 255, 65, 0.6);
             
-            /* Алиасы для совместимости с чертежами */
+            /* Алиасы для чертежей */
             --primary: var(--term-green);
             --dim: var(--term-dim);
             --alert: var(--term-alert);
 
-            /* Сетка документа */
             --grid-line: rgba(0, 255, 65, 0.08);
-            
-            /* Шрифты */
             --font-ui: 'Share Tech Mono', monospace;
             --font-body: 'Rajdhani', sans-serif;
         }
@@ -34,90 +31,48 @@
 
         body {
             background-color: var(--bg-color);
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             font-family: var(--font-ui);
             color: var(--term-green);
-            overflow: hidden; /* Скролл только внутри экранов */
-            height: 100vh;
-            width: 100vw;
+            overflow: hidden;
+            height: 100vh; width: 100vw;
             text-shadow: 0 0 2px var(--term-dim), 0 0 5px var(--term-glow);
         }
 
-        /* --- CRT ЭФФЕКТЫ --- */
+        /* CRT Effects */
         .crt-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 9999;
-            background: 
-                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 3px, 3px 100%;
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 3px, 3px 100%; box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
         }
-
-        .screen-flicker {
-            animation: flicker 0.15s infinite;
-        }
-
-        @keyframes flicker {
-            0% { opacity: 0.97; } 5% { opacity: 0.94; } 10% { opacity: 0.97; }
-        }
-
-        .screen-transition {
-            animation: turnOn 0.4s ease-out forwards;
-        }
-        
-        @keyframes turnOn {
-            0% { transform: scale(1, 0.002); opacity: 0; filter: brightness(3); }
-            50% { transform: scale(1, 0.002); opacity: 1; }
-            100% { transform: scale(1, 1); opacity: 1; filter: brightness(1); }
-        }
+        .screen-flicker { animation: flicker 0.15s infinite; }
+        @keyframes flicker { 0% { opacity: 0.97; } 5% { opacity: 0.94; } 10% { opacity: 0.97; } }
+        .screen-transition { animation: turnOn 0.4s ease-out forwards; }
+        @keyframes turnOn { 0% { transform: scale(1, 0.002); opacity: 0; filter: brightness(3); } 50% { transform: scale(1, 0.002); opacity: 1; } 100% { transform: scale(1, 1); opacity: 1; filter: brightness(1); } }
 
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #001100; border-left: 1px solid var(--term-dim); }
         ::-webkit-scrollbar-thumb { background: var(--term-dim); border: 1px solid var(--term-green); }
 
-        /* --- ЭКРАНЫ (ОБЩИЙ СТИЛЬ) --- */
+        /* Screens */
         .screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            overflow: hidden;
-            padding: 40px;
-            display: none;
-            flex-direction: column;
+            background: #000; overflow: hidden; padding: 40px;
+            display: none; flex-direction: column;
         }
-        
         #boot-screen { z-index: 100; display: block; font-size: 16px; white-space: pre-wrap; padding: 40px; }
         #login-screen { z-index: 90; align-items: center; justify-content: center; }
+        #dashboard-screen, #relations-screen, #roster-screen, #operations-screen, #main-hub { z-index: 80; overflow-y: auto; }
         
-        /* Скроллящиеся экраны */
-        #dashboard-screen { z-index: 85; overflow-y: auto; }
-        #relations-screen { z-index: 84; overflow-y: auto; }
-        #roster-screen { z-index: 84; overflow-y: auto; }
-        #operations-screen { z-index: 84; overflow-y: auto; }
-        #main-hub { z-index: 80; overflow-y: auto; } 
-
-        /* --- ИСПРАВЛЕНИЕ СКРОЛЛА ДОКУМЕНТА (MASTER FIX) --- */
         #doc-viewer { 
-            z-index: 85; 
-            background: #050505; 
-            padding: 0; 
-            
-            /* Критические исправления для скролла */
-            position: fixed; 
-            top: 0; left: 0; right: 0; bottom: 0;
-            height: auto; /* Сбрасываем фиксированную высоту */
-            overflow-y: scroll !important; /* Принудительный скроллбар */
-            display: none;
+            z-index: 85; background: #050505; padding: 0; 
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            height: auto; overflow-y: scroll !important; display: none;
         }
 
-        /* --- ЛОГИН --- */
-        .logo-container svg {
-            width: 180px; height: 180px; margin-bottom: 40px;
-            filter: drop-shadow(0 0 10px var(--term-green));
-            animation: rotateLogo 20s linear infinite;
-        }
+        /* UI Elements */
+        .logo-container svg { width: 180px; height: 180px; margin-bottom: 40px; filter: drop-shadow(0 0 10px var(--term-green)); animation: rotateLogo 20s linear infinite; }
         @keyframes rotateLogo { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         .input-group { text-align: center; display: flex; flex-direction: column; align-items: center; }
@@ -129,60 +84,37 @@
         }
         .error-msg { color: var(--term-alert); margin-top: 20px; height: 20px; font-weight: bold; opacity: 0; text-shadow: 0 0 5px red; }
 
-        /* --- HEADER ОБЩИЙ --- */
-        .hub-header {
-            border-bottom: 2px solid var(--term-dim); padding-bottom: 15px; margin-bottom: 40px;
-            display: flex; justify-content: space-between; align-items: flex-end; flex-shrink: 0;
-        }
-
-        /* --- DASHBOARD TILES (МЕНЮ) --- */
-        .dashboard-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px;
-            max-width: 1200px; margin: 0 auto; width: 100%;
-        }
+        .hub-header { border-bottom: 2px solid var(--term-dim); padding-bottom: 15px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end; flex-shrink: 0; }
+        
+        /* Dashboard */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; width: 100%; }
         .menu-tile {
             border: 2px solid var(--term-dim); padding: 30px; cursor: pointer;
             background: rgba(0, 20, 0, 0.3); transition: all 0.2s; position: relative;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             min-height: 200px; text-align: center;
         }
-        .menu-tile:hover { 
-            border-color: var(--term-green); background: rgba(0, 255, 65, 0.1); 
-            transform: scale(1.02); box-shadow: 0 0 25px rgba(0, 255, 65, 0.2);
-        }
+        .menu-tile:hover { border-color: var(--term-green); background: rgba(0, 255, 65, 0.1); transform: scale(1.02); box-shadow: 0 0 25px rgba(0, 255, 65, 0.2); }
         .tile-icon { font-size: 48px; margin-bottom: 20px; color: var(--term-green); display: flex; align-items: center; justify-content: center; }
         .tile-title { font-size: 24px; font-weight: bold; letter-spacing: 2px; margin-bottom: 10px; }
         .tile-desc { font-size: 14px; color: #6dbf78; opacity: 0.8; }
 
-        /* --- ТАБЛИЦЫ --- */
+        /* Tables */
         .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; border: 1px solid var(--term-dim); }
-        .data-table th { 
-            background: rgba(0, 255, 65, 0.1); text-align: left; padding: 15px; 
-            border-bottom: 2px solid var(--term-green); letter-spacing: 2px;
-        }
-        .data-table td { 
-            padding: 15px; border-bottom: 1px solid var(--term-dim); background: rgba(0,0,0,0.5);
-            vertical-align: middle;
-        }
+        .data-table th { background: rgba(0, 255, 65, 0.1); text-align: left; padding: 15px; border-bottom: 2px solid var(--term-green); letter-spacing: 2px; }
+        .data-table td { padding: 15px; border-bottom: 1px solid var(--term-dim); background: rgba(0,0,0,0.5); vertical-align: middle; }
         .data-table tr:hover td { background: rgba(0, 255, 65, 0.05); }
 
         select.term-select {
-            background-color: #000;
-            border: 1px solid var(--term-dim); color: var(--term-green);
+            background-color: #000; border: 1px solid var(--term-dim); color: var(--term-green);
             font-family: var(--font-ui); padding: 5px 10px; font-size: 16px; width: 100%;
             cursor: pointer; text-transform: uppercase; outline: none;
         }
-        
-        /* Исправление белого фона выпадающего списка */
-        select.term-select option {
-            background-color: #000;
-            color: var(--term-green);
-        }
+        select.term-select option { background-color: #000; color: var(--term-green); }
 
         .status-war { color: var(--term-alert); border-color: var(--term-alert); }
         .status-neutral { color: var(--term-warn); border-color: var(--term-warn); }
         .status-alliance { color: var(--term-green); border-color: var(--term-green); }
-        
         tr[data-status="WAR"] td { border-left: 3px solid var(--term-alert); }
         tr[data-status="ALLIANCE"] td { border-left: 3px solid var(--term-green); }
         tr[data-status="NEUTRAL"] td { border-left: 3px solid var(--term-warn); }
@@ -193,8 +125,8 @@
             font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; gap: 10px;
         }
         .nav-btn:hover { background: var(--term-green); color: #000; }
-        
-        /* --- RESEARCH HUB --- */
+
+        /* Project Cards */
         .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
         .project-card {
             border: 1px solid var(--term-dim); padding: 25px; cursor: pointer;
@@ -206,58 +138,28 @@
         .status-locked { color: var(--term-alert); border-color: var(--term-alert); }
         .card-title { font-size: 20px; margin-bottom: 10px; font-weight: bold; }
         .card-desc { font-size: 14px; color: #6dbf78; word-wrap: break-word; }
-        
-        /* --- ЕДИНЫЙ СТИЛЬ КНОПОК УДАЛЕНИЯ --- */
-        .btn-delete {
-            background: transparent;
-            border: none;
-            color: var(--term-green); /* Спокойное состояние: Зеленый */
-            font-family: var(--font-ui);
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 16px;
-            padding: 2px 8px;
-            transition: all 0.2s;
-            text-shadow: 0 0 5px var(--term-green);
-            position: relative;
-            overflow: hidden;
-        }
 
-        /* Состояние наведения: Серый прямоугольник с рябью */
+        /* Buttons */
+        .btn-delete {
+            background: transparent; border: none; color: var(--term-green);
+            font-family: var(--font-ui); font-weight: bold; cursor: pointer;
+            font-size: 16px; padding: 2px 8px; transition: all 0.2s;
+            text-shadow: 0 0 5px var(--term-green); position: relative; overflow: hidden;
+        }
         .btn-delete:hover {
-            background: #444; /* Темно-серый фон */
-            color: #fff;      /* Белый текст */
-            text-shadow: none;
+            background: #444; color: #fff; text-shadow: none;
             box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
         }
-
-        /* Эффект ряби (полосы) при наведении */
         .btn-delete:hover::after {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(0, 0, 0, 0.3) 3px
-            );
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.3) 3px);
             pointer-events: none;
         }
+        .card-delete-pos { position: absolute; bottom: 10px; right: 10px; z-index: 20; font-size: 14px; }
 
-        /* Позиционирование кнопки для карточек Research */
-        .card-delete-pos {
-            position: absolute; 
-            bottom: 10px; 
-            right: 10px;
-            z-index: 20;
-            font-size: 14px;
-        }
-
-        /* --- ДОКУМЕНТ --- */
+        /* Doc Viewer */
         .doc-controls { position: fixed; top: 20px; left: 20px; z-index: 5000; }
         .report-container { padding: 80px 40px; max-width: 230mm; margin: 0 auto; padding-bottom: 100px; }
-        
         .doc-page {
             width: 100%; min-height: 297mm; background-color: #080808; margin-bottom: 50px; padding: 20mm;
             position: relative; border: 1px solid var(--term-dim);
@@ -265,86 +167,49 @@
             background-size: 20px 20px; color: #d0ffd0; font-family: var(--font-body);
         }
         .doc-page h1 { font-family: var(--font-ui); font-size: 36px; border-bottom: 2px solid var(--term-green); color: var(--term-green); margin-top: 0; }
-        .doc-page h2 { 
-            font-family: var(--font-ui); font-size: 20px; background: var(--term-dim); color: #000; 
-            padding: 2px 10px; margin-top: 40px; display: inline-block; text-transform: uppercase; 
-        }
+        .doc-page h2 { font-family: var(--font-ui); font-size: 20px; background: var(--term-dim); color: #000; padding: 2px 10px; margin-top: 40px; display: inline-block; text-transform: uppercase; }
         .doc-page p { font-size: 15px; line-height: 1.6; text-align: justify; margin-bottom: 15px; color: #aaddaa; }
-        .status-bar {
-            position: absolute; bottom: 20px; left: 20px; right: 20px; height: 35px;
-            border: 1px solid var(--term-dim); display: flex; align-items: center;
-            padding: 0 15px; justify-content: space-between; font-family: var(--font-ui);
-            font-size: 12px; background: rgba(0, 20, 0, 0.5); color: var(--term-green);
-        }
-        
-        table { width: 100%; border-collapse: collapse; font-family: var(--font-ui); font-size: 13px; margin-top: 20px; border: 1px solid var(--term-dim); }
-        th { background: rgba(0, 255, 65, 0.15); color: var(--term-green); text-align: left; padding: 10px; border-right: 1px solid var(--term-dim); border-bottom: 1px solid var(--term-green); }
-        td { border: 1px solid var(--term-dim); padding: 10px; color: #ccffcc; vertical-align: top; }
-        
+        .status-bar { position: absolute; bottom: 20px; left: 20px; right: 20px; height: 35px; border: 1px solid var(--term-dim); display: flex; align-items: center; padding: 0 15px; justify-content: space-between; font-family: var(--font-ui); font-size: 12px; background: rgba(0, 20, 0, 0.5); color: var(--term-green); }
         .blink { animation: blinker 1s steps(2, start) infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
 
-        .drawing-box {
-            border: 1px solid var(--term-green); background: rgba(0, 20, 0, 0.6);
-            margin: 20px 0; padding: 0; display: flex; justify-content: center; align-items: center; position: relative;
-        }
+        .drawing-box { border: 1px solid var(--term-green); background: rgba(0, 20, 0, 0.6); margin: 20px 0; padding: 0; display: flex; justify-content: center; align-items: center; position: relative; }
         .drawing-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px solid var(--term-dim); pointer-events: none; }
         .crosshair { position: absolute; width: 20px; height: 20px; border-top: 1px solid var(--term-green); border-left: 1px solid var(--term-green); }
-        .ch-tl { top: 0; left: 0; } .ch-tr { top: 0; right: 0; transform: rotate(90deg); }
-        .ch-bl { bottom: 0; left: 0; transform: rotate(-90deg); } .ch-br { bottom: 0; right: 0; transform: rotate(180deg); }
-        
+        .ch-tl { top: 0; left: 0; } .ch-tr { top: 0; right: 0; transform: rotate(90deg); } .ch-bl { bottom: 0; left: 0; transform: rotate(-90deg); } .ch-br { bottom: 0; right: 0; transform: rotate(180deg); }
         .w-line { fill: none; stroke: var(--term-green); stroke-width: 1.5; stroke-linecap: square; }
         .w-thin { fill: none; stroke: var(--term-green); stroke-width: 0.8; opacity: 0.7; }
         .w-dim { fill: none; stroke: var(--term-dim); stroke-width: 0.5; stroke-dasharray: 4,4; }
         .w-text { fill: var(--term-green); font-family: var(--font-ui); font-size: 10px; }
         .w-dim-text { fill: var(--term-dim); font-family: var(--font-ui); font-size: 9px; }
-
         .hex-col { position: absolute; top: 60px; right: 10px; width: 50px; font-family: var(--font-ui); font-size: 10px; color: var(--term-dim); text-align: right; }
         .corner-mark { position: absolute; width: 10px; height: 10px; border: 1px solid var(--term-dim); }
-        .tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
-        .tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
-        .bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+        .tl { top: 10px; left: 10px; border-right: none; border-bottom: none; } .tr { top: 10px; right: 10px; border-left: none; border-bottom: none; } .bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
         .page-number { position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); font-family: var(--font-ui); font-size: 10px; color: var(--term-dim); }
-        
         .data-row { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--term-dim); margin-bottom: 5px; padding-bottom: 2px; font-family: var(--font-ui); font-size: 14px; }
-        .data-key { color: var(--term-dim); }
-        .data-val { color: var(--term-green); font-weight: bold; }
+        .data-key { color: var(--term-dim); } .data-val { color: var(--term-green); font-weight: bold; }
 
-        /* Модалка */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 5000; justify-content: center; align-items: center; }
         .modal-box { border: 2px solid var(--term-dim); padding: 40px; text-align: center; color: var(--term-green); box-shadow: 0 0 50px rgba(0, 255, 65, 0.2); max-width: 500px; font-family: var(--font-ui); background: #000; }
         .modal-box.alert { border-color: var(--term-alert); color: var(--term-alert); box-shadow: 0 0 50px rgba(255, 51, 51, 0.2); }
-        
         .modal-btn { background: transparent; border: 1px solid var(--term-green); color: var(--term-green); padding: 5px 20px; cursor: pointer; font-family: var(--font-ui); margin: 5px; }
         .modal-btn:hover { background: var(--term-green); color: #000; }
-        .modal-btn.cancel { border-color: #666; color: #666; }
-        .modal-btn.cancel:hover { background: #666; color: #fff; }
-        .modal-btn.danger { border-color: var(--term-alert); color: var(--term-alert); }
-        .modal-btn.danger:hover { background: var(--term-alert); color: #fff; }
-
-        .modal-input { 
-            background: #000; border: 1px solid var(--term-dim); color: var(--term-green); 
-            padding: 10px; font-family: var(--font-ui); font-size: 20px; text-align: center; 
-            width: 100%; margin: 15px 0; outline: none; text-transform: uppercase;
-        }
+        .modal-btn.cancel { border-color: #666; color: #666; } .modal-btn.cancel:hover { background: #666; color: #fff; }
+        .modal-btn.danger { border-color: var(--term-alert); color: var(--term-alert); } .modal-btn.danger:hover { background: var(--term-alert); color: #fff; }
+        .modal-input { background: #000; border: 1px solid var(--term-dim); color: var(--term-green); padding: 10px; font-family: var(--font-ui); font-size: 20px; text-align: center; width: 100%; margin: 15px 0; outline: none; text-transform: uppercase; }
         .modal-input:focus { border-color: var(--term-green); box-shadow: 0 0 10px var(--term-green); }
-
     </style>
 </head>
 <body class="screen-flicker">
 
 <div class="crt-overlay"></div>
 
-<!-- BOOT -->
 <div id="boot-screen" class="screen"></div>
 
-<!-- LOGIN -->
 <div id="login-screen" class="screen" style="display: none;">
     <div class="logo-container">
         <svg viewBox="0 0 200 200">
-            <defs>
-                <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-            </defs>
+            <defs><filter id="glow"><feGaussianBlur stdDeviation="2.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
             <g stroke="#00ff41" stroke-width="2" fill="none" filter="url(#glow)">
                 <circle cx="100" cy="100" r="80" stroke-dasharray="20,10" opacity="0.5"><animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="30s" repeatCount="indefinite"/></circle>
                 <path d="M 100 20 L 170 160 L 30 160 Z" stroke-width="3" />
@@ -361,645 +226,100 @@
     <div style="margin-top: 40px; font-size: 10px; color: var(--term-dim); text-align: center;">LAST DAY NETWORK // V.5.0.3 (CLOUD)</div>
 </div>
 
-<!-- DASHBOARD -->
 <div id="dashboard-screen" class="screen">
     <div class="hub-header">
-        <div>
-            <div style="font-size: 28px; font-weight: bold;">OPERATING SYSTEM: SINGULARITY</div>
-            <div style="font-size: 12px; color: var(--term-dim); margin-top: 5px;">UNIT: 734-ALPHA | LOCATION: DEAD CITY</div>
-        </div>
-        <div style="text-align: right;">
-            <div>STATUS: <span class="blink" style="color:var(--term-green)">ONLINE</span></div>
-            <button onclick="logout()" class="nav-btn" style="margin-top: 5px; border-color: var(--term-alert); color: var(--term-alert);">[ LOGOUT ]</button>
-        </div>
+        <div><div style="font-size: 28px; font-weight: bold;">OPERATING SYSTEM: SINGULARITY</div><div style="font-size: 12px; color: var(--term-dim); margin-top: 5px;">UNIT: 734-ALPHA | LOCATION: DEAD CITY</div></div>
+        <div style="text-align: right;"><div>STATUS: <span class="blink" style="color:var(--term-green)">ONLINE</span></div><button id="logout-btn" class="nav-btn" style="margin-top: 5px; border-color: var(--term-alert); color: var(--term-alert);">[ LOGOUT ]</button></div>
     </div>
-
     <div class="dashboard-grid">
-        <div class="menu-tile" onclick="openScreen('relations-screen')">
-            <div class="tile-icon">⚠</div>
-            <div class="tile-title">DIPLOMACY</div>
-            <div class="tile-desc">Статусы отношений с фракциями зоны. Протоколы взаимодействия.</div>
+        <div class="menu-tile" id="btn-open-relations">
+            <div class="tile-icon">⚠</div><div class="tile-title">DIPLOMACY</div><div class="tile-desc">Статусы отношений с фракциями зоны.</div>
         </div>
-        
-        <div class="menu-tile" onclick="openScreen('roster-screen')">
+        <div class="menu-tile" id="btn-open-roster">
             <div class="tile-icon">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                </svg>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
             </div>
-            <div class="tile-title">PERSONNEL</div>
-            <div class="tile-desc">Личный состав. Мониторинг показателей здоровья и рангов.</div>
+            <div class="tile-title">PERSONNEL</div><div class="tile-desc">Личный состав. Мониторинг показателей.</div>
         </div>
-
-        <div class="menu-tile" onclick="openScreen('operations-screen')">
+        <div class="menu-tile" id="btn-open-ops">
             <div class="tile-icon">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="22" y1="12" x2="18" y2="12"></line>
-                    <line x1="6" y1="12" x2="2" y2="12"></line>
-                    <line x1="12" y1="6" x2="12" y2="2"></line>
-                    <line x1="12" y1="22" x2="12" y2="18"></line>
-                </svg>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><circle cx="12" cy="12" r="10"></circle><line x1="22" y1="12" x2="18" y2="12"></line><line x1="6" y1="12" x2="2" y2="12"></line><line x1="12" y1="6" x2="12" y2="2"></line><line x1="12" y1="22" x2="12" y2="18"></line></svg>
             </div>
-            <div class="tile-title">TACTICAL</div>
-            <div class="tile-desc">Планирование боевых задач и спецопераций.</div>
+            <div class="tile-title">TACTICAL</div><div class="tile-desc">Планирование боевых задач.</div>
         </div>
-
-        <div class="menu-tile" onclick="openScreen('main-hub')">
-            <div class="tile-icon">☢</div>
-            <div class="tile-title">RESEARCH</div>
-            <div class="tile-desc">База данных разработок. Чертежи, схемы, отчеты.</div>
+        <div class="menu-tile" id="btn-open-research">
+            <div class="tile-icon">☢</div><div class="tile-title">RESEARCH</div><div class="tile-desc">База данных разработок.</div>
         </div>
     </div>
 </div>
 
-<!-- DIPLOMACY -->
 <div id="relations-screen" class="screen">
-    <div class="hub-header">
-        <div style="font-size: 24px; font-weight: bold;">FACTION RELATIONS PROTOCOL</div>
-        <button onclick="openScreen('dashboard-screen')" class="nav-btn"><< DASHBOARD</button>
-    </div>
+    <div class="hub-header"><div style="font-size: 24px; font-weight: bold;">FACTION RELATIONS</div><button class="nav-btn btn-back-dash"><< DASHBOARD</button></div>
     <p style="color: var(--term-dim); margin-bottom: 20px;">>> LIVE SYNCHRONIZATION: NOOSPHERE NET</p>
-    <table class="data-table">
-        <thead>
-            <tr><th style="width: 40%">FACTION NAME</th><th style="width: 40%">CURRENT STATUS</th><th style="width: 20%">THREAT LEVEL</th></tr>
-        </thead>
-        <tbody id="relations-body"></tbody>
-    </table>
+    <table class="data-table"><thead><tr><th style="width: 40%">FACTION NAME</th><th style="width: 40%">CURRENT STATUS</th><th style="width: 20%">THREAT LEVEL</th></tr></thead><tbody id="relations-body"></tbody></table>
 </div>
 
-<!-- PERSONNEL -->
 <div id="roster-screen" class="screen">
-    <div class="hub-header">
-        <div style="font-size: 24px; font-weight: bold;">UNIT ROSTER MANAGEMENT</div>
-        <button onclick="openScreen('dashboard-screen')" class="nav-btn"><< DASHBOARD</button>
-    </div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <p style="color: var(--term-dim); margin: 0;">>> LIVE BIOMETRIC FEED</p>
-        <button onclick="openAddModal()" class="nav-btn" style="font-size: 12px;">+ ADD UNIT</button>
-    </div>
-    <table class="data-table">
-        <thead>
-            <tr><th style="width: 20%">ID INDEX</th><th style="width: 30%">RANK / ROLE</th><th style="width: 30%">VITALS STATUS</th><th style="width: 20%">ACTION</th></tr>
-        </thead>
-        <tbody id="roster-body"></tbody>
-    </table>
+    <div class="hub-header"><div style="font-size: 24px; font-weight: bold;">UNIT ROSTER</div><button class="nav-btn btn-back-dash"><< DASHBOARD</button></div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><p style="color: var(--term-dim); margin: 0;">>> LIVE BIOMETRIC FEED</p><button id="btn-add-unit" class="nav-btn" style="font-size: 12px;">+ ADD UNIT</button></div>
+    <table class="data-table"><thead><tr><th style="width: 20%">ID INDEX</th><th style="width: 30%">RANK / ROLE</th><th style="width: 30%">VITALS STATUS</th><th style="width: 20%">ACTION</th></tr></thead><tbody id="roster-body"></tbody></table>
 </div>
 
-<!-- OPERATIONS (TACTICAL) -->
 <div id="operations-screen" class="screen">
-    <div class="hub-header">
-        <div style="font-size: 24px; font-weight: bold;">TACTICAL OPERATIONS PLANNING</div>
-        <button onclick="openScreen('dashboard-screen')" class="nav-btn"><< DASHBOARD</button>
-    </div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <p style="color: var(--term-dim); margin: 0;">>> MISSION CONTROL</p>
-        <button onclick="openAddOperationModal()" class="nav-btn" style="font-size: 12px;">+ ADD OPERATION</button>
-    </div>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th style="width: 10%">CODENAME</th>
-                <th style="width: 15%">START DATE & TIME</th>
-                <th style="width: 5%">UNITS</th>
-                <th style="width: 10%">SECTOR</th>
-                <th style="width: 25%">OBJECTIVES</th>
-                <th style="width: 10%">SECRECY</th>
-                <th style="width: 15%">STATUS</th>
-                <th style="width: 10%">ACTION</th>
-            </tr>
-        </thead>
-        <tbody id="operations-body"></tbody>
-    </table>
+    <div class="hub-header"><div style="font-size: 24px; font-weight: bold;">TACTICAL OPERATIONS</div><button class="nav-btn btn-back-dash"><< DASHBOARD</button></div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><p style="color: var(--term-dim); margin: 0;">>> MISSION CONTROL</p><button id="btn-add-op" class="nav-btn" style="font-size: 12px;">+ ADD OPERATION</button></div>
+    <table class="data-table"><thead><tr><th style="width: 10%">CODENAME</th><th style="width: 15%">START</th><th style="width: 5%">UNITS</th><th style="width: 10%">SECTOR</th><th style="width: 25%">OBJECTIVES</th><th style="width: 10%">SECRECY</th><th style="width: 15%">STATUS</th><th style="width: 10%">ACTION</th></tr></thead><tbody id="operations-body"></tbody></table>
 </div>
 
-<!-- RESEARCH HUB -->
 <div id="main-hub" class="screen">
-    <div class="hub-header">
-        <div>
-            <div style="font-size: 24px; font-weight: bold;">RESEARCH DATABASE</div>
-            <div style="font-size: 12px; color: var(--term-dim);">ACCESS LEVEL: BETA</div>
-        </div>
-        <div style="text-align: right;">
-             <button onclick="openScreen('dashboard-screen')" class="nav-btn"><< DASHBOARD</button>
-             <button onclick="openAddProjectModal()" class="nav-btn" style="margin-top: 5px;">+ ADD PROJECT</button>
-        </div>
-    </div>
-
-    <div class="grid-container" id="research-grid">
-        <!-- Rendered by JS -->
-    </div>
+    <div class="hub-header"><div><div style="font-size: 24px; font-weight: bold;">RESEARCH DATABASE</div><div style="font-size: 12px; color: var(--term-dim);">ACCESS LEVEL: BETA</div></div><div style="text-align: right;"><button class="nav-btn btn-back-dash"><< DASHBOARD</button><button id="btn-add-proj" class="nav-btn" style="margin-top: 5px;">+ ADD PROJECT</button></div></div>
+    <div class="grid-container" id="research-grid"></div>
 </div>
 
-<!-- MODALS -->
-<div id="modal-access-denied" class="modal-overlay" onclick="closeModal('modal-access-denied')">
-    <div class="modal-box alert">
-        <h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">ACCESS DENIED</h1>
-        <p style="color: #fff;">ТРЕБУЕТСЯ КЛЮЧ "АРХИТЕКТОРА".</p>
-        <div style="margin-top: 30px; font-size: 60px;"><span class="blink">!</span></div>
-        <br><button class="modal-btn danger" onclick="closeModal('modal-access-denied')">ЗАКРЫТЬ</button>
-    </div>
-</div>
+<div id="modal-access-denied" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">ACCESS DENIED</h1><p style="color: #fff;">ТРЕБУЕТСЯ КЛЮЧ "АРХИТЕКТОРА".</p><div style="margin-top: 30px; font-size: 60px;"><span class="blink">!</span></div><br><button class="modal-btn danger close-modal">ЗАКРЫТЬ</button></div></div>
 
-<div id="modal-add-unit" class="modal-overlay">
-    <div class="modal-box">
-        <h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">ADD NEW UNIT</h1>
-        <p>ENTER IDENTIFICATION INDEX:</p>
-        <input type="text" id="new-unit-id" class="modal-input" placeholder="000-CODENAME" maxlength="15">
-        <div><button onclick="confirmAddUnit()" class="modal-btn">CONFIRM</button><button onclick="closeModal('modal-add-unit')" class="modal-btn cancel">CANCEL</button></div>
-    </div>
-</div>
+<div id="modal-add-unit" class="modal-overlay"><div class="modal-box"><h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">ADD NEW UNIT</h1><p>ENTER IDENTIFICATION INDEX:</p><input type="text" id="new-unit-id" class="modal-input" placeholder="000-CODENAME" maxlength="15"><div><button id="confirm-add-unit" class="modal-btn">CONFIRM</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
+<div id="modal-delete-unit" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">TERMINATE RECORD?</h1><p>THIS ACTION CANNOT BE UNDONE.</p><div style="margin-top: 30px;"><button id="confirm-delete-unit" class="modal-btn danger">TERMINATE</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
 
-<div id="modal-add-project" class="modal-overlay">
-    <div class="modal-box">
-        <h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">INIT NEW PROTOCOL</h1>
-        
-        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">CODENAME (FILE NAME):</p>
-        <input type="text" id="new-proj-code" class="modal-input" placeholder="e.g. GBS-5" style="margin: 0 0 15px 0;">
-        
-        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">DESCRIPTION:</p>
-        <input type="text" id="new-proj-desc" class="modal-input" placeholder="BRIEF SUMMARY" style="margin: 0 0 15px 0;">
-        
-        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">ACCESS CLEARANCE:</p>
-        <select id="new-proj-status" class="term-select" style="margin-bottom: 20px;">
-            <option value="ALPHA">ALPHA</option>
-            <option value="BETA">BETA (CURRENT)</option>
-            <option value="OMEGA">OMEGA</option>
-        </select>
+<div id="modal-add-project" class="modal-overlay"><div class="modal-box"><h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">INIT NEW PROTOCOL</h1><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">CODENAME (FILE NAME):</p><input type="text" id="new-proj-code" class="modal-input" placeholder="e.g. GBS-5" style="margin: 0 0 15px 0;"><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">DESCRIPTION:</p><input type="text" id="new-proj-desc" class="modal-input" placeholder="BRIEF SUMMARY" style="margin: 0 0 15px 0;"><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">ACCESS CLEARANCE:</p><select id="new-proj-status" class="term-select" style="margin-bottom: 20px;"><option value="ALPHA">ALPHA</option><option value="BETA">BETA (CURRENT)</option><option value="OMEGA">OMEGA</option></select><div><button id="confirm-add-proj" class="modal-btn">INITIALIZE</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
+<div id="modal-delete-project" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">ERASE PROTOCOL?</h1><p>CONFIRM DELETION OF PROJECT DATA.</p><div style="margin-top: 30px;"><button id="confirm-delete-proj" class="modal-btn danger">ERASE</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
 
-        <div>
-            <button onclick="confirmAddProject()" class="modal-btn">INITIALIZE</button>
-            <button onclick="closeModal('modal-add-project')" class="modal-btn cancel">CANCEL</button>
-        </div>
-    </div>
-</div>
+<div id="modal-add-operation" class="modal-overlay"><div class="modal-box"><h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">NEW OPERATION</h1><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">CODENAME:</p><input type="text" id="new-op-code" class="modal-input" placeholder="OP-TITAN" style="margin: 0 0 10px 0;"><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">START DATE & TIME:</p><input type="text" id="new-op-time" class="modal-input" placeholder="DD.MM.YYYY HH:MM" style="margin: 0 0 10px 0;"><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">UNIT COUNT:</p><input type="text" id="new-op-units" class="modal-input" placeholder="4" style="margin: 0 0 10px 0;"><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">SECTOR / LOCATION:</p><input type="text" id="new-op-loc" class="modal-input" placeholder="AGROPROM" style="margin: 0 0 10px 0;"><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">MISSION OBJECTIVES:</p><input type="text" id="new-op-obj" class="modal-input" placeholder="ELIMINATE TARGET / RETRIEVE DATA" style="margin: 0 0 10px 0;"><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">SECRECY STATUS:</p><select id="new-op-secrecy" class="term-select" style="margin-bottom: 20px;"><option value="SECRET">SECRET (RED)</option><option value="NON-SECRET">NON-SECRET (GREEN)</option></select><div><button id="confirm-add-op" class="modal-btn">CONFIRM</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
+<div id="modal-delete-operation" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">ABORT OPERATION?</h1><p>CONFIRM CANCELLATION OF TACTICAL MISSION.</p><div style="margin-top: 30px;"><button id="confirm-delete-op" class="modal-btn danger">ABORT</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
 
-<!-- NEW MODAL FOR PROJECT DELETION -->
-<div id="modal-delete-project" class="modal-overlay">
-    <div class="modal-box alert">
-        <h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">ERASE PROTOCOL?</h1>
-        <p>CONFIRM DELETION OF PROJECT DATA.</p>
-        <div style="margin-top: 30px;">
-            <button onclick="confirmDeleteProject()" class="modal-btn danger">ERASE</button>
-            <button onclick="closeModal('modal-delete-project')" class="modal-btn cancel">CANCEL</button>
-        </div>
-    </div>
-</div>
-
-<div id="modal-delete-unit" class="modal-overlay">
-    <div class="modal-box alert">
-        <h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">TERMINATE RECORD?</h1>
-        <p>THIS ACTION CANNOT BE UNDONE.</p>
-        <div style="margin-top: 30px;"><button onclick="confirmDeleteUnit()" class="modal-btn danger">TERMINATE</button><button onclick="closeModal('modal-delete-unit')" class="modal-btn cancel">CANCEL</button></div>
-    </div>
-</div>
-
-<div id="modal-delete-operation" class="modal-overlay">
-    <div class="modal-box alert">
-        <h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">ABORT OPERATION?</h1>
-        <p>CONFIRM CANCELLATION OF TACTICAL MISSION.</p>
-        <div style="margin-top: 30px;"><button onclick="confirmDeleteOperation()" class="modal-btn danger">ABORT</button><button onclick="closeModal('modal-delete-operation')" class="modal-btn cancel">CANCEL</button></div>
-    </div>
-</div>
-
-<div id="modal-add-operation" class="modal-overlay">
-    <div class="modal-box">
-        <h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">NEW OPERATION</h1>
-        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">CODENAME:</p>
-        <input type="text" id="new-op-code" class="modal-input" placeholder="OP-TITAN" style="margin: 0 0 10px 0;">
-        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">START DATE & TIME:</p>
-        <input type="text" id="new-op-time" class="modal-input" placeholder="DD.MM.YYYY HH:MM" style="margin: 0 0 10px 0;">
-        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">UNIT COUNT:</p>
-        <input type="text" id="new-op-units" class="modal-input" placeholder="4" style="margin: 0 0 10px 0;">
-        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">SECTOR / LOCATION:</p>
-        <input type="text" id="new-op-loc" class="modal-input" placeholder="AGROPROM" style="margin: 0 0 10px 0;">
-        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">MISSION OBJECTIVES:</p>
-        <input type="text" id="new-op-obj" class="modal-input" placeholder="ELIMINATE TARGET / RETRIEVE DATA" style="margin: 0 0 10px 0;">
-        <p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">SECRECY STATUS:</p>
-        <select id="new-op-secrecy" class="term-select" style="margin-bottom: 20px;">
-            <option value="SECRET">SECRET (RED)</option>
-            <option value="NON-SECRET">NON-SECRET (GREEN)</option>
-        </select>
-        <div>
-            <button onclick="confirmAddOperation()" class="modal-btn">CONFIRM</button>
-            <button onclick="closeModal('modal-add-operation')" class="modal-btn cancel">CANCEL</button>
-        </div>
-    </div>
-</div>
-
-<!-- DOC VIEWER -->
 <div id="doc-viewer" class="screen">
-    <div class="doc-controls">
-        <button class="back-btn" onclick="window.closeDocument()">[ < ] CLOSE FILE</button>
-    </div>
-    
+    <div class="doc-controls"><button id="btn-close-doc" class="back-btn" onclick="window.closeDocument()">[ < ] CLOSE FILE</button></div>
     <div class="report-container">
-        
-        <!-- ЛИСТ 1: ТИТУЛ -->
-        <div class="doc-page">
-            <div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div>
-            <div class="hex-col">0F A1<br>B2 00<br>11 FF<br>C3 4A<br>...</div>
-            
-            <div style="margin-top: 200px; border-left: 4px solid var(--primary); padding-left: 20px;">
-                <p style="font-family: var(--font-ui); letter-spacing: 3px; color: var(--dim);">ИССЛЕДОВАТЕЛЬСКИЙ ЦЕНТР "СИНГУЛЯРНОСТЬ"</p>
-                <h1 style="font-size: 64px; margin: 0; line-height: 1; border: none; color: var(--primary);">GBS-5</h1>
-                <h1 style="font-size: 64px; margin: 0; line-height: 1; border: none; color: var(--dim);">"ЗАГУСТИН"</h1>
-            </div>
-
-            <div style="margin-top: 100px; font-family: var(--font-ui);">
-                <p><strong>ОБЪЕКТ:</strong> ХИМИЧЕСКИЙ КОАГУЛЯНТ СВЕРХБЫСТРОГО ДЕЙСТВИЯ</p>
-                <p><strong>ЦЕЛЬ:</strong> СОХРАНЕНИЕ БИОМАССЫ В АГРЕССИВНОЙ СРЕДЕ</p>
-                <p><strong>СТАТУС:</strong> УТВЕРЖДЕНО ДЛЯ "ИСКУПЛЕННЫХ"</p>
-            </div>
-
-            <div style="position: absolute; bottom: 60px; right: 50px; text-align: right; font-family: var(--font-ui);">
-                <p>КУРАТОР ПРОЕКТА:</p>
-                <p style="font-size: 18px; color: var(--primary);">ВЫЧИСЛИТЕЛЬ [ДАННЫЕ УДАЛЕНЫ]</p>
-                <p>ИСПОЛНИТЕЛЬ:</p>
-                <p style="font-size: 18px; color: var(--primary);">КОГНИТОР РОМАНОВ</p>
-            </div>
-            
-            <div class="status-bar">
-                <span>STATUS: APPROVED</span>
-                <span class="blink">_CURSOR_ACTIVE</span>
-                <span>VER: 4.0.1</span>
-            </div>
-            <div class="page-number">01 / 07</div>
-        </div>
-
-        <!-- ЛИСТ 2: АНАЛИЗ -->
-        <div class="doc-page">
-            <div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div>
-            <div class="hex-col">SYS.LOG<br>INIT..</div>
-            
-            <h1>1.0 ВВОДНЫЕ ДАННЫЕ</h1>
-
-            <div style="border: 1px solid var(--dim); padding: 10px; margin-bottom: 20px;">
-                <p style="margin:0; color: var(--alert); font-family: var(--font-ui);">[!] ОБНАРУЖЕНА КРИТИЧЕСКАЯ УЯЗВИМОСТЬ БИОМАССЫ</p>
-            </div>
-
-            <h2>1.1 АНАЛИЗ ПОТЕРЬ И УЯЗВИМОСТЕЙ</h2>
-            <p>Телеметрия полевых выходов демонстрирует фатальную конструктивную ошибку стандартных биологических юнитов: система кровообращения является замкнутым гидравлическим контуром. При нарушении целостности оболочки происходит резкое падение давления, ведущее к гипоксии ЦНС и отключению когнитивных функций.</p>
-            <p>Для примитивных фракций ("Долг", "Свобода") порог критической потери составляет 1.5 литра жидкости. Время до потери боеспособности: 40-60 секунд. Протоколы стабилизации ("бинт", "жгут") математически неэффективны — расход времени и ресурсов неприемлем.</p>
-            <p>Для юнитов типа "Искупленный" болевые рецепторы заблокированы на аппаратном уровне, однако физика процесса остается неизменной: потеря давления ведет к отказу гидравлики мышц и терминальному сбою. Мы теряем ценный ресурс из-за банальной "утечки".</p>
-
-            <h2>1.2 ИСТОЧНИК ДАННЫХ</h2>
-            <p><strong>Инцидент 14-В:</strong> Наблюдательный дрон серии "Око-4" перехватил сигнал бедствия научной экспедиции Экологов (Позывной "Топаз") в секторе "Дикая Территория".</p>
-            <p>>> Действие: Инициирован протокол пассивного наблюдения. Активировано глушение сигнала SOS.</p>
-            <p>>> Хронология: Субъекты получили множественные рваные раны от локальной фауны. Геморрагический шок зафиксирован на отметке Т-минус 120с. Уровень паники: Критический.</p>
-            <p>>> Результат: Полная ликвидация группы через обескровливание. Биологический материал признан непригодным. Изъят контейнер "Кейс-Б" с тела ведущего научного сотрудника.</p>
-            <p>Анализ содержимого: Модифицированные артефакты гравитационной природы ("Слюда", "Слизь"), адаптированные для "сварки" прорезиненной ткани костюмов. Принцип действия: принудительная молекулярная полимеризация материи.</p>
-
-            <h2>1.3 ЦЕЛИ СИНТЕЗА</h2>
-            <div class="data-row"><span class="data-key">OBJ_1:</span> <span class="data-val">Герметизация пробоин (1.5 сек)</span></div>
-            <div class="data-row"><span class="data-key">OBJ_2:</span> <span class="data-val">Создание твердой пробки (Био-бетон)</span></div>
-            <div class="data-row"><span class="data-key">OBJ_3:</span> <span class="data-val">Игнорирование некроза тканей</span></div>
-
-            <div class="status-bar">
-                <span>MODULE: ANALYSIS</span>
-                <span>COMPLETE</span>
-            </div>
-            <div class="page-number">02 / 07</div>
-        </div>
-
-        <!-- ЛИСТ 3: ЧЕРТЕЖ МОЛЕКУЛЫ -->
-        <div class="doc-page">
-            <div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div>
-            
-            <h1>2.0 МОЛЕКУЛЯРНАЯ АРХИТЕКТУРА</h1>
-
-            <div class="drawing-box">
-                <div class="drawing-overlay">
-                    <div class="crosshair ch-tl"></div><div class="crosshair ch-tr"></div>
-                    <div class="crosshair ch-bl"></div><div class="crosshair ch-br"></div>
-                    <div style="position:absolute; top:5px; left:5px; font-size:8px; color:var(--primary); font-family: var(--font-ui);">SCALE: 8000:1</div>
-                </div>
-
-                <svg width="600" height="400" viewBox="0 0 600 400">
-                    <g transform="translate(100, 50) scale(0.9)">
-                        <path class="w-line" d="M 100 100 L 150 70 L 200 100 L 200 160 L 150 190 L 100 160 Z" />
-                        <circle cx="150" cy="130" r="30" class="w-thin" fill="none" stroke-dasharray="4,2"/>
-                        
-                        <line x1="100" y1="100" x2="50" y2="70" class="w-line" />
-                        <text x="30" y="65" class="w-text">R1</text>
-                        
-                        <line x1="100" y1="160" x2="50" y2="190" class="w-line" />
-                        <text x="25" y="205" class="w-text">NH-CO</text>
-
-                        <line x1="200" y1="100" x2="250" y2="70" class="w-line" />
-                        <line x1="200" y1="160" x2="250" y2="190" class="w-line" />
-                        
-                        <path class="w-line" d="M 250 70 L 280 90 L 310 70 L 340 90 L 370 70 L 400 90 L 430 70" fill="none" />
-                        <path class="w-line" d="M 250 190 L 280 170 L 310 190 L 340 170 L 370 190 L 400 170 L 430 190" fill="none" />
-
-                        <line x1="310" y1="70" x2="310" y2="190" class="w-dim" stroke-dasharray="4,2"/>
-                        <text x="315" y="130" class="w-dim-text">S-S BOND</text>
-                        
-                        <line x1="400" y1="90" x2="400" y2="170" class="w-dim" stroke-dasharray="4,2"/>
-
-                        <g transform="translate(430, 60)">
-                            <rect x="0" y="0" width="40" height="20" class="w-line" fill="#111"/>
-                            <text x="5" y="14" class="w-text">ION+</text>
-                        </g>
-                        <g transform="translate(430, 180)">
-                            <rect x="0" y="0" width="40" height="20" class="w-line" fill="#111"/>
-                            <text x="5" y="14" class="w-text">ION-</text>
-                        </g>
-
-                        <circle cx="150" cy="130" r="10" fill="var(--primary)" opacity="0.5">
-                            <animate attributeName="opacity" values="0.2;0.8;0.2" dur="2s" repeatCount="indefinite" />
-                        </circle>
-                        
-                        <line x1="150" y1="130" x2="100" y2="250" class="w-dim"/>
-                        <text x="50" y="265" class="w-text">ЯДРО "СЛИЗЬ" (АКТИВНОЕ)</text>
-
-                        <line x1="340" y1="90" x2="380" y2="40" class="w-dim"/>
-                        <text x="390" y="40" class="w-text">ПОЛИМЕРНАЯ РЕШЕТКА</text>
-                    </g>
-                </svg>
-            </div>
-
-            <h2>КОМПОНЕНТЫ РЕАКЦИИ (РАСШИРЕННЫЙ СПИСОК)</h2>
-            <p>Молекулярная структура нестабильна вне контейнера. Требуется строгая последовательность смешивания.</p>
-            <table>
-                <tr><th>ID</th><th>СУБСТАНЦИЯ</th><th>ИСТОЧНИК</th><th>МАССА</th><th>ФУНКЦИЯ</th></tr>
-                <tr><td>C-01</td><td>ЭКСТРАКТ "СЛИЗЬ"</td><td>КИСЛОТНАЯ ОБР.</td><td>15 мг</td><td>ОСНОВА (КЛЕЙ)</td></tr>
-                <tr><td>C-02</td><td>ТРОМБИН (СИНТ.)</td><td>БИО-РЕАКТОР</td><td>5 мг</td><td>КАТАЛИЗАТОР</td></tr>
-                <tr><td>C-03</td><td>ПЫЛЬЦА "ПУХ"</td><td>АНОМАЛИЯ</td><td>2 мг</td><td>ПРИЖИГАНИЕ</td></tr>
-                <tr><td>C-04</td><td>КОАГУЛЯНТ В-2</td><td>СКЛАД ГСМ</td><td>10 мл</td><td>ЗАГУСТИТЕЛЬ</td></tr>
-                <tr><td>C-05</td><td>СТАБИЛИЗАТОР X</td><td>СИНТЕЗ</td><td>3 мл</td><td>КОНСЕРВАЦИЯ</td></tr>
-            </table>
-            
-            <div style="color: var(--alert); border: 1px solid var(--alert); padding: 10px; margin-top: 15px; font-weight: bold; background: rgba(255, 51, 51, 0.1);">
-                [!] ВНИМАНИЕ: СУБСТАНЦИЯ ПРОЯВЛЯЕТ РАДИОАКТИВНОСТЬ (15 МКР/Ч). ПРИ КОНТАКТЕ С КИСЛОРОДОМ ПРОИСХОДИТ МГНОВЕННАЯ КРИСТАЛЛИЗАЦИЯ. НЕ ВСКРЫВАТЬ ВНЕ ВАКУУМНОЙ КАМЕРЫ.
-            </div>
-
-            <div class="status-bar">
-                <span>CHEM_ANALYSIS: OK</span>
-                <span>TOXICITY: HIGH</span>
-            </div>
-            <div class="page-number">03 / 07</div>
-        </div>
-
-        <!-- ЛИСТ 4: ИНЖЕКТОР -->
-        <div class="doc-page">
-            <div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div>
-            
-            <h1>3.0 СИСТЕМА ВВОДА</h1>
-            
-            <div class="drawing-box">
-                <div class="drawing-overlay">
-                    <div style="position:absolute; bottom:5px; right:5px; font-size:8px; color:var(--primary); font-family: var(--font-ui);">PRESSURE: 6 ATM</div>
-                </div>
-                <svg width="600" height="300" viewBox="0 0 600 300">
-                     <defs>
-                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
-                            <path d="M0,0 L0,6 L9,3 z" fill="#00ff41" />
-                        </marker>
-                    </defs>
-
-                    <rect x="150" y="100" width="300" height="60" rx="0" class="w-line" />
-                    <rect x="450" y="110" width="40" height="40" class="w-line" />
-                    <line x1="490" y1="130" x2="530" y2="130" class="w-line" />
-                    <text x="535" y="135" class="w-text">TRIG</text>
-
-                    <path d="M 150 110 L 100 120 L 100 140 L 150 150" class="w-line" />
-                    <line x1="100" y1="130" x2="60" y2="130" class="w-line" stroke-dasharray="0" />
-                    
-                    <line x1="60" y1="130" x2="30" y2="170" class="w-dim" stroke-dasharray="2,2"/>
-                    <text x="5" y="185" class="w-text">W-NEEDLE d=3mm</text>
-
-                    <rect x="200" y="110" width="100" height="40" class="w-thin" stroke-dasharray="0" />
-                    <text x="225" y="135" class="w-text" style="opacity: 0.7;">CONTAINER</text>
-
-                    <path d="M 320 130 L 325 110 L 335 150 L 345 110 L 355 150 L 365 110 L 375 150 L 385 110 L 395 150 L 405 110 L 415 150 L 420 130" class="w-line" fill="none" />
-
-                    <line x1="150" y1="180" x2="450" y2="180" class="w-dim" marker-start="url(#arrow)" marker-end="url(#arrow)" />
-                    <text x="280" y="200" class="w-text">L=150mm</text>
-                </svg>
-            </div>
-
-            <h2>3.1 ТЕХНИЧЕСКАЯ СПЕЦИФИКАЦИЯ</h2>
-            <p><strong>ПРИВОД:</strong> Пневматический поршень одноразового действия. Предварительное сжатие газа: 6.0 Атм. Обеспечивает впрыск вязкого субстрата (вязкость > 4000 cP) за 0.8 секунды. Отдача при активации: 1.5 Дж.</p>
-            
-            <p><strong>ИГЛА-ИНЪЕКТОР:</strong> Сплав ВНЖ-90 (Вольфрам-Никель-Железо). Заточка лазерная, трехгранная.
-            <br>> Пробивная способность: Кевлар (30 слоев), шкура Псевдогиганта (до 20мм), стандартная химзащита.
-            <br>> Риск: При попадании в кость игла не ломается, а раскалывает костную ткань. Болевой шок игнорируется протоколом.</p>
-
-            <p><strong>КОНТЕЙНЕР:</strong> Химически инертный полимер "Фторопласт-4". Исключает реакцию с кислотной основой геля. Одноразовый. Попытка перезарядки запрещена (риск взрыва камеры давления).</p>
-
-            <p><strong>АЛГОРИТМ ВВОДА:</strong>
-            1. Срыв пломбы.
-            2. Ударная активация (усилие 5 кг).
-            3. Принудительная эвакуация содержимого.
-            4. Автоматическая блокировка иглы (защита от повторного использования).</p>
-
-            <div style="color: var(--alert); border: 1px solid var(--alert); padding: 5px; margin-top: 15px;">
-                WARNING: ТЕМПЕРАТУРА КРИСТАЛЛИЗАЦИИ -10°C. ПРИ ЗАМЕРЗАНИИ СУБСТАНЦИЯ РАСШИРЯЕТСЯ И РАЗРЫВАЕТ КОНТЕЙНЕР. ТРЕБУЕТСЯ ВНЕШНИЙ ПОДОГРЕВ.
-            </div>
-            
-            <div class="status-bar">
-                <span>MECH_CHECK: OK</span>
-                <span>AMMO: 1</span>
-            </div>
-            <div class="page-number">04 / 07</div>
-        </div>
-
-        <!-- ЛИСТ 5: ПРОИЗВОДСТВО -->
-        <div class="doc-page">
-            <div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div>
-            
-            <h1>4.0 ПРОТОКОЛ СИНТЕЗА И ЛОГИСТИКА</h1>
-            <div style="border-bottom: 1px solid var(--primary); margin-bottom: 15px; padding-bottom: 5px;">
-                <span class="data-key">ПРОИЗВОДСТВЕННЫЙ КЛАСТЕР:</span> <span class="data-val">СЕКТОР "ДЕЛЬТА" (ЛАБОРАТОРИЯ Х-19)</span><br>
-                <span class="data-key">ЦИКЛ:</span> <span class="data-val">НЕПРЕРЫВНЫЙ (24/7)</span><br>
-                <span class="data-key">ПРИОРИТЕТ:</span> <span class="data-val">АБСОЛЮТНЫЙ</span>
-            </div>
-
-            <h2>4.1 АППАРАТНОЕ ОБЕСПЕЧЕНИЕ</h2>
-            <p>Для синтеза нестабильных аномальных субстанций требуется оборудование класса защиты "А". Использование гражданских аналогов ведет к загрязнению продукта и гибели оператора.</p>
-            <ul>
-                <li><strong>> Центрифуга "Vortex-9" (Модиф.):</strong> 12 000 об/мин. Необходима для сепарации активной плазмы артефакта от инертных шлаков. Ротор: Титановый сплав.</li>
-                <li><strong>> Реактор "Саркофаг-М":</strong> Герметичная камера со свинцовым экранированием (10мм). Используется для смешивания компонентов под высоким давлением. Оснащен системой аварийного сброса реагентов в канализацию.</li>
-                <li><strong>> Крио-камера "Азот":</strong> Для шоковой заморозки готового геля перед упаковкой. Температура -196°C. Остановка молекулярного распада.</li>
-                <li><strong>> Линия розлива (Автомат):</strong> Исключает контакт персонала с активным веществом. Калибровка дозы: +/- 0.01 мл.</li>
-            </ul>
-
-            <h2>4.2 МАТЕРИАЛЬНАЯ БАЗА (ПАКЕТ СИНТЕЗА #4)</h2>
-            <p>Расчет на партию в 50 единиц готового изделия. Допускается использование загрязненного сырья.</p>
-            <table style="margin-top: 10px;">
-                <tr><th style="width: 40%;">РЕСУРС</th><th style="width: 20%;">ОБЪЕМ</th><th>ПРИМЕЧАНИЕ</th></tr>
-                <tr><td>АРТЕФАКТ "СЛИЗЬ" (Низкосортный)</td><td>3 ЕД.</td><td>Допускается фоновая радиация до 500 мР/ч. Источник полимеров.</td></tr>
-                <tr><td>КИСЛОТА СЕРНАЯ (H2SO4)</td><td>2 Л</td><td>Концентрированная. Для растворения оболочки артефакта.</td></tr>
-                <tr><td>БИО-СТАБИЛИЗАТОР</td><td>0.5 Л</td><td>Синтезируется из лимфы мутантов (Снорк/Кровосос). Предотвращает распад геля.</td></tr>
-                <tr><td>ВОЛЬФРАМ (ЛОМ)</td><td>1 КГ</td><td>Для изготовления игл инжекторов. Переплавка сердечников бронебойных пуль.</td></tr>
-                <tr><td>ПЛАСТИК АБС</td><td>5 КГ</td><td>Корпуса инжекторов (вторсырье).</td></tr>
-            </table>
-
-            <h2>4.3 АЛГОРИТМ СИНТЕЗА (ВЕРСИЯ 2.0)</h2>
-            <div style="font-size: 12px; border-left: 2px solid var(--dim); padding-left: 10px; margin-top: 10px;">
-                <p><strong>ФАЗА 1: ЭКСТРАКЦИЯ.</strong> Артефакт помещается в кислотную ванну реактора. Время растворения: 40 минут. <span style="color:var(--alert)">ВНИМАНИЕ: Выделение токсичных паров. Вентиляция на 100%.</span></p>
-                <p><strong>ФАЗА 2: АКТИВАЦИЯ.</strong> В полученный раствор вводится катализатор (Тромбин). Смесь нагревается до 80°C. Происходит загустение и изменение цвета на темно-зеленый.</p>
-                <p><strong>ФАЗА 3: СТАБИЛИЗАЦИЯ.</strong> Ввод био-добавок. Смесь становится химически инертной к полимерам контейнера, но сохраняет сверхактивность к органическому гемоглобину.</p>
-                <p><strong>ФАЗА 4: ФАСОВКА.</strong> Разлив по капсулам под давлением 6 атм. Установка иглы и ударного активатора. Маркировка штрих-кодом.</p>
-            </div>
-            
-            <div class="status-bar">
-                <span>EFFICIENCY: 94%</span>
-                <span>WASTE: TOXIC SLUDGE (RECYCLE)</span>
-            </div>
-            <div class="page-number">05 / 07</div>
-        </div>
-
-        <!-- ЛИСТ 6: ТЕСТЫ -->
-        <div class="doc-page">
-            <div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div>
-            
-            <h1>5.0 ПРОТОКОЛ КЛИНИЧЕСКИХ ИСПЫТАНИЙ</h1>
-            <div style="border-bottom: 1px solid var(--primary); margin-bottom: 15px; padding-bottom: 5px;">
-                <span class="data-key">ГРУППА СУБЪЕКТОВ:</span> <span class="data-val">ЗАХВАЧЕННЫЕ БИО-ЕДИНИЦЫ (ФРАКЦИЯ "БАНДИТЫ")</span><br>
-                <span class="data-key">ЛОКАЦИЯ:</span> <span class="data-val">ИЗОЛЯТОР "ХОЛОД-2"</span><br>
-                <span class="data-key">АНЕСТЕЗИЯ:</span> <span style="color: var(--alert);">ОТКЛЮЧЕНА (ДЛЯ ЧИСТОТЫ НЕВРОЛОГИЧЕСКИХ ДАННЫХ)</span>
-            </div>
-
-            <table>
-                <tr>
-                    <th style="width: 10%;">ID</th>
-                    <th style="width: 25%;">ТРАВМА</th>
-                    <th style="width: 30%;">РЕАКЦИЯ ПРЕПАРАТА</th>
-                    <th style="width: 35%;">СТАТУС СУБЪЕКТА / ПОБОЧНЫЕ ЭФФЕКТЫ</th>
-                </tr>
-                <tr>
-                    <td>Б-091</td>
-                    <td>Рваная рана бедра (Глубина 4см)</td>
-                    <td>Полимеризация за 1.2с. Пробка устойчива.</td>
-                    <td>Острая вокализация (крик). Попытка извлечь сгусток руками. Фиксация ремнями. Стабилен.</td>
-                </tr>
-                <tr>
-                    <td>Б-094</td>
-                    <td>Артериальное кровотечение (Шея)</td>
-                    <td>Ввод в канал раны. Мгновенная герметизация.</td>
-                    <td>Перекрытие кровотока в ГМ. Обширный ишемический инсульт. Кома. Образец сохранен.</td>
-                </tr>
-                <tr>
-                    <td>Б-102</td>
-                    <td>Травматическая ампутация кисти</td>
-                    <td>Прямой впрыск в открытые вены культи.</td>
-                    <td>Химический ожог нервных окончаний. Субъект потерял сознание от болевого пика. Гемостаз полный.</td>
-                </tr>
-                <tr>
-                    <td>Б-105</td>
-                    <td>Осколочное проникающее (Брюшина)</td>
-                    <td>Заливка полости (2 дозы). Формирование "кокона".</td>
-                    <td>Внутренние органы склеены. Перистальтика остановлена. Субъект жив, функциональность нулевая.</td>
-                </tr>
-                <tr>
-                    <td>Б-110</td>
-                    <td>Контрольный (Без вмешательства)</td>
-                    <td>Препарат не вводился.</td>
-                    <td>Терминальный статус (Смерть) через 180с. Потеря 2.5л жидкости. Утилизирован.</td>
-                </tr>
-                <tr>
-                    <td>Б-114</td>
-                    <td>Ожог "Жаркой" (III степень)</td>
-                    <td>Нанесение на обугленные ткани.</td>
-                    <td>Реакция отторжения. Токсический шок. GBS-5 вступил в реакцию с некротикой. Летальный исход.</td>
-                </tr>
-                <tr>
-                    <td>Б-121</td>
-                    <td>Перелом голени (Открытый)</td>
-                    <td>Инъекция в костный канал и мягкие ткани.</td>
-                    <td>Кость и мышцы зафиксированы в монолит. Субъект не чувствует ногу (полный паралич нерва). Годен к транспортировке.</td>
-                </tr>
-                <tr>
-                    <td>Б-133</td>
-                    <td>Пулевое в легкое</td>
-                    <td>Ввод через прокол. Герметизация плевры.</td>
-                    <td>Часть геля попала в бронхи. Асфиксия. Субъект ликвидирован из-за бесполезности.</td>
-                </tr>
-                <tr>
-                    <td>Б-140</td>
-                    <td>Двойная дозировка (Здоровая ткань)</td>
-                    <td>Ввод в локтевую вену.</td>
-                    <td>Кристаллизация венозного русла до плеча. Гангрена прогрессирующая (20 мин). Ампутация руки.</td>
-                </tr>
-                <tr>
-                    <td>Б-155</td>
-                    <td>Пси-повреждение + Кровопотеря</td>
-                    <td>Ввод на фоне припадка.</td>
-                    <td>Успешный гемостаз. Субъект впал в кататонию. Рефлексы сохранены. Идеальный кандидат для "Искупления".</td>
-                </tr>
-            </table>
-
-            <br>
-            <div style="border-left: 2px solid var(--alert); padding-left: 10px; background: rgba(255, 51, 51, 0.05);">
-                <p style="color: var(--alert); font-weight: bold;">[!] КОГНИТИВНЫЙ ОТЧЕТ:</p>
-                <p>Субъекты демонстрируют запредельный уровень болевого стресса при кристаллизации геля внутри тела (ощущение "жидкого огня"). Для неподготовленного организма это часто приводит к обмороку. <br>
-                <strong>ВЫВОД:</strong> Для фракции "Последний День" эффект не критичен (болевые рецепторы наших юнитов подавлены). Для "Долга" — рекомендовать использование только в комплексе с мощными опиатами, иначе боец умрет от шока раньше, чем от раны.</p>
-            </div>
-            
-            <div class="status-bar">
-                <span>TEST_CYCLE: COMPLETE</span>
-                <span>MORTALITY: 30%</span>
-                <span>EFFICIENCY: 100%</span>
-            </div>
-            <div class="page-number">06 / 07</div>
-        </div>
-
-        <!-- ЛИСТ 7: ЗАКЛЮЧЕНИЕ -->
-        <div class="doc-page">
-            <div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div>
-            
-            <h1>6.0 ИТОГОВЫЙ ПРОТОКОЛ</h1>
-
-            <p>Препарат GBS-5 "Загустин" утвержден к использованию штурмовыми группами. Побочные эффекты (некроз, паралич) признаны несущественными.</p>
-
-            <br>
-            <div style="border: 1px solid var(--primary); padding: 10px;">
-                <p><strong>ДИРЕКТИВА №88:</strong></p>
-                <ol>
-                    <li>Начать массовый синтез.</li>
-                    <li>Организовать сбор сырья силами неофитов.</li>
-                    <li>Технологию зашифровать. Уровень доступа: Омега.</li>
-                </ol>
-            </div>
-
-            <div style="margin-top: 100px; display: flex; justify-content: space-between;">
-                <div>
-                    <p>INPUT:</p>
-                    <p>UNIT_COGNITOR_734</p>
-                </div>
-                
-                <div style="text-align: right;">
-                    <p>VERIFIED:</p>
-                    <p>OVERSEER_AI</p>
-                    
-                    <div class="status-block" style="border: 2px solid var(--primary); padding: 5px 15px; display: inline-block; margin-top: 10px;">
-                        CONFIRMED<br>HASH: X8-99
-                    </div>
-                </div>
-            </div>
-            
-            <div class="status-bar">
-                <span>SESSION: CLOSED</span>
-                <span>LOGOUT...</span>
-            </div>
-            <div class="page-number">07 / 07</div>
-        </div>
+        <!-- ZAGUSTIN CONTENT -->
+        <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><div class="hex-col">0F A1<br>B2 00<br>...</div><div style="margin-top: 200px; border-left: 4px solid var(--primary); padding-left: 20px;"><p style="font-family: var(--font-ui); letter-spacing: 3px; color: var(--dim);">ИССЛЕДОВАТЕЛЬСКИЙ ЦЕНТР "СИНГУЛЯРНОСТЬ"</p><h1 style="font-size: 64px; margin: 0; line-height: 1; border: none; color: var(--primary);">GBS-5</h1><h1 style="font-size: 64px; margin: 0; line-height: 1; border: none; color: var(--dim);">"ЗАГУСТИН"</h1></div><div style="margin-top: 100px; font-family: var(--font-ui);"><p><strong>ОБЪЕКТ:</strong> ХИМИЧЕСКИЙ КОАГУЛЯНТ СВЕРХБЫСТРОГО ДЕЙСТВИЯ</p><p><strong>ЦЕЛЬ:</strong> СОХРАНЕНИЕ БИОМАССЫ В АГРЕССИВНОЙ СРЕДЕ</p><p><strong>СТАТУС:</strong> УТВЕРЖДЕНО ДЛЯ "ИСКУПЛЕННЫХ"</p></div><div style="position: absolute; bottom: 60px; right: 50px; text-align: right; font-family: var(--font-ui);"><p>КУРАТОР ПРОЕКТА:</p><p style="font-size: 18px; color: var(--primary);">ВЫЧИСЛИТЕЛЬ [ДАННЫЕ УДАЛЕНЫ]</p><p>ИСПОЛНИТЕЛЬ:</p><p style="font-size: 18px; color: var(--primary);">КОГНИТОР РОМАНОВ</p></div><div class="status-bar"><span>STATUS: APPROVED</span><span class="blink">_CURSOR_ACTIVE</span><span>VER: 4.0.1</span></div><div class="page-number">01 / 07</div></div>
+        <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><div class="hex-col">SYS.LOG<br>INIT..</div><h1>1.0 ВВОДНЫЕ ДАННЫЕ</h1><div style="border: 1px solid var(--dim); padding: 10px; margin-bottom: 20px;"><p style="margin:0; color: var(--alert); font-family: var(--font-ui);">[!] ОБНАРУЖЕНА КРИТИЧЕСКАЯ УЯЗВИМОСТЬ БИОМАССЫ</p></div><h2>1.1 АНАЛИЗ ПОТЕРЬ И УЯЗВИМОСТЕЙ</h2><p>Телеметрия полевых выходов демонстрирует фатальную конструктивную ошибку стандартных биологических юнитов: система кровообращения является замкнутым гидравлическим контуром.</p><p>Для примитивных фракций ("Долг", "Свобода") порог критической потери составляет 1.5 литра жидкости.</p><h2>1.2 ИСТОЧНИК ДАННЫХ</h2><p><strong>Инцидент 14-В:</strong> Наблюдательный дрон серии "Око-4" перехватил сигнал бедствия научной экспедиции Экологов.</p><h2>1.3 ЦЕЛИ СИНТЕЗА</h2><div class="data-row"><span class="data-key">OBJ_1:</span> <span class="data-val">Герметизация пробоин (1.5 сек)</span></div><div class="data-row"><span class="data-key">OBJ_2:</span> <span class="data-val">Создание твердой пробки (Био-бетон)</span></div><div class="data-row"><span class="data-key">OBJ_3:</span> <span class="data-val">Игнорирование некроза тканей</span></div><div class="status-bar"><span>MODULE: ANALYSIS</span><span>COMPLETE</span></div><div class="page-number">02 / 07</div></div>
+        <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><h1>2.0 МОЛЕКУЛЯРНАЯ АРХИТЕКТУРА</h1><div class="drawing-box"><div class="drawing-overlay"><div class="crosshair ch-tl"></div><div class="crosshair ch-tr"></div><div class="crosshair ch-bl"></div><div class="crosshair ch-br"></div><div style="position:absolute; top:5px; left:5px; font-size:8px; color:var(--primary); font-family: var(--font-ui);">SCALE: 8000:1</div></div><svg width="600" height="400" viewBox="0 0 600 400"><g transform="translate(100, 50) scale(0.9)"><path class="w-line" d="M 100 100 L 150 70 L 200 100 L 200 160 L 150 190 L 100 160 Z" /><circle cx="150" cy="130" r="30" class="w-thin" fill="none" stroke-dasharray="4,2"/><line x1="100" y1="100" x2="50" y2="70" class="w-line" /> <text x="30" y="65" class="w-text">R1</text><line x1="100" y1="160" x2="50" y2="190" class="w-line" /> <text x="25" y="205" class="w-text">NH-CO</text><line x1="200" y1="100" x2="250" y2="70" class="w-line" /> <line x1="200" y1="160" x2="250" y2="190" class="w-line" /><path class="w-line" d="M 250 70 L 280 90 L 310 70 L 340 90 L 370 70 L 400 90 L 430 70" fill="none" /><path class="w-line" d="M 250 190 L 280 170 L 310 190 L 340 170 L 370 190 L 400 170 L 430 190" fill="none" /><line x1="310" y1="70" x2="310" y2="190" class="w-dim" stroke-dasharray="4,2"/> <text x="315" y="130" class="w-dim-text">S-S BOND</text><line x1="400" y1="90" x2="400" y2="170" class="w-dim" stroke-dasharray="4,2"/><g transform="translate(430, 60)"><rect x="0" y="0" width="40" height="20" class="w-line" fill="#111"/><text x="5" y="14" class="w-text">ION+</text></g><g transform="translate(430, 180)"><rect x="0" y="0" width="40" height="20" class="w-line" fill="#111"/><text x="5" y="14" class="w-text">ION-</text></g><circle cx="150" cy="130" r="10" fill="var(--primary)" opacity="0.5"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="2s" repeatCount="indefinite" /></circle><line x1="150" y1="130" x2="100" y2="250" class="w-dim"/> <text x="50" y="265" class="w-text">ЯДРО "СЛИЗЬ" (АКТИВНОЕ)</text><line x1="340" y1="90" x2="380" y2="40" class="w-dim"/> <text x="390" y="40" class="w-text">ПОЛИМЕРНАЯ РЕШЕТКА</text></g></svg></div><h2>КОМПОНЕНТЫ РЕАКЦИИ (РАСШИРЕННЫЙ СПИСОК)</h2><p>Молекулярная структура нестабильна вне контейнера.</p><table><tr><th>ID</th><th>СУБСТАНЦИЯ</th><th>ИСТОЧНИК</th><th>МАССА</th><th>ФУНКЦИЯ</th></tr><tr><td>C-01</td><td>ЭКСТРАКТ "СЛИЗЬ"</td><td>КИСЛОТНАЯ ОБР.</td><td>15 мг</td><td>ОСНОВА (КЛЕЙ)</td></tr><tr><td>C-02</td><td>ТРОМБИН (СИНТ.)</td><td>БИО-РЕАКТОР</td><td>5 мг</td><td>КАТАЛИЗАТОР</td></tr><tr><td>C-03</td><td>ПЫЛЬЦА "ПУХ"</td><td>АНОМАЛИЯ</td><td>2 мг</td><td>ПРИЖИГАНИЕ</td></tr><tr><td>C-04</td><td>КОАГУЛЯНТ В-2</td><td>СКЛАД ГСМ</td><td>10 мл</td><td>ЗАГУСТИТЕЛЬ</td></tr><tr><td>C-05</td><td>СТАБИЛИЗАТОР X</td><td>СИНТЕЗ</td><td>3 мл</td><td>КОНСЕРВАЦИЯ</td></tr></table><div style="color: var(--alert); border: 1px solid var(--alert); padding: 10px; margin-top: 15px; font-weight: bold; background: rgba(255, 51, 51, 0.1);">[!] ВНИМАНИЕ: СУБСТАНЦИЯ ПРОЯВЛЯЕТ РАДИОАКТИВНОСТЬ (15 МКР/Ч).</div><div class="status-bar"><span>CHEM_ANALYSIS: OK</span><span>TOXICITY: HIGH</span></div><div class="page-number">03 / 07</div></div>
+        <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><h1>3.0 СИСТЕМА ВВОДА</h1><div class="drawing-box"><div class="drawing-overlay"><div style="position:absolute; bottom:5px; right:5px; font-size:8px; color:var(--primary); font-family: var(--font-ui);">PRESSURE: 6 ATM</div></div><svg width="600" height="300" viewBox="0 0 600 300"><defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#00ff41" /></marker></defs><rect x="150" y="100" width="300" height="60" rx="0" class="w-line" /><rect x="450" y="110" width="40" height="40" class="w-line" /> <line x1="490" y1="130" x2="530" y2="130" class="w-line" /> <text x="535" y="135" class="w-text">TRIG</text><path d="M 150 110 L 100 120 L 100 140 L 150 150" class="w-line" /> <line x1="100" y1="130" x2="60" y2="130" class="w-line" stroke-dasharray="0" /><line x1="60" y1="130" x2="30" y2="170" class="w-dim" stroke-dasharray="2,2"/> <text x="5" y="185" class="w-text">W-NEEDLE d=3mm</text><rect x="200" y="110" width="100" height="40" class="w-thin" stroke-dasharray="0" /> <text x="225" y="135" class="w-text" style="opacity: 0.7;">CONTAINER</text><path d="M 320 130 L 325 110 L 335 150 L 345 110 L 355 150 L 365 110 L 375 150 L 385 110 L 395 150 L 405 110 L 415 150 L 420 130" class="w-line" fill="none" /><line x1="150" y1="180" x2="450" y2="180" class="w-dim" marker-start="url(#arrow)" marker-end="url(#arrow)" /> <text x="280" y="200" class="w-text">L=150mm</text></svg></div><h2>3.1 ТЕХНИЧЕСКАЯ СПЕЦИФИКАЦИЯ</h2><p><strong>ПРИВОД:</strong> Пневматический поршень одноразового действия. Предварительное сжатие газа: 6.0 Атм.</p><p><strong>ИГЛА-ИНЪЕКТОР:</strong> Сплав ВНЖ-90 (Вольфрам-Никель-Железо). Заточка лазерная, трехгранная.</p><p><strong>КОНТЕЙНЕР:</strong> Химически инертный полимер "Фторопласт-4".</p><div style="color: var(--alert); border: 1px solid var(--alert); padding: 5px; margin-top: 15px;">WARNING: ТЕМПЕРАТУРА КРИСТАЛЛИЗАЦИИ -10°C.</div><div class="status-bar"><span>MECH_CHECK: OK</span><span>AMMO: 1</span></div><div class="page-number">04 / 07</div></div>
+        <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><h1>4.0 ПРОТОКОЛ СИНТЕЗА И ЛОГИСТИКА</h1><div style="border-bottom: 1px solid var(--primary); margin-bottom: 15px; padding-bottom: 5px;"><span class="data-key">ПРОИЗВОДСТВЕННЫЙ КЛАСТЕР:</span> <span class="data-val">СЕКТОР "ДЕЛЬТА" (ЛАБОРАТОРИЯ Х-19)</span><br><span class="data-key">ЦИКЛ:</span> <span class="data-val">НЕПРЕРЫВНЫЙ (24/7)</span><br><span class="data-key">ПРИОРИТЕТ:</span> <span class="data-val">АБСОЛЮТНЫЙ</span></div><h2>4.1 АППАРАТНОЕ ОБЕСПЕЧЕНИЕ</h2><p>Для синтеза нестабильных аномальных субстанций требуется оборудование класса защиты "А".</p><ul><li>> Центрифуга "Vortex-9" (Модиф.)</li><li>> Реактор "Саркофаг-М"</li><li>> Крио-камера "Азот"</li><li>> Линия розлива (Автомат)</li></ul><h2>4.2 МАТЕРИАЛЬНАЯ БАЗА (ПАКЕТ СИНТЕЗА #4)</h2><p>Расчет на партию в 50 единиц готового изделия.</p><table style="margin-top: 10px;"><tr><th style="width: 40%;">РЕСУРС</th><th style="width: 20%;">ОБЪЕМ</th><th>ПРИМЕЧАНИЕ</th></tr><tr><td>АРТЕФАКТ "СЛИЗЬ" (Низкосортный)</td><td>3 ЕД.</td><td>Допускается фоновая радиация.</td></tr><tr><td>КИСЛОТА СЕРНАЯ (H2SO4)</td><td>2 Л</td><td>Концентрированная.</td></tr><tr><td>БИО-СТАБИЛИЗАТОР</td><td>0.5 Л</td><td>Синтезируется из лимфы мутантов.</td></tr><tr><td>ВОЛЬФРАМ (ЛОМ)</td><td>1 КГ</td><td>Для изготовления игл инжекторов.</td></tr><tr><td>ПЛАСТИК АБС</td><td>5 КГ</td><td>Корпуса инжекторов.</td></tr></table><h2>4.3 АЛГОРИТМ СИНТЕЗА (ВЕРСИЯ 2.0)</h2><div style="font-size: 12px; border-left: 2px solid var(--dim); padding-left: 10px; margin-top: 10px;"><p><strong>ФАЗА 1: ЭКСТРАКЦИЯ.</strong> Артефакт помещается в кислотную ванну реактора.</p><p><strong>ФАЗА 2: АКТИВАЦИЯ.</strong> В полученный раствор вводится катализатор (Тромбин).</p><p><strong>ФАЗА 3: СТАБИЛИЗАЦИЯ.</strong> Ввод био-добавок.</p><p><strong>ФАЗА 4: ФАСОВКА.</strong> Разлив по капсулам под давлением 6 атм.</p></div><div class="status-bar"><span>EFFICIENCY: 94%</span><span>WASTE: TOXIC SLUDGE (RECYCLE)</span></div><div class="page-number">05 / 07</div></div>
+        <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><h1>5.0 ПРОТОКОЛ КЛИНИЧЕСКИХ ИСПЫТАНИЙ</h1><div style="border-bottom: 1px solid var(--primary); margin-bottom: 15px; padding-bottom: 5px;"><span class="data-key">ГРУППА СУБЪЕКТОВ:</span> <span class="data-val">ЗАХВАЧЕННЫЕ БИО-ЕДИНИЦЫ (ФРАКЦИЯ "БАНДИТЫ")</span><br><span class="data-key">ЛОКАЦИЯ:</span> <span class="data-val">ИЗОЛЯТОР "ХОЛОД-2"</span><br><span class="data-key">АНЕСТЕЗИЯ:</span> <span style="color: var(--alert);">ОТКЛЮЧЕНА (ДЛЯ ЧИСТОТЫ НЕВРОЛОГИЧЕСКИХ ДАННЫХ)</span></div><table><tr><th style="width: 10%;">ID</th><th style="width: 25%;">ТРАВМА</th><th style="width: 30%;">РЕАКЦИЯ ПРЕПАРАТА</th><th style="width: 35%;">СТАТУС СУБЪЕКТА / ПОБОЧНЫЕ ЭФФЕКТЫ</th></tr><tr><td>Б-091</td><td>Рваная рана бедра</td><td>Полимеризация за 1.2с.</td><td>Острая вокализация. Стабилен.</td></tr><tr><td>Б-094</td><td>Артериальное кровотечение</td><td>Мгновенная герметизация.</td><td>Инсульт. Кома.</td></tr><tr><td>Б-102</td><td>Травматическая ампутация</td><td>Прямой впрыск.</td><td>Болевой шок. Гемостаз полный.</td></tr><tr><td>Б-105</td><td>Осколочное проникающее</td><td>Заливка полости.</td><td>Перистальтика остановлена. Жив.</td></tr><tr><td>Б-110</td><td>Контрольный</td><td>Препарат не вводился.</td><td>Смерть через 180с.</td></tr></table><br><div style="border-left: 2px solid var(--alert); padding-left: 10px; background: rgba(255, 51, 51, 0.05);"><p style="color: var(--alert); font-weight: bold;">[!] КОГНИТИВНЫЙ ОТЧЕТ:</p><p>Субъекты демонстрируют запредельный уровень болевого стресса.</p></div><div class="status-bar"><span>TEST_CYCLE: COMPLETE</span><span>MORTALITY: 30%</span><span>EFFICIENCY: 100%</span></div><div class="page-number">06 / 07</div></div>
+        <div class="doc-page"><div class="corner-mark tl"></div><div class="corner-mark tr"></div><div class="corner-mark bl"></div><h1>6.0 ИТОГОВЫЙ ПРОТОКОЛ</h1><p>Препарат GBS-5 "Загустин" утвержден к использованию штурмовыми группами.</p><br><div style="border: 1px solid var(--primary); padding: 10px;"><p><strong>ДИРЕКТИВА №88:</strong></p><ol><li>Начать массовый синтез.</li><li>Организовать сбор сырья.</li><li>Технологию зашифровать.</li></ol></div><div style="margin-top: 100px; display: flex; justify-content: space-between;"><div><p>INPUT:</p><p>UNIT_COGNITOR_734</p></div><div style="text-align: right;"><p>VERIFIED:</p><p>OVERSEER_AI</p><div class="status-block" style="border: 2px solid var(--primary); padding: 5px 15px; display: inline-block; margin-top: 10px;">CONFIRMED<br>HASH: X8-99</div></div></div><div class="status-bar"><span>SESSION: CLOSED</span><span>LOGOUT...</span></div><div class="page-number">07 / 07</div></div>
     </div>
 </div>
 
-<script>
-    // DEFINE FUNCTIONS FIRST TO AVOID HOISTING ISSUES
-    const SECRET_KEY = "LD-X7-OMEGA";
-    let delIdx = null; 
-    let delProjIdx = null; 
-    let delOpIdx = null;
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // DATA DEFAULTS
+    const firebaseConfig = {
+        apiKey: "AIzaSyDItyHZsBjradE8WE-qtIutVKXux-mWoiI",
+        authDomain: "last-day-terminal.firebaseapp.com",
+        projectId: "last-day-terminal",
+        storageBucket: "last-day-terminal.firebasestorage.app",
+        messagingSenderId: "283501483006",
+        appId: "1:283501483006:web:68888bf5ea676579d9e6af"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // GLOBAL DEFAULTS
     const defaultFactions = [
         { name: "ОДИНОЧКИ (LONERS)", status: "NEUTRAL" }, { name: "ДОЛГ (DUTY)", status: "WAR" }, { name: "СВОБОДА (FREEDOM)", status: "WAR" }, 
         { name: "БАНДИТЫ (BANDITS)", status: "ALLIANCE" }, { name: "НАЕМНИКИ (MERCS)", status: "NEUTRAL" }, { name: "ВОЕННЫЕ (MILITARY)", status: "WAR" }, 
@@ -1014,219 +334,149 @@
         { name: "БАНДИТЫ-СЕВЕР (BANDITS NORTH)", status: "ALLIANCE" }
     ];
 
-    const defaultRoster = [
-        { id: "734-ALPHA", rank: "ARCHITECT", health: "ACTIVE" }, 
-        { id: "902-BETA", rank: "OPERATOR", health: "WOUNDED" }, 
-        { id: "105-GAMMA", rank: "REDEEMED", health: "ACTIVE" }, 
-        { id: "004-DELTA", rank: "REDEEMED", health: "M.I.A." }
-    ];
-
     const hardcodedProjects = [
         { code: "GBS-5", title: "PROJECT: GBS-5", desc: "\"ЗАГУСТИН\". Гемостатический гель. Полная документация.", status: "BETA", type: "hardcoded" },
         { code: "PSIONIC", title: "PROJECT: PSIONIC", desc: "Эмиттер \"Выжигатель\". Прототипы шлемов.", status: "OMEGA", type: "hardcoded" }
     ];
 
-    const defaultOperations = [
-        { code: "OP-DELTA", time: "24.11.2014 04:00", units: "12", sector: "JUPITER", objectives: "SECURE FACTORY", secrecy: "SECRET", status: "PENDING" },
-        { code: "OP-SHADOW", time: "25.11.2014 22:30", units: "4", sector: "RED FOREST", objectives: "RECON & INTERCEPT", secrecy: "SECRET", status: "IN_PROGRESS" }
-    ];
+    // --- VARIABLES ---
+    let delDocId = null;
+    let delCollection = null;
 
-    // DATA GETTERS/SETTERS
-    function getFactions() { try { const s = localStorage.getItem('ld_factions'); return s ? JSON.parse(s) : defaultFactions; } catch(e) { return defaultFactions; } }
-    function saveFactionStatus(i, v) { const f = getFactions(); f[i].status = v; localStorage.setItem('ld_factions', JSON.stringify(f)); renderFactions(); }
-    
-    function getRoster() { try { const s = localStorage.getItem('ld_roster'); return s ? JSON.parse(s) : defaultRoster; } catch(e) { return defaultRoster; } }
-    function saveRosterUnit(i, f, v) { const r = getRoster(); r[i][f] = v; localStorage.setItem('ld_roster', JSON.stringify(r)); renderRoster(); }
+    // --- DB ACTIONS ---
+    async function updateDocField(collectionName, docId, field, value) {
+        await updateDoc(doc(db, collectionName, docId), { [field]: value });
+    }
 
-    function getUserProjects() { try { const s = localStorage.getItem('ld_projects'); return s ? JSON.parse(s) : []; } catch(e) { return []; } }
-    function addUserProject(code, desc, status) { const p = getUserProjects(); p.push({ code, title: "PROJECT: " + code, desc, status, type: "user" }); localStorage.setItem('ld_projects', JSON.stringify(p)); renderProjects(); }
-    function deleteUserProject(index) { const p = getUserProjects(); p.splice(index, 1); localStorage.setItem('ld_projects', JSON.stringify(p)); renderProjects(); }
+    async function deleteDocument(collectionName, docId) {
+        await deleteDoc(doc(db, collectionName, docId));
+    }
 
-    function getOperations() { try { const s = localStorage.getItem('ld_operations'); return s ? JSON.parse(s) : defaultOperations; } catch(e) { return defaultOperations; } }
-    function saveOperationStatus(i, v) { const o = getOperations(); o[i].status = v; localStorage.setItem('ld_operations', JSON.stringify(o)); renderOperations(); }
-    function addOperation(op) { const o = getOperations(); o.push(op); localStorage.setItem('ld_operations', JSON.stringify(o)); renderOperations(); }
-    function deleteOperation(i) { const o = getOperations(); o.splice(i, 1); localStorage.setItem('ld_operations', JSON.stringify(o)); renderOperations(); }
+    async function addDocument(collectionName, data) {
+        await addDoc(collection(db, collectionName), { ...data, timestamp: Date.now() });
+    }
 
-    // RENDER FUNCTIONS (DEFINED BEFORE USE)
-    function renderFactions() {
-        const tbody = document.getElementById('relations-body'); 
-        if(!tbody) return;
+    // --- RENDERERS ---
+    function renderFactions(data) {
+        const tbody = document.getElementById('relations-body');
         tbody.innerHTML = '';
-        getFactions().forEach((f, i) => {
+        data.sort((a, b) => a.name.localeCompare(b.name));
+        data.forEach(item => {
             const tr = document.createElement('tr');
-            tr.setAttribute('data-status', f.status);
-            let threat = f.status === "WAR" ? "CRITICAL" : f.status === "ALLIANCE" ? "MINIMAL" : "MODERATE";
-            tr.innerHTML = `<td style="font-weight:bold;">${f.name}</td><td><select class="term-select" style="background:#000;" onchange="saveFactionStatus(${i}, this.value)"><option value="NEUTRAL" ${f.status === 'NEUTRAL'?'selected':''}>НЕЙТРАЛИТЕТ</option><option value="ALLIANCE" ${f.status === 'ALLIANCE'?'selected':''}>СОЮЗ</option><option value="WAR" ${f.status === 'WAR'?'selected':''}>ВОЙНА</option></select></td><td style="color:${f.status==='WAR'?'#ff3333':'#00ff41'}">${threat}</td>`;
+            tr.setAttribute('data-status', item.status);
+            let threat = item.status === "WAR" ? "CRITICAL" : item.status === "ALLIANCE" ? "MINIMAL" : "MODERATE";
+            tr.innerHTML = `<td style="font-weight:bold;">${item.name}</td><td><select class="term-select" style="background:#000;"><option value="NEUTRAL" ${item.status === 'NEUTRAL'?'selected':''}>НЕЙТРАЛИТЕТ</option><option value="ALLIANCE" ${item.status === 'ALLIANCE'?'selected':''}>СОЮЗ</option><option value="WAR" ${item.status === 'WAR'?'selected':''}>ВОЙНА</option></select></td><td style="color:${item.status==='WAR'?'#ff3333':'#00ff41'}">${threat}</td>`;
+            if (item.id) tr.querySelector('select').addEventListener('change', (e) => updateDocField('factions', item.id, 'status', e.target.value));
             tbody.appendChild(tr);
         });
     }
 
-    function renderRoster() {
-        const tbody = document.getElementById('roster-body'); 
-        if(!tbody) return;
+    function renderRoster(data) {
+        const tbody = document.getElementById('roster-body');
         tbody.innerHTML = '';
-        getRoster().forEach((u, i) => {
+        data.sort((a, b) => a.timestamp - b.timestamp);
+        data.forEach(u => {
             const tr = document.createElement('tr');
             let hc = u.health==="WOUNDED"?"#ffcc00":u.health==="CRITICAL"||u.health==="DECEASED"?"#ff3333":u.health==="M.I.A."?"#888":"#00ff41";
-            tr.innerHTML = `<td style="font-weight:bold; color:#fff;">${u.id}</td><td><select class="term-select" style="border:none; background:transparent; padding:0;" onchange="saveRosterUnit(${i},'rank',this.value)"><option ${u.rank==='ARCHITECT'?'selected':''}>ARCHITECT</option><option ${u.rank==='COGNITOR'?'selected':''}>COGNITOR</option><option ${u.rank==='OPERATOR'?'selected':''}>OPERATOR</option><option ${u.rank==='REDEEMED'?'selected':''}>REDEEMED</option><option ${u.rank==='NEOPHYTE'?'selected':''}>NEOPHYTE</option></select></td><td><select class="term-select" style="color:${hc}; border-color:${hc}; background:transparent;" onchange="saveRosterUnit(${i},'health',this.value)"><option value="ACTIVE" ${u.health==='ACTIVE'?'selected':''}>ACTIVE</option><option value="WOUNDED" ${u.health==='WOUNDED'?'selected':''}>WOUNDED</option><option value="CRITICAL" ${u.health==='CRITICAL'?'selected':''}>CRITICAL</option><option value="M.I.A." ${u.health==='M.I.A.'?'selected':''}>M.I.A.</option><option value="DECEASED" ${u.health==='DECEASED'?'selected':''}>DECEASED</option></select></td><td><button onclick="openDeleteModal(${i})" class="btn-delete">[ X ]</button></td>`;
+            tr.innerHTML = `<td style="font-weight:bold; color:#fff;">${u.unitId}</td><td><select class="term-select rank-select" style="border:none; background:transparent; padding:0;"><option ${u.rank==='ARCHITECT'?'selected':''}>ARCHITECT</option><option ${u.rank==='COGNITOR'?'selected':''}>COGNITOR</option><option ${u.rank==='OPERATOR'?'selected':''}>OPERATOR</option><option ${u.rank==='REDEEMED'?'selected':''}>REDEEMED</option><option ${u.rank==='NEOPHYTE'?'selected':''}>NEOPHYTE</option></select></td><td><select class="term-select health-select" style="color:${hc}; border-color:${hc}; background:transparent;"><option value="ACTIVE" ${u.health==='ACTIVE'?'selected':''}>ACTIVE</option><option value="WOUNDED" ${u.health==='WOUNDED'?'selected':''}>WOUNDED</option><option value="CRITICAL" ${u.health==='CRITICAL'?'selected':''}>CRITICAL</option><option value="M.I.A." ${u.health==='M.I.A.'?'selected':''}>M.I.A.</option><option value="DECEASED" ${u.health==='DECEASED'?'selected':''}>DECEASED</option></select></td><td><button class="btn-delete">[ X ]</button></td>`;
+            tr.querySelector('.rank-select').addEventListener('change', (e) => updateDocField('roster', u.id, 'rank', e.target.value));
+            tr.querySelector('.health-select').addEventListener('change', (e) => updateDocField('roster', u.id, 'health', e.target.value));
+            tr.querySelector('.btn-delete').addEventListener('click', () => { delDocId = u.id; delCollection = 'roster'; document.getElementById('modal-delete-unit').style.display = 'flex'; });
             tbody.appendChild(tr);
         });
     }
 
-    function renderProjects() {
-        const container = document.getElementById('research-grid'); 
-        if(!container) return;
+    function renderOperations(data) {
+        const tbody = document.getElementById('operations-body');
+        tbody.innerHTML = '';
+        data.sort((a, b) => a.timestamp - b.timestamp);
+        data.forEach(op => {
+            const tr = document.createElement('tr');
+            let sc = op.secrecy === "SECRET" ? "color:var(--term-alert);" : "color:var(--term-green);";
+            let stc = op.status==="COMPLETED"?"var(--term-green)":op.status==="FAILED"?"var(--term-alert)":op.status==="IN_PROGRESS"?"var(--term-warn)":op.status==="DECLASSIFIED"?"var(--term-orange)":"#888";
+            tr.innerHTML = `<td style="font-weight:bold; color:#fff;">${op.code}</td><td>${op.time}</td><td>${op.units}</td><td>${op.sector}</td><td style="font-size:12px; color:#aaa;">${op.objectives||'N/A'}</td><td style="${sc} font-weight:bold;">${op.secrecy}</td><td><select class="term-select status-select" style="color:${stc}; border-color:${stc}; background:#000;"><option value="PENDING" ${op.status==='PENDING'?'selected':''}>PENDING</option><option value="IN_PROGRESS" ${op.status==='IN_PROGRESS'?'selected':''}>IN PROGRESS</option><option value="COMPLETED" ${op.status==='COMPLETED'?'selected':''}>COMPLETED</option><option value="FAILED" ${op.status==='FAILED'?'selected':''}>FAILED</option><option value="DECLASSIFIED" ${op.status==='DECLASSIFIED'?'selected':''}>DECLASSIFIED</option></select></td><td><button class="btn-delete">[ X ]</button></td>`;
+            tr.querySelector('.status-select').addEventListener('change', (e) => updateDocField('operations', op.id, 'status', e.target.value));
+            tr.querySelector('.btn-delete').addEventListener('click', () => { delDocId = op.id; delCollection = 'operations'; document.getElementById('modal-delete-operation').style.display = 'flex'; });
+            tbody.appendChild(tr);
+        });
+    }
+
+    function renderProjects(userProjects) {
+        const container = document.getElementById('research-grid');
         container.innerHTML = '';
         hardcodedProjects.forEach(p => {
             const div = document.createElement('div'); div.className = "project-card";
             if(p.status === "BETA") {
                 div.innerHTML = `<div class="card-status status-open">AVAILABLE</div><div class="card-title">${p.title}</div><div class="card-desc">${p.desc}</div><div style="margin-top: 20px; color: var(--term-dim); font-size: 12px; border-top: 1px dashed var(--term-dim); padding-top: 5px;">>> CLICK TO ACCESS</div>`;
-                div.onclick = () => openDocument('zagustin');
+                div.addEventListener('click', () => window.openDocument('zagustin'));
             } else {
                 div.innerHTML = `<div class="card-status status-locked">RESTRICTED</div><div class="card-title">${p.title}</div><div class="card-desc">${p.desc}</div><div style="margin-top: 20px; color: var(--term-alert); font-size: 12px;">>> LEVEL_OMEGA_REQ</div>`;
-                div.onclick = () => accessDenied();
+                div.addEventListener('click', () => window.accessDenied());
             }
             container.appendChild(div);
         });
-        getUserProjects().forEach((p, index) => {
+        userProjects.sort((a, b) => a.timestamp - b.timestamp);
+        userProjects.forEach(p => {
             const div = document.createElement('div'); div.className = "project-card";
-            if(p.status === "BETA") {
-                div.innerHTML = `<div class="card-status status-open">AVAILABLE</div><div class="card-title">${p.title}</div><div class="card-desc">${p.desc}</div><div style="margin-top: 20px; color: var(--term-dim); font-size: 12px; border-top: 1px dashed var(--term-dim); padding-top: 5px;">>> CLICK TO ACCESS</div>`;
-                div.onclick = () => { window.location.href = p.code + ".html"; };
-            } else {
-                div.innerHTML = `<div class="card-status status-locked">RESTRICTED</div><div class="card-title">${p.title}</div><div class="card-desc">${p.desc}</div><div style="margin-top: 20px; color: var(--term-alert); font-size: 12px;">>> LEVEL_${p.status}_REQ</div>`;
-                div.onclick = () => accessDenied();
-            }
+            let footerColor = p.status === "BETA" ? "var(--term-dim)" : "var(--term-alert)";
+            div.innerHTML = `<div class="card-status ${p.status==='BETA'?'status-open':'status-locked'}">${p.status==='BETA'?'AVAILABLE':'RESTRICTED'}</div><div class="card-title">${p.title}</div><div class="card-desc">${p.desc}</div><div style="margin-top: 20px; color: ${footerColor}; font-size: 12px; border-top: 1px dashed var(--term-dim); padding-top: 5px;">${p.status==='BETA'?'>> CLICK TO ACCESS':'>> LEVEL_'+p.status+'_REQ'}</div>`;
+            div.addEventListener('click', () => { if(p.status==='BETA') window.location.href = p.code + ".html"; else window.accessDenied(); });
             const delBtn = document.createElement('button'); delBtn.className = "btn-delete card-delete-pos"; delBtn.innerText = "[ X ]";
-            delBtn.onclick = (e) => { e.stopPropagation(); openDeleteProjectModal(index); };
-            div.appendChild(delBtn);
-            container.appendChild(div);
+            delBtn.addEventListener('click', (e) => { e.stopPropagation(); delDocId = p.id; delCollection = 'projects'; document.getElementById('modal-delete-project').style.display = 'flex'; });
+            div.appendChild(delBtn); container.appendChild(div);
         });
     }
 
-    function renderOperations() {
-        const tbody = document.getElementById('operations-body'); 
-        if(!tbody) return;
-        tbody.innerHTML = '';
-        getOperations().forEach((op, i) => {
-            const tr = document.createElement('tr');
-            let sc = op.secrecy === "SECRET" ? "color:var(--term-alert);" : "color:var(--term-green);";
-            let stc = op.status==="COMPLETED"?"var(--term-green)":op.status==="FAILED"?"var(--term-alert)":op.status==="IN_PROGRESS"?"var(--term-warn)":op.status==="DECLASSIFIED"?"var(--term-orange)":"#888";
-            tr.innerHTML = `<td style="font-weight:bold; color:#fff;">${op.code}</td><td>${op.time}</td><td>${op.units}</td><td>${op.sector}</td><td style="font-size:12px; color:#aaa;">${op.objectives||'N/A'}</td><td style="${sc} font-weight:bold;">${op.secrecy}</td><td><select class="term-select" style="color:${stc}; border-color:${stc}; background:#000;" onchange="saveOperationStatus(${i}, this.value)"><option value="PENDING" ${op.status==='PENDING'?'selected':''}>PENDING</option><option value="IN_PROGRESS" ${op.status==='IN_PROGRESS'?'selected':''}>IN PROGRESS</option><option value="COMPLETED" ${op.status==='COMPLETED'?'selected':''}>COMPLETED</option><option value="FAILED" ${op.status==='FAILED'?'selected':''}>FAILED</option><option value="DECLASSIFIED" ${op.status==='DECLASSIFIED'?'selected':''}>DECLASSIFIED</option></select></td><td><button onclick="openDeleteOperationModal(${i})" class="btn-delete">[ X ]</button></td>`;
-            tbody.appendChild(tr);
-        });
+    // --- INIT ---
+    async function initApp() {
+        renderFactions(defaultFactions); renderProjects([]); renderRoster([]); renderOperations([]);
+        try {
+            await signInAnonymously(auth);
+            onSnapshot(collection(db, "factions"), (s) => { if(s.empty) defaultFactions.forEach(f => addDocument('factions', f)); else renderFactions(s.docs.map(d => ({id: d.id, ...d.data()}))); });
+            onSnapshot(collection(db, "roster"), (s) => renderRoster(s.docs.map(d => ({id: d.id, ...d.data()}))));
+            onSnapshot(collection(db, "projects"), (s) => renderProjects(s.docs.map(d => ({id: d.id, ...d.data()}))));
+            onSnapshot(collection(db, "operations"), (s) => renderOperations(s.docs.map(d => ({id: d.id, ...d.data()}))));
+        } catch (e) { console.error("Firebase Error:", e); }
     }
+    initApp();
 
-    // --- INTERFACE CONTROL ---
-    function openScreen(screenId) {
-        document.querySelectorAll('.screen').forEach(el => { el.style.display = 'none'; el.classList.remove('screen-transition'); });
-        const target = document.getElementById(screenId);
-        target.style.display = (screenId === 'doc-viewer') ? 'block' : 'flex';
-        target.classList.add('screen-transition');
-        if(screenId === 'relations-screen') renderFactions();
-        if(screenId === 'roster-screen') renderRoster();
-        if(screenId === 'main-hub') renderProjects();
-        if(screenId === 'operations-screen') renderOperations();
-    }
-
-    // --- MODAL & ACTION HANDLERS ---
+    // --- GLOBAL WINDOW EXPORTS ---
+    window.openScreen = (id) => { document.querySelectorAll('.screen').forEach(el => {el.style.display='none';el.classList.remove('screen-transition')}); const t = document.getElementById(id); t.style.display = (id === 'doc-viewer') ? 'block' : 'flex'; t.classList.add('screen-transition'); };
+    window.closeDocument = () => { document.getElementById('doc-viewer').scrollTop = 0; window.openScreen('main-hub'); };
+    window.accessDenied = () => document.getElementById('modal-access-denied').style.display = 'flex';
+    window.openDocument = (id) => { if (id === 'zagustin') window.openScreen('doc-viewer'); };
+    window.logout = () => { document.getElementById('password-input').value = ""; document.getElementById('password-input').style.borderColor = "#00661a"; window.openScreen('login-screen'); };
+    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+    window.openAddModal = () => { document.getElementById('modal-add-unit').style.display = 'flex'; document.getElementById('new-unit-id').value = ''; document.getElementById('new-unit-id').focus(); };
+    window.openAddProjectModal = () => { document.getElementById('modal-add-project').style.display = 'flex'; document.getElementById('new-proj-code').value=''; document.getElementById('new-proj-desc').value=''; };
+    window.openAddOperationModal = () => { document.getElementById('modal-add-operation').style.display = 'flex'; document.getElementById('new-op-code').value=''; document.getElementById('new-op-time').value=''; };
     
-    // Close Any Modal
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    function accessDenied() { document.getElementById('modal-access-denied').style.display = 'flex'; }
+    // --- CONFIRM BUTTONS ---
+    const performDelete = async (modalId) => { if(delDocId && delCollection) { await deleteDocument(delCollection, delDocId); delDocId = null; delCollection = null; window.closeModal(modalId); } };
+    document.getElementById('confirm-delete-unit').addEventListener('click', () => performDelete('modal-delete-unit'));
+    document.getElementById('confirm-delete-proj').addEventListener('click', () => performDelete('modal-delete-project'));
+    document.getElementById('confirm-delete-op').addEventListener('click', () => performDelete('modal-delete-operation'));
+    document.getElementById('confirm-add-unit').addEventListener('click', () => { const v = document.getElementById('new-unit-id').value.trim().toUpperCase(); if(v) { addDocument('roster', { unitId: v, rank: "NEOPHYTE", health: "ACTIVE" }); window.closeModal('modal-add-unit'); } });
+    document.getElementById('confirm-add-proj').addEventListener('click', () => { const c = document.getElementById('new-proj-code').value.trim().toUpperCase(), d = document.getElementById('new-proj-desc').value.trim(), s = document.getElementById('new-proj-status').value; if(c && d) { addDocument('projects', { code: c, title: "PROJECT: " + c, desc: d, status: s }); window.closeModal('modal-add-project'); } });
+    document.getElementById('confirm-add-op').addEventListener('click', () => { const c = document.getElementById('new-op-code').value.trim().toUpperCase(), t = document.getElementById('new-op-time').value.trim(), u = document.getElementById('new-op-units').value.trim(), s = document.getElementById('new-op-loc').value.trim().toUpperCase(), o = document.getElementById('new-op-obj').value.trim().toUpperCase(), sec = document.getElementById('new-op-secrecy').value; if(c && t) { addDocument('operations', { code:c, time:t, units:u, sector:s, objectives:o, secrecy:sec, status: "PENDING" }); window.closeModal('modal-add-operation'); } });
+    document.querySelectorAll('.close-modal').forEach(b => b.addEventListener('click', (e) => e.target.closest('.modal-overlay').style.display = 'none'));
 
-    // Unit Actions
-    function openAddModal() { document.getElementById('modal-add-unit').style.display = 'flex'; document.getElementById('new-unit-id').value = ''; document.getElementById('new-unit-id').focus(); }
-    function confirmAddUnit() { const v = document.getElementById('new-unit-id').value.trim().toUpperCase(); if(v){ const r = getRoster(); r.push({id:v, rank:"NEOPHYTE", health:"ACTIVE"}); localStorage.setItem('ld_roster', JSON.stringify(r)); renderRoster(); closeModal('modal-add-unit'); } }
-    function openDeleteModal(i) { delIdx = i; document.getElementById('modal-delete-unit').style.display = 'flex'; }
-    function confirmDeleteUnit() { if(delIdx!==null){ const r = getRoster(); r.splice(delIdx, 1); localStorage.setItem('ld_roster', JSON.stringify(r)); renderRoster(); closeModal('modal-delete-unit'); delIdx = null; } }
-    
-    // Project Actions
-    function openAddProjectModal() { document.getElementById('modal-add-project').style.display = 'flex'; document.getElementById('new-proj-code').value=''; document.getElementById('new-proj-desc').value=''; document.getElementById('new-proj-status').value='ALPHA'; }
-    function confirmAddProject() { const c = document.getElementById('new-proj-code').value.trim().toUpperCase(), d = document.getElementById('new-proj-desc').value.trim(), s = document.getElementById('new-proj-status').value; if(c && d) { addUserProject(c, d, s); closeModal('modal-add-project'); } }
-    function openDeleteProjectModal(i) { delProjIdx = i; document.getElementById('modal-delete-project').style.display = 'flex'; }
-    function confirmDeleteProject() { if(delProjIdx!==null) { deleteUserProject(delProjIdx); closeModal('modal-delete-project'); delProjIdx = null; } }
-
-    // Operation Actions
-    function openAddOperationModal() {
-        document.getElementById('modal-add-operation').style.display = 'flex';
-        document.getElementById('new-op-code').value = '';
-        document.getElementById('new-op-time').value = '';
-        document.getElementById('new-op-units').value = '';
-        document.getElementById('new-op-loc').value = '';
-        document.getElementById('new-op-obj').value = '';
-        document.getElementById('new-op-secrecy').value = 'SECRET';
-    }
-    function confirmAddOperation() {
-        const code = document.getElementById('new-op-code').value.trim().toUpperCase();
-        const time = document.getElementById('new-op-time').value.trim();
-        const units = document.getElementById('new-op-units').value.trim();
-        const sector = document.getElementById('new-op-loc').value.trim().toUpperCase();
-        const objectives = document.getElementById('new-op-obj').value.trim().toUpperCase();
-        const secrecy = document.getElementById('new-op-secrecy').value;
-        
-        if(code && time && units && sector) {
-            addOperation({ code, time, units, sector, objectives, secrecy, status: "PENDING" });
-            closeModal('modal-add-operation');
-        }
-    }
-    function openDeleteOperationModal(i) { delOpIdx = i; document.getElementById('modal-delete-operation').style.display = 'flex'; }
-    function confirmDeleteOperation() { if(delOpIdx!==null) { deleteOperation(delOpIdx); closeModal('modal-delete-operation'); delOpIdx = null; } }
-
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-    // DOC VIEWER
-    function openDocument(docId) { if (docId === 'zagustin') openScreen('doc-viewer'); }
-    function closeDocument() { 
-        // Force scroll reset
-        document.getElementById('doc-viewer').scrollTop = 0;
-        openScreen('main-hub'); 
-    }
-    function accessDenied() { document.getElementById('modal-access-denied').style.display = 'flex'; }
-
-    // --- BOOT & LOGIN INIT ---
-    const bootLines = ["LAST DAY OS v.5.0.2", "INITIALIZING KERNEL...", "LOADING MEMORY BLOCKS... OK", "CONNECTING TO NOOSPHERE... ESTABLISHED", "SYSTEM READY."];
+    // --- BOOT ---
+    const bootLines = ["LAST DAY OS v.5.0.3", "INITIALIZING NETWORK...", "CONNECTING TO FIREBASE... ESTABLISHED", "SYNCING NOOSPHERE... OK", "SYSTEM READY."];
     let lineIndex = 0;
     const bootScreen = document.getElementById('boot-screen');
-    const loginScreen = document.getElementById('login-screen');
-    const passInput = document.getElementById('password-input');
-
-    function typeBoot() {
-        if (lineIndex < bootLines.length) {
-            const p = document.createElement('div');
-            p.style.fontFamily = "Share Tech Mono";
-            p.innerHTML = `> ${bootLines[lineIndex]}`;
-            bootScreen.appendChild(p);
-            lineIndex++;
-            setTimeout(typeBoot, 150);
-        } else {
-            setTimeout(() => {
-                bootScreen.style.display = 'none';
-                loginScreen.style.display = 'flex';
-                passInput.focus();
-            }, 1000);
-        }
-    }
+    function typeBoot() { if (lineIndex < bootLines.length) { const p = document.createElement('div'); p.style.fontFamily = "Share Tech Mono"; p.innerHTML = `> ${bootLines[lineIndex]}`; bootScreen.appendChild(p); lineIndex++; setTimeout(typeBoot, 150); } else { setTimeout(() => { bootScreen.style.display = 'none'; document.getElementById('login-screen').style.display = 'flex'; document.getElementById('password-input').focus(); }, 1000); } }
     window.onload = typeBoot;
-
-    passInput.addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            if (passInput.value.toUpperCase().trim() === SECRET_KEY) {
-                passInput.style.borderColor = "#00ff41";
-                setTimeout(() => openScreen('dashboard-screen'), 500);
-            } else {
-                document.getElementById('error-msg').style.opacity = 1;
-                passInput.value = "";
-                setTimeout(() => document.getElementById('error-msg').style.opacity = 0, 2000);
-            }
-        }
-    });
-
-    function logout() {
-        passInput.value = "";
-        passInput.style.borderColor = "#00661a";
-        openScreen('login-screen');
-    }
+    document.getElementById('password-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') { if (e.target.value.toUpperCase().trim() === "LD-X7-OMEGA") { e.target.style.borderColor = "#00ff41"; setTimeout(() => window.openScreen('dashboard-screen'), 500); } else { document.getElementById('error-msg').style.opacity = 1; e.target.value = ""; setTimeout(() => document.getElementById('error-msg').style.opacity = 0, 2000); } } });
+    document.getElementById('btn-open-relations').addEventListener('click', () => window.openScreen('relations-screen'));
+    document.getElementById('btn-open-roster').addEventListener('click', () => window.openScreen('roster-screen'));
+    document.getElementById('btn-open-ops').addEventListener('click', () => window.openScreen('operations-screen'));
+    document.getElementById('btn-open-research').addEventListener('click', () => window.openScreen('main-hub'));
+    document.querySelectorAll('.btn-back-dash').forEach(b => b.addEventListener('click', () => window.openScreen('dashboard-screen')));
+    document.getElementById('btn-add-unit').addEventListener('click', window.openAddModal);
+    document.getElementById('btn-add-proj').addEventListener('click', window.openAddProjectModal);
+    document.getElementById('btn-add-op').addEventListener('click', window.openAddOperationModal);
+    document.getElementById('logout-btn').addEventListener('click', window.logout);
 </script>
 </body>
 </html>

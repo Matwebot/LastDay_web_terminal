@@ -240,7 +240,7 @@
         <div class="error-msg" id="error-msg">>> ACCESS DENIED: INVALID HASH <<</div>
         <div id="login-status" style="margin-top:10px; font-size:12px; color:var(--term-dim);">WAITING FOR AUTH...</div>
     </div>
-    <div style="margin-top: 40px; font-size: 10px; color: var(--term-dim); text-align: center;">LAST DAY NETWORK // V.5.2.1 (FINAL SECURE)</div>
+    <div style="margin-top: 40px; font-size: 10px; color: var(--term-dim); text-align: center;">LAST DAY NETWORK // V.5.2.2 (SECURE)</div>
 </div>
 
 <!-- DASHBOARD -->
@@ -394,7 +394,8 @@
             <tr>
                 <th style="width: 30%">ACCESS KEY</th>
                 <th style="width: 20%">ROLE ASSIGNED</th>
-                <th style="width: 20%">CREATED BY</th>
+                <!-- Created By header only shown to GOD via JS logic -->
+                <th id="th-created-by" style="width: 20%; display:none;">CREATED BY</th>
                 <th style="width: 20%">CREATED AT</th>
                 <th style="width: 10%">ACTION</th>
             </tr>
@@ -662,10 +663,112 @@
         document.getElementById('adept-labor-fields').style.display = 'none';
     };
     
-    window.openAddModal = () => { if(CURRENT_ROLE===ROLES.SUBORDINATE) return; document.getElementById('modal-add-unit').style.display='flex'; document.getElementById('new-unit-id').value=''; document.getElementById('new-unit-discord').value=''; document.getElementById('new-unit-steam').value=''; };
-    window.openAddKeyModal = () => { if(CURRENT_ROLE===ROLES.SUBORDINATE) return; document.getElementById('modal-add-key').style.display='flex'; document.getElementById('new-key-name').value=''; document.getElementById('new-key-desc').value=''; document.getElementById('new-key-code').value=''; };
-    window.openAddProjectModal = () => { if(CURRENT_ROLE===ROLES.SUBORDINATE) return; document.getElementById('modal-add-project').style.display='flex'; document.getElementById('new-proj-code').value=''; document.getElementById('new-proj-desc').value=''; };
-    window.openAddOperationModal = () => { if(CURRENT_ROLE===ROLES.SUBORDINATE) return; document.getElementById('modal-add-operation').style.display='flex'; document.getElementById('new-op-code').value=''; document.getElementById('new-op-time').value=''; };
+    window.openAddModal = () => { 
+        if(CURRENT_ROLE===ROLES.SUBORDINATE) return; 
+        document.getElementById('modal-add-unit').style.display='flex'; 
+        document.getElementById('new-unit-id').value=''; 
+        document.getElementById('new-unit-discord').value=''; 
+        document.getElementById('new-unit-steam').value=''; 
+    };
+    
+    window.openAddKeyModal = () => { 
+        if(CURRENT_ROLE===ROLES.SUBORDINATE) return; 
+        document.getElementById('modal-add-key').style.display='flex'; 
+        document.getElementById('new-key-name').value=''; 
+        document.getElementById('new-key-desc').value=''; 
+        document.getElementById('new-key-code').value=''; 
+    };
+    
+    window.openAddProjectModal = () => { 
+        if(CURRENT_ROLE===ROLES.SUBORDINATE) return; 
+        document.getElementById('modal-add-project').style.display='flex'; 
+        document.getElementById('new-proj-code').value=''; 
+        document.getElementById('new-proj-desc').value=''; 
+    };
+    
+    window.openAddOperationModal = () => { 
+        if(CURRENT_ROLE===ROLES.SUBORDINATE) return; 
+        document.getElementById('modal-add-operation').style.display='flex'; 
+        document.getElementById('new-op-code').value=''; 
+        document.getElementById('new-op-time').value=''; 
+    };
+
+    window.openAdeptDetails = function(a) {
+        const modal = document.getElementById('modal-view-adept');
+        const content = document.getElementById('view-adept-content');
+        const actBtn = document.getElementById('view-adept-activate');
+        const delBtn = document.getElementById('view-adept-delete');
+        
+        let fieldsHtml = `
+            <div class="info-row"><span class="info-label">CODE:</span><span class="info-val">${a.code}</span></div>
+            <div class="info-row"><span class="info-label">NAME:</span><span class="info-val">${a.name}</span></div>
+            <div class="info-row"><span class="info-label">TYPE:</span><span class="info-val">${a.type || 'UNKNOWN'}</span></div>
+            <div class="info-row"><span class="info-label">STATUS:</span><span class="info-val" style="color:${a.status==='ЖИВ'?'#0f0':a.status==='УСТРАНЕН'?'#f00':'#888'}">${a.status}</span></div>
+            <div class="info-row"><span class="info-label">TIME:</span><span class="info-val">${a.time}</span></div>
+            <div class="info-row"><span class="info-label">DISCORD:</span><span class="info-val" style="color:#7289da">${a.discordId || 'N/A'}</span></div>
+            <div class="info-row"><span class="info-label">STEAM:</span><span class="info-val">${a.steamId || 'N/A'}</span></div>
+        `;
+
+        if (a.type === 'ACTIVE') {
+            actBtn.style.display = 'block';
+            let isActivated = a.isActivated === true;
+            actBtn.disabled = isActivated || CURRENT_ROLE === ROLES.SUBORDINATE;
+            actBtn.innerText = isActivated ? "ACTIVATED" : "ACTIVATE PROTOCOL";
+            actBtn.style.color = isActivated ? "#444" : "var(--term-green)";
+            
+            const newActBtn = actBtn.cloneNode(true);
+            actBtn.parentNode.replaceChild(newActBtn, actBtn);
+            newActBtn.addEventListener('click', async () => {
+                newActBtn.innerText = "PROCESSING SIGNAL...";
+                newActBtn.style.color = "var(--term-warn)";
+                newActBtn.disabled = true;
+                await addActivationSignal({ targetDiscordId: a.discordId, targetCode: a.code, targetName: a.name });
+                await updateDocField('adepts', a.id, 'isActivated', true);
+                newActBtn.innerText = "ACTIVATED"; newActBtn.style.color = "#444";
+            });
+        } else {
+            actBtn.style.display = 'none';
+        }
+        
+        if (a.type === 'DETAINED') {
+            fieldsHtml += `<div class="info-row"><span class="info-label">ASSIGNMENT:</span><span class="info-val">${a.workDesc || 'MANUAL LABOR'}</span></div><div class="info-row"><span class="info-label">RELEASE TIME:</span><span class="info-val">${a.releaseTime || 'INDEFINITE'}</span></div>`;
+        }
+
+        const disabled = CURRENT_ROLE === ROLES.SUBORDINATE ? 'disabled' : '';
+        fieldsHtml += `
+            <div style="margin-top:20px; text-align:center;">
+                <p style="font-size:12px; color:#666;">UPDATE VITAL STATUS:</p>
+                <select id="detail-status-select" class="term-select" style="text-align:center;" ${disabled}>
+                    <option value="ЖИВ" ${a.status==='ЖИВ'?'selected':''}>ALIVE</option>
+                    <option value="УСТРАНЕН" ${a.status==='УСТРАНЕН'?'selected':''}>ELIMINATED</option>
+                    <option value="ПРОПАЛ" ${a.status==='ПРОПАЛ'?'selected':''}>MISSING</option>
+                </select>
+            </div>
+        `;
+        content.innerHTML = fieldsHtml;
+
+        setTimeout(() => {
+            if (CURRENT_ROLE !== ROLES.SUBORDINATE) {
+                const sel = document.getElementById('detail-status-select');
+                if(sel) {
+                    sel.addEventListener('change', (e) => {
+                        updateDocField('adepts', a.id, 'status', e.target.value);
+                        const statusDisplay = content.querySelector('.info-row:nth-child(4) .info-val'); 
+                        if(statusDisplay) statusDisplay.innerText = e.target.value;
+                    });
+                }
+            }
+        }, 100);
+
+        if (CURRENT_ROLE === ROLES.SUBORDINATE) {
+            delBtn.style.display = 'none';
+            actBtn.style.display = 'none';
+        } else {
+            delBtn.style.display = 'inline-block';
+            delBtn.onclick = () => { delDocId = a.id; delCollection = 'adepts'; modal.style.display = 'none'; document.getElementById('modal-delete-adept').style.display = 'flex'; };
+        }
+        modal.style.display = 'flex';
+    };
 
     // --- UTILS ---
     async function getHash(message) {
@@ -712,7 +815,7 @@
     }
 
     // --- BOOT ---
-    const bootLines = ["LAST DAY OS v.5.2.1", "INITIALIZING SECURITY...", "CONNECTING TO FIREBASE...", "SYNCING NOOSPHERE...", "SYSTEM READY."];
+    const bootLines = ["LAST DAY OS v.5.2.2", "INITIALIZING SECURITY...", "CONNECTING TO FIREBASE...", "SYNCING NOOSPHERE...", "SYSTEM READY."];
     let lineIndex = 0;
     const bootScreen = document.getElementById('boot-screen');
     const loginScreen = document.getElementById('login-screen');
@@ -850,6 +953,12 @@
             accessTile.style.display = 'flex';
         } else {
             accessTile.style.display = 'none';
+        }
+        
+        // Hide "CREATED BY" column for non-Gods
+        const thCreatedBy = document.getElementById('th-created-by');
+        if (thCreatedBy) {
+            thCreatedBy.style.display = (role === ROLES.GOD) ? 'table-cell' : 'none';
         }
 
         const restrictedElements = document.querySelectorAll('.role-restricted');
@@ -1023,29 +1132,37 @@
             data.forEach(k => {
                 let isVisible = false;
                 if (CURRENT_ROLE === ROLES.GOD) isVisible = true;
-                if (CURRENT_ROLE === ROLES.ADMIN && k.role !== ROLES.GOD) isVisible = true;
+                // Admin sees keys of ranks below them (Command, Subordinate), but NOT God and NOT other Admins (to prevent sabotage)
+                if (CURRENT_ROLE === ROLES.ADMIN && (k.role === ROLES.COMMAND || k.role === ROLES.SUBORDINATE)) isVisible = true;
+                // Command sees only Subordinates
                 if (CURRENT_ROLE === ROLES.COMMAND && k.role === ROLES.SUBORDINATE) isVisible = true;
 
                 if (isVisible) {
                     const tr = document.createElement('tr');
                     const keyDisplay = k.key || (k.keyHash ? k.keyHash.substring(0, 10) + '...' : 'UNKNOWN');
                     
-                    let creatorDisplay = k.createdBy;
-                    if (!creatorDisplay || creatorDisplay.length > 20) { 
-                        creatorDisplay = "REDACTED"; 
+                    // "Created By" Cell Generation - Only for GOD
+                    let createdByCell = '';
+                    if (CURRENT_ROLE === ROLES.GOD) {
+                        let creatorDisplay = k.createdBy;
+                        if (!creatorDisplay || creatorDisplay.length > 20) { 
+                            creatorDisplay = "REDACTED"; 
+                        }
+                         createdByCell = `<td style="font-size:12px; color:#888;">${creatorDisplay}</td>`;
                     }
                     
+                    // Deletion Logic
                     let canDelete = false;
                     if (CURRENT_ROLE === ROLES.GOD) canDelete = true;
-                    else if (CURRENT_ROLE === ROLES.ADMIN && k.role !== ROLES.GOD && k.role !== ROLES.ADMIN) canDelete = true;
-                    else if (CURRENT_ROLE === ROLES.COMMAND && k.role === ROLES.SUBORDINATE) canDelete = true;
+                    if (CURRENT_ROLE === ROLES.ADMIN && (k.role === ROLES.COMMAND || k.role === ROLES.SUBORDINATE)) canDelete = true;
+                    if (CURRENT_ROLE === ROLES.COMMAND && k.role === ROLES.SUBORDINATE) canDelete = true;
                     
                     const deleteBtn = canDelete ? `<td><button class="btn-delete">[ REVOKE ]</button></td>` : `<td></td>`;
 
                     tr.innerHTML = `
                         <td class="spoiler-cell spoiler-hidden" title="Click to reveal/copy">${keyDisplay}</td>
                         <td><span class="role-badge" style="border-color:${k.role==='COMMAND'?'var(--term-warn)':'var(--term-green)'}">${k.role}</span></td>
-                        <td style="font-size:12px; color:#888;">${creatorDisplay}</td>
+                        ${createdByCell}
                         <td style="font-size:12px;">${new Date(k.timestamp).toLocaleDateString()}</td>
                         ${deleteBtn}`;
                     
@@ -1164,8 +1281,6 @@
     safeListener('btn-open-ops', 'click', () => window.openScreen('operations-screen'));
     safeListener('btn-open-research', 'click', () => window.openScreen('main-hub'));
     safeListener('btn-open-access', 'click', () => window.openScreen('access-screen'));
-    
-    // IMPORTANT: Logout listener now correctly assigned after window.logout is defined
     safeListener('logout-btn', 'click', window.logout);
     
     document.querySelectorAll('.btn-back-dash').forEach(btn => btn.addEventListener('click', () => window.openScreen('dashboard-screen')));
@@ -1241,7 +1356,12 @@
         const r = document.getElementById('new-auth-role').value;
         if (k) {
             const hash = await getHash(k);
-            addDocument('system_access', { key: k, keyHash: hash, role: r, createdBy: CURRENT_KEY_USED });
+            addDocument('system_access', { 
+                key: k, 
+                keyHash: hash, 
+                role: r, 
+                createdBy: CURRENT_ROLE // IMPORTANT: Storing Role, not Key used
+            });
             window.closeModal('modal-add-auth-key');
         }
     });

@@ -240,7 +240,7 @@
         <div class="error-msg" id="error-msg">>> ACCESS DENIED: INVALID HASH <<</div>
         <div id="login-status" style="margin-top:10px; font-size:12px; color:var(--term-dim);">WAITING FOR AUTH...</div>
     </div>
-    <div style="margin-top: 40px; font-size: 10px; color: var(--term-dim); text-align: center;">LAST DAY NETWORK // V.5.2.4 (FINAL SECURE)</div>
+    <div style="margin-top: 40px; font-size: 10px; color: var(--term-dim); text-align: center;">LAST DAY NETWORK // V.5.2.5 (SECURE)</div>
 </div>
 
 <!-- DASHBOARD -->
@@ -580,6 +580,7 @@
 
     // --- GLOBAL FUNCTIONS (DEFINED BEFORE USAGE) ---
     
+    // IMPORTANT: Attach these to window so HTML onClick/safeListener can find them
     window.openScreen = (screenId) => { 
         document.querySelectorAll('.screen').forEach(el => { 
             el.style.display = 'none'; 
@@ -814,7 +815,7 @@
     }
 
     // --- BOOT ---
-    const bootLines = ["LAST DAY OS v.5.2.4", "INITIALIZING SECURITY...", "CONNECTING TO FIREBASE...", "SYNCING NOOSPHERE...", "SYSTEM READY."];
+    const bootLines = ["LAST DAY OS v.5.2.5", "INITIALIZING SECURITY...", "CONNECTING TO FIREBASE...", "SYNCING NOOSPHERE...", "SYSTEM READY."];
     let lineIndex = 0;
     const bootScreen = document.getElementById('boot-screen');
     const loginScreen = document.getElementById('login-screen');
@@ -1130,11 +1131,21 @@
             data.sort((a, b) => b.timestamp - a.timestamp);
             data.forEach(k => {
                 let isVisible = false;
-                if (CURRENT_ROLE === ROLES.GOD) isVisible = true;
-                // Admin sees only Command and Subordinate
-                if (CURRENT_ROLE === ROLES.ADMIN && (k.role === ROLES.COMMAND || k.role === ROLES.SUBORDINATE)) isVisible = true;
-                // Command sees only Subordinate
-                if (CURRENT_ROLE === ROLES.COMMAND && k.role === ROLES.SUBORDINATE) isVisible = true;
+                
+                // STRICT VISIBILITY LOGIC
+                switch(CURRENT_ROLE) {
+                    case ROLES.GOD:
+                        isVisible = true; 
+                        break;
+                    case ROLES.ADMIN:
+                        // Admin sees Command and Subordinate
+                        if (k.role === ROLES.COMMAND || k.role === ROLES.SUBORDINATE) isVisible = true;
+                        break;
+                    case ROLES.COMMAND:
+                        // Command sees ONLY Subordinate
+                        if (k.role === ROLES.SUBORDINATE) isVisible = true;
+                        break;
+                }
 
                 if (isVisible) {
                     const tr = document.createElement('tr');
@@ -1148,12 +1159,19 @@
                          createdByCell = `<td style="font-size:12px; color:#888;">${creatorDisplay}</td>`;
                     }
                     
+                    // STRICT DELETE LOGIC
                     let canDelete = false;
-                    if (CURRENT_ROLE === ROLES.GOD) canDelete = true;
-                    // Admin can delete Command and Subordinate
-                    else if (CURRENT_ROLE === ROLES.ADMIN && (k.role === ROLES.COMMAND || k.role === ROLES.SUBORDINATE)) canDelete = true;
-                    // Command can delete Subordinate
-                    else if (CURRENT_ROLE === ROLES.COMMAND && k.role === ROLES.SUBORDINATE) canDelete = true;
+                     switch(CURRENT_ROLE) {
+                        case ROLES.GOD:
+                            canDelete = true;
+                            break;
+                        case ROLES.ADMIN:
+                            if (k.role === ROLES.COMMAND || k.role === ROLES.SUBORDINATE) canDelete = true;
+                            break;
+                        case ROLES.COMMAND:
+                            if (k.role === ROLES.SUBORDINATE) canDelete = true;
+                            break;
+                    }
                     
                     const deleteBtn = canDelete ? `<td><button class="btn-delete">[ REVOKE ]</button></td>` : `<td></td>`;
 

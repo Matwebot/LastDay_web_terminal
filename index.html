@@ -202,11 +202,21 @@
 
         .hidden-for-subordinate { display: none !important; }
         .role-badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; border: 1px solid; }
+
+        /* TOAST */
+        .toast-msg {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--term-green); color: #000; padding: 5px 15px;
+            font-size: 14px; font-weight: bold; opacity: 0; transition: opacity 0.3s;
+            pointer-events: none; z-index: 9999;
+        }
+        .toast-show { opacity: 1; }
     </style>
 </head>
 <body class="screen-flicker">
 
 <div class="crt-overlay"></div>
+<div id="toast" class="toast-msg">COPIED TO CLIPBOARD</div>
 
 <!-- BOOT -->
 <div id="boot-screen" class="screen"></div>
@@ -230,7 +240,7 @@
         <div class="error-msg" id="error-msg">>> ACCESS DENIED: INVALID HASH <<</div>
         <div id="login-status" style="margin-top:10px; font-size:12px; color:var(--term-dim);">WAITING FOR AUTH...</div>
     </div>
-    <div style="margin-top: 40px; font-size: 10px; color: var(--term-dim); text-align: center;">LAST DAY NETWORK // V.5.1.8 (FINAL)</div>
+    <div style="margin-top: 40px; font-size: 10px; color: var(--term-dim); text-align: center;">LAST DAY NETWORK // V.5.2.1 (FINAL SECURE)</div>
 </div>
 
 <!-- DASHBOARD -->
@@ -567,17 +577,19 @@
     let CURRENT_ROLE = null; 
     let CURRENT_KEY_USED = null;
 
-    // --- GLOBAL FUNCTIONS & EXPORTS ---
-    // Defined early so safeListener can reference them if needed
+    // --- GLOBAL FUNCTIONS (DEFINED BEFORE USAGE) ---
     
+    // IMPORTANT: Attach these to window so HTML onClick/safeListener can find them
     window.openScreen = (screenId) => { 
         document.querySelectorAll('.screen').forEach(el => { 
             el.style.display = 'none'; 
             el.classList.remove('screen-transition'); 
         }); 
         const target = document.getElementById(screenId); 
-        target.style.display = 'flex'; 
-        target.classList.add('screen-transition'); 
+        if (target) {
+            target.style.display = 'flex'; 
+            target.classList.add('screen-transition'); 
+        }
     };
 
     window.closeDocument = () => { 
@@ -602,10 +614,14 @@
         const passInput = document.getElementById('password-input');
         const loginStatus = document.getElementById('login-status');
         
-        passInput.value = ""; 
-        passInput.style.borderColor = "#00661a"; 
-        loginStatus.innerText = "WAITING FOR AUTH..."; 
-        loginStatus.style.color = "var(--term-dim)"; 
+        if (passInput) {
+            passInput.value = ""; 
+            passInput.style.borderColor = "#00661a"; 
+        }
+        if (loginStatus) {
+            loginStatus.innerText = "WAITING FOR AUTH..."; 
+            loginStatus.style.color = "var(--term-dim)"; 
+        }
         
         // Reset role styles
         document.body.classList.remove('role-god', 'role-admin', 'role-command', 'role-subordinate');
@@ -618,12 +634,17 @@
     };
     
     window.closeModal = (id) => { 
-        document.getElementById(id).style.display = 'none'; 
+        const modal = document.getElementById(id);
+        if (modal) modal.style.display = 'none'; 
         if(id === 'modal-add-project') { 
             uploadedFileContent = null; 
-            document.getElementById('project-file-upload').value = ''; 
-            document.getElementById('file-name-display').textContent = "NO DATA CARTRIDGE INSERTED"; 
-            document.getElementById('file-name-display').style.color = "var(--term-dim)"; 
+            const upload = document.getElementById('project-file-upload');
+            if (upload) upload.value = ''; 
+            const display = document.getElementById('file-name-display');
+            if (display) {
+                display.textContent = "NO DATA CARTRIDGE INSERTED"; 
+                display.style.color = "var(--term-dim)"; 
+            }
         } 
     };
     
@@ -641,112 +662,10 @@
         document.getElementById('adept-labor-fields').style.display = 'none';
     };
     
-    window.openAddModal = () => { 
-        if(CURRENT_ROLE===ROLES.SUBORDINATE) return; 
-        document.getElementById('modal-add-unit').style.display='flex'; 
-        document.getElementById('new-unit-id').value=''; 
-        document.getElementById('new-unit-discord').value=''; 
-        document.getElementById('new-unit-steam').value=''; 
-    };
-    
-    window.openAddKeyModal = () => { 
-        if(CURRENT_ROLE===ROLES.SUBORDINATE) return; 
-        document.getElementById('modal-add-key').style.display='flex'; 
-        document.getElementById('new-key-name').value=''; 
-        document.getElementById('new-key-desc').value=''; 
-        document.getElementById('new-key-code').value=''; 
-    };
-    
-    window.openAddProjectModal = () => { 
-        if(CURRENT_ROLE===ROLES.SUBORDINATE) return; 
-        document.getElementById('modal-add-project').style.display='flex'; 
-        document.getElementById('new-proj-code').value=''; 
-        document.getElementById('new-proj-desc').value=''; 
-    };
-    
-    window.openAddOperationModal = () => { 
-        if(CURRENT_ROLE===ROLES.SUBORDINATE) return; 
-        document.getElementById('modal-add-operation').style.display='flex'; 
-        document.getElementById('new-op-code').value=''; 
-        document.getElementById('new-op-time').value=''; 
-    };
-
-    window.openAdeptDetails = function(a) {
-        const modal = document.getElementById('modal-view-adept');
-        const content = document.getElementById('view-adept-content');
-        const actBtn = document.getElementById('view-adept-activate');
-        const delBtn = document.getElementById('view-adept-delete');
-        
-        let fieldsHtml = `
-            <div class="info-row"><span class="info-label">CODE:</span><span class="info-val">${a.code}</span></div>
-            <div class="info-row"><span class="info-label">NAME:</span><span class="info-val">${a.name}</span></div>
-            <div class="info-row"><span class="info-label">TYPE:</span><span class="info-val">${a.type || 'UNKNOWN'}</span></div>
-            <div class="info-row"><span class="info-label">STATUS:</span><span class="info-val" style="color:${a.status==='ЖИВ'?'#0f0':a.status==='УСТРАНЕН'?'#f00':'#888'}">${a.status}</span></div>
-            <div class="info-row"><span class="info-label">TIME:</span><span class="info-val">${a.time}</span></div>
-            <div class="info-row"><span class="info-label">DISCORD:</span><span class="info-val" style="color:#7289da">${a.discordId || 'N/A'}</span></div>
-            <div class="info-row"><span class="info-label">STEAM:</span><span class="info-val">${a.steamId || 'N/A'}</span></div>
-        `;
-
-        if (a.type === 'ACTIVE') {
-            actBtn.style.display = 'block';
-            let isActivated = a.isActivated === true;
-            actBtn.disabled = isActivated || CURRENT_ROLE === ROLES.SUBORDINATE;
-            actBtn.innerText = isActivated ? "ACTIVATED" : "ACTIVATE PROTOCOL";
-            actBtn.style.color = isActivated ? "#444" : "var(--term-green)";
-            
-            const newActBtn = actBtn.cloneNode(true);
-            actBtn.parentNode.replaceChild(newActBtn, actBtn);
-            newActBtn.addEventListener('click', async () => {
-                newActBtn.innerText = "PROCESSING SIGNAL...";
-                newActBtn.style.color = "var(--term-warn)";
-                newActBtn.disabled = true;
-                await addActivationSignal({ targetDiscordId: a.discordId, targetCode: a.code, targetName: a.name });
-                await updateDocField('adepts', a.id, 'isActivated', true);
-                newActBtn.innerText = "ACTIVATED"; newActBtn.style.color = "#444";
-            });
-        } else {
-            actBtn.style.display = 'none';
-        }
-        
-        if (a.type === 'DETAINED') {
-            fieldsHtml += `<div class="info-row"><span class="info-label">ASSIGNMENT:</span><span class="info-val">${a.workDesc || 'MANUAL LABOR'}</span></div><div class="info-row"><span class="info-label">RELEASE TIME:</span><span class="info-val">${a.releaseTime || 'INDEFINITE'}</span></div>`;
-        }
-
-        const disabled = CURRENT_ROLE === ROLES.SUBORDINATE ? 'disabled' : '';
-        fieldsHtml += `
-            <div style="margin-top:20px; text-align:center;">
-                <p style="font-size:12px; color:#666;">UPDATE VITAL STATUS:</p>
-                <select id="detail-status-select" class="term-select" style="text-align:center;" ${disabled}>
-                    <option value="ЖИВ" ${a.status==='ЖИВ'?'selected':''}>ALIVE</option>
-                    <option value="УСТРАНЕН" ${a.status==='УСТРАНЕН'?'selected':''}>ELIMINATED</option>
-                    <option value="ПРОПАЛ" ${a.status==='ПРОПАЛ'?'selected':''}>MISSING</option>
-                </select>
-            </div>
-        `;
-        content.innerHTML = fieldsHtml;
-
-        setTimeout(() => {
-            if (CURRENT_ROLE !== ROLES.SUBORDINATE) {
-                const sel = document.getElementById('detail-status-select');
-                if(sel) {
-                    sel.addEventListener('change', (e) => {
-                        updateDocField('adepts', a.id, 'status', e.target.value);
-                        const statusDisplay = content.querySelector('.info-row:nth-child(4) .info-val'); 
-                        if(statusDisplay) statusDisplay.innerText = e.target.value;
-                    });
-                }
-            }
-        }, 100);
-
-        if (CURRENT_ROLE === ROLES.SUBORDINATE) {
-            delBtn.style.display = 'none';
-            actBtn.style.display = 'none';
-        } else {
-            delBtn.style.display = 'inline-block';
-            delBtn.onclick = () => { delDocId = a.id; delCollection = 'adepts'; modal.style.display = 'none'; document.getElementById('modal-delete-adept').style.display = 'flex'; };
-        }
-        modal.style.display = 'flex';
-    };
+    window.openAddModal = () => { if(CURRENT_ROLE===ROLES.SUBORDINATE) return; document.getElementById('modal-add-unit').style.display='flex'; document.getElementById('new-unit-id').value=''; document.getElementById('new-unit-discord').value=''; document.getElementById('new-unit-steam').value=''; };
+    window.openAddKeyModal = () => { if(CURRENT_ROLE===ROLES.SUBORDINATE) return; document.getElementById('modal-add-key').style.display='flex'; document.getElementById('new-key-name').value=''; document.getElementById('new-key-desc').value=''; document.getElementById('new-key-code').value=''; };
+    window.openAddProjectModal = () => { if(CURRENT_ROLE===ROLES.SUBORDINATE) return; document.getElementById('modal-add-project').style.display='flex'; document.getElementById('new-proj-code').value=''; document.getElementById('new-proj-desc').value=''; };
+    window.openAddOperationModal = () => { if(CURRENT_ROLE===ROLES.SUBORDINATE) return; document.getElementById('modal-add-operation').style.display='flex'; document.getElementById('new-op-code').value=''; document.getElementById('new-op-time').value=''; };
 
     // --- UTILS ---
     async function getHash(message) {
@@ -770,9 +689,30 @@
         if (el) el.addEventListener(event, handler);
         else console.warn(`Element ID not found: ${id}`);
     }
+    
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.classList.add('toast-show');
+        setTimeout(() => t.classList.remove('toast-show'), 2000);
+    }
+    
+    function copyToClipboard(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showToast("COPIED TO CLIPBOARD");
+        } catch (err) {
+            console.error('Fallback: Oops, unable to copy', err);
+        }
+        document.body.removeChild(textArea);
+    }
 
     // --- BOOT ---
-    const bootLines = ["LAST DAY OS v.5.1.8", "INITIALIZING SECURITY...", "CONNECTING TO FIREBASE...", "SYNCING NOOSPHERE...", "SYSTEM READY."];
+    const bootLines = ["LAST DAY OS v.5.2.1", "INITIALIZING SECURITY...", "CONNECTING TO FIREBASE...", "SYNCING NOOSPHERE...", "SYSTEM READY."];
     let lineIndex = 0;
     const bootScreen = document.getElementById('boot-screen');
     const loginScreen = document.getElementById('login-screen');
@@ -1090,18 +1030,41 @@
                     const tr = document.createElement('tr');
                     const keyDisplay = k.key || (k.keyHash ? k.keyHash.substring(0, 10) + '...' : 'UNKNOWN');
                     
-                    tr.innerHTML = `
-                        <td class="spoiler-cell spoiler-hidden" onclick="this.classList.toggle('spoiler-hidden')">${keyDisplay}</td>
-                        <td><span class="role-badge" style="border-color:${k.role==='COMMAND'?'var(--term-warn)':'var(--term-green)'}">${k.role}</span></td>
-                        <td style="font-size:12px; color:#888;">${k.createdBy || 'UNKNOWN'}</td>
-                        <td style="font-size:12px;">${new Date(k.timestamp).toLocaleDateString()}</td>
-                        <td><button class="btn-delete">[ REVOKE ]</button></td>`;
+                    let creatorDisplay = k.createdBy;
+                    if (!creatorDisplay || creatorDisplay.length > 20) { 
+                        creatorDisplay = "REDACTED"; 
+                    }
                     
-                    tr.querySelector('.btn-delete').addEventListener('click', () => { 
-                        delDocId = k.id; 
-                        delCollection = 'system_access'; 
-                        document.getElementById('modal-delete-auth-key').style.display = 'flex'; 
+                    let canDelete = false;
+                    if (CURRENT_ROLE === ROLES.GOD) canDelete = true;
+                    else if (CURRENT_ROLE === ROLES.ADMIN && k.role !== ROLES.GOD && k.role !== ROLES.ADMIN) canDelete = true;
+                    else if (CURRENT_ROLE === ROLES.COMMAND && k.role === ROLES.SUBORDINATE) canDelete = true;
+                    
+                    const deleteBtn = canDelete ? `<td><button class="btn-delete">[ REVOKE ]</button></td>` : `<td></td>`;
+
+                    tr.innerHTML = `
+                        <td class="spoiler-cell spoiler-hidden" title="Click to reveal/copy">${keyDisplay}</td>
+                        <td><span class="role-badge" style="border-color:${k.role==='COMMAND'?'var(--term-warn)':'var(--term-green)'}">${k.role}</span></td>
+                        <td style="font-size:12px; color:#888;">${creatorDisplay}</td>
+                        <td style="font-size:12px;">${new Date(k.timestamp).toLocaleDateString()}</td>
+                        ${deleteBtn}`;
+                    
+                    const cell = tr.querySelector('.spoiler-cell');
+                    cell.addEventListener('click', (e) => {
+                        if (cell.classList.contains('spoiler-hidden')) {
+                            cell.classList.remove('spoiler-hidden');
+                        } else {
+                            copyToClipboard(k.key);
+                        }
                     });
+
+                    if (canDelete) {
+                        tr.querySelector('.btn-delete').addEventListener('click', () => { 
+                            delDocId = k.id; 
+                            delCollection = 'system_access'; 
+                            document.getElementById('modal-delete-auth-key').style.display = 'flex'; 
+                        });
+                    }
                     tbody.appendChild(tr);
                 }
             });
@@ -1118,6 +1081,12 @@
                 const btnDisplay = CURRENT_ROLE === ROLES.SUBORDINATE ? 'none' : 'inline-block';
                 tr.innerHTML=`<td style="font-weight:bold;color:var(--term-green);">${k.name}</td><td style="font-size:14px;">${k.desc||'N/A'}</td><td class="spoiler-cell spoiler-hidden" onclick="this.classList.toggle('spoiler-hidden')">${k.code}</td><td><button class="btn-delete" style="display:${btnDisplay}">[ X ]</button></td>`;
                 if(CURRENT_ROLE !== ROLES.SUBORDINATE) tr.querySelector('.btn-delete').addEventListener('click',()=>{delDocId=k.id;delCollection='keys';document.getElementById('modal-delete-key').style.display='flex';});
+                const cell = tr.querySelector('.spoiler-cell');
+                cell.onclick = null; 
+                cell.addEventListener('click', () => {
+                     if (cell.classList.contains('spoiler-hidden')) cell.classList.remove('spoiler-hidden');
+                     else copyToClipboard(k.code);
+                });
                 tbody.appendChild(tr);
             });
         }
@@ -1195,6 +1164,8 @@
     safeListener('btn-open-ops', 'click', () => window.openScreen('operations-screen'));
     safeListener('btn-open-research', 'click', () => window.openScreen('main-hub'));
     safeListener('btn-open-access', 'click', () => window.openScreen('access-screen'));
+    
+    // IMPORTANT: Logout listener now correctly assigned after window.logout is defined
     safeListener('logout-btn', 'click', window.logout);
     
     document.querySelectorAll('.btn-back-dash').forEach(btn => btn.addEventListener('click', () => window.openScreen('dashboard-screen')));

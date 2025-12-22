@@ -8,25 +8,15 @@
     <style>
         :root {
             --bg-color: #050505;
-            /* Основные цвета */
             --term-green: #00ff41;
             --term-dim: #00661a;
             --term-alert: #ff3333;
             --term-warn: #ffcc00;
             --term-orange: #ff8800;
+            --term-blue: #33ccff;
             --term-gray: #888888;
             --term-glow: rgba(0, 255, 65, 0.6);
-            --discord-color: #5865F2; /* Цвет Discord для акцентов */
-            
-            /* Алиасы для совместимости с чертежами */
-            --primary: var(--term-green);
-            --dim: var(--term-dim);
-            --alert: var(--term-alert);
-
-            /* Сетка документа */
-            --grid-line: rgba(0, 255, 65, 0.08);
-            
-            /* Шрифты */
+            --discord-color: #5865F2;
             --font-ui: 'Share Tech Mono', monospace;
             --font-body: 'Rajdhani', sans-serif;
         }
@@ -43,7 +33,6 @@
             text-shadow: 0 0 2px var(--term-dim), 0 0 5px var(--term-glow);
         }
 
-        /* CRT Effects */
         .crt-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
@@ -59,7 +48,6 @@
         ::-webkit-scrollbar-track { background: #001100; border-left: 1px solid var(--term-dim); }
         ::-webkit-scrollbar-thumb { background: var(--term-dim); border: 1px solid var(--term-green); }
 
-        /* Screens */
         .screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; overflow: hidden; padding: 40px;
@@ -67,9 +55,8 @@
         }
         #boot-screen { z-index: 100; display: block; font-size: 16px; white-space: pre-wrap; padding: 40px; }
         #login-screen { z-index: 90; align-items: center; justify-content: center; }
-        #dashboard-screen, #relations-screen, #roster-screen, #operations-screen, #main-hub { z-index: 80; overflow-y: auto; }
+        #dashboard-screen, #relations-screen, #roster-screen, #operations-screen, #main-hub, #adepts-screen, #keys-screen, #access-screen { z-index: 80; overflow-y: auto; }
         
-        /* Iframe Doc Viewer */
         #doc-viewer { 
             z-index: 85; background: #050505; padding: 0; 
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -83,7 +70,6 @@
             flex-grow: 1; width: 100%; border: none; background: #fff; display: block;
         }
 
-        /* UI Elements */
         .logo-container svg { width: 180px; height: 180px; margin-bottom: 40px; filter: drop-shadow(0 0 10px var(--term-green)); animation: rotateLogo 20s linear infinite; }
         @keyframes rotateLogo { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .input-group { text-align: center; display: flex; flex-direction: column; align-items: center; }
@@ -96,7 +82,6 @@
         .error-msg { color: var(--term-alert); margin-top: 20px; height: 20px; font-weight: bold; opacity: 0; text-shadow: 0 0 5px red; }
         .hub-header { border-bottom: 2px solid var(--term-dim); padding-bottom: 15px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end; flex-shrink: 0; }
         
-        /* Dashboard */
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; width: 100%; }
         .menu-tile {
             border: 2px solid var(--term-dim); padding: 30px; cursor: pointer;
@@ -109,12 +94,18 @@
         .tile-title { font-size: 24px; font-weight: bold; letter-spacing: 2px; margin-bottom: 10px; }
         .tile-desc { font-size: 14px; color: #6dbf78; opacity: 0.8; }
 
-        /* Tables */
         .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; border: 1px solid var(--term-dim); }
         .data-table th { background: rgba(0, 255, 65, 0.1); text-align: left; padding: 15px; border-bottom: 2px solid var(--term-green); letter-spacing: 2px; }
         .data-table td { padding: 15px; border-bottom: 1px solid var(--term-dim); background: rgba(0,0,0,0.5); vertical-align: middle; }
         .data-table tr:hover td { background: rgba(0, 255, 65, 0.05); }
 
+        .adept-layout { display: flex; gap: 20px; flex-wrap: wrap; }
+        .adept-col { flex: 1; min-width: 300px; border: 1px solid var(--term-dim); padding: 10px; background: rgba(0,20,0,0.3); }
+        .adept-col h3 { text-align: center; border-bottom: 1px solid var(--term-green); padding-bottom: 10px; margin-top: 0; }
+        .adept-table th, .adept-table td { padding: 8px; font-size: 14px; }
+        .adept-row { cursor: pointer; transition: 0.2s; }
+        .adept-row:hover { background: rgba(0, 255, 65, 0.1); }
+        
         select.term-select {
             background-color: #000; border: 1px solid var(--term-dim); color: var(--term-green);
             font-family: var(--font-ui); padding: 5px 10px; font-size: 16px; width: 100%;
@@ -124,10 +115,13 @@
 
         .status-war { color: var(--term-alert); border-color: var(--term-alert); }
         .status-neutral { color: var(--term-warn); border-color: var(--term-warn); }
+        .status-unknown { color: var(--term-blue); border-color: var(--term-blue); } 
         .status-alliance { color: var(--term-green); border-color: var(--term-green); }
+        
         tr[data-status="WAR"] td { border-left: 3px solid var(--term-alert); }
         tr[data-status="ALLIANCE"] td { border-left: 3px solid var(--term-green); }
         tr[data-status="NEUTRAL"] td { border-left: 3px solid var(--term-warn); }
+        tr[data-status="UNKNOWN"] td { border-left: 3px solid var(--term-blue); }
 
         .nav-btn, .back-btn {
             background: transparent; border: 1px solid var(--term-dim); color: var(--term-green);
@@ -135,8 +129,20 @@
             font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; gap: 10px;
         }
         .nav-btn:hover, .back-btn:hover { background: var(--term-green); color: #000; }
+        
+        .btn-activate {
+            background: rgba(0, 255, 65, 0.1); border: 1px solid var(--term-green); color: var(--term-green);
+            padding: 5px 10px; font-family: var(--font-ui); cursor: pointer; text-transform: uppercase;
+            font-size: 14px; transition: all 0.2s; margin-top: 10px; width: 100%;
+        }
+        .btn-activate:hover:not(:disabled) { background: var(--term-green); color: #000; box-shadow: 0 0 10px var(--term-green); }
+        .btn-activate:active:not(:disabled) { transform: scale(0.95); }
+        .btn-activate:disabled { border-color: #444; color: #444; background: rgba(0,0,0,0.5); cursor: not-allowed; box-shadow: none; }
+        
+        .spoiler-cell { cursor: pointer; user-select: none; font-family: 'Courier New', monospace; letter-spacing: 2px; transition: 0.2s; }
+        .spoiler-hidden { background: var(--term-dim); color: transparent; text-shadow: none; position: relative; }
+        .spoiler-hidden::after { content: "******"; color: var(--term-green); position: absolute; left: 15px; top: 15px; }
 
-        /* Project Cards */
         .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
         .project-card {
             border: 1px solid var(--term-dim); padding: 25px; cursor: pointer;
@@ -149,7 +155,6 @@
         .card-title { font-size: 20px; margin-bottom: 10px; font-weight: bold; }
         .card-desc { font-size: 14px; color: #6dbf78; word-wrap: break-word; }
 
-        /* Buttons */
         .btn-delete {
             background: transparent; border: none; color: var(--term-green);
             font-family: var(--font-ui); font-weight: bold; cursor: pointer;
@@ -163,7 +168,6 @@
         }
         .card-delete-pos { position: absolute; bottom: 10px; right: 10px; z-index: 20; font-size: 14px; }
 
-        /* Modals */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 5000; justify-content: center; align-items: center; }
         .modal-box { border: 2px solid var(--term-dim); padding: 40px; text-align: center; color: var(--term-green); box-shadow: 0 0 50px rgba(0, 255, 65, 0.2); max-width: 500px; font-family: var(--font-ui); background: #000; }
         .modal-box.alert { border-color: var(--term-alert); color: var(--term-alert); box-shadow: 0 0 50px rgba(255, 51, 51, 0.2); }
@@ -174,7 +178,6 @@
         .modal-input { background: #000; border: 1px solid var(--term-dim); color: var(--term-green); padding: 10px; font-family: var(--font-ui); font-size: 20px; text-align: center; width: 100%; margin: 15px 0; outline: none; text-transform: uppercase; }
         .modal-input:focus { border-color: var(--term-green); box-shadow: 0 0 10px var(--term-green); }
         
-        /* Discord Field Styling */
         .discord-input-container {
             border: 1px dashed var(--discord-color);
             padding: 10px;
@@ -192,6 +195,13 @@
             border-color: var(--discord-color) !important;
             color: #7289da !important;
         }
+        
+        .info-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #333; padding: 5px 0; margin-bottom: 5px; font-size: 14px; }
+        .info-label { color: var(--term-dim); }
+        .info-val { font-weight: bold; text-align: right; }
+
+        .hidden-for-subordinate { display: none !important; }
+        .role-badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; border: 1px solid; }
     </style>
 </head>
 <body class="screen-flicker">
@@ -218,14 +228,15 @@
         <label class="input-label">SECURE LOGIN REQUIRED</label>
         <input type="password" id="password-input" maxlength="20" placeholder="_ _ _ _ _ _" autocomplete="off">
         <div class="error-msg" id="error-msg">>> ACCESS DENIED: INVALID HASH <<</div>
+        <div id="login-status" style="margin-top:10px; font-size:12px; color:var(--term-dim);">WAITING FOR AUTH...</div>
     </div>
-    <div style="margin-top: 40px; font-size: 10px; color: var(--term-dim); text-align: center;">LAST DAY NETWORK // V.5.0.4 (CLOUD)</div>
+    <div style="margin-top: 40px; font-size: 10px; color: var(--term-dim); text-align: center;">LAST DAY NETWORK // V.5.1.8 (FINAL)</div>
 </div>
 
 <!-- DASHBOARD -->
 <div id="dashboard-screen" class="screen">
     <div class="hub-header">
-        <div><div style="font-size: 28px; font-weight: bold;">OPERATING SYSTEM: SINGULARITY</div><div style="font-size: 12px; color: var(--term-dim); margin-top: 5px;">UNIT: 734-ALPHA | LOCATION: DEAD CITY</div></div>
+        <div><div style="font-size: 28px; font-weight: bold;">OPERATING SYSTEM: SINGULARITY</div><div style="font-size: 12px; color: var(--term-dim); margin-top: 5px;">UNIT: <span id="user-role-display">UNKNOWN</span> | LOCATION: DEAD CITY</div></div>
         <div style="text-align: right;"><div>STATUS: <span class="blink" style="color:var(--term-green)">ONLINE</span></div><button id="logout-btn" class="nav-btn" style="margin-top: 5px; border-color: var(--term-alert); color: var(--term-alert);">[ LOGOUT ]</button></div>
     </div>
     <div class="dashboard-grid">
@@ -238,14 +249,42 @@
             </div>
             <div class="tile-title">PERSONNEL</div><div class="tile-desc">Личный состав. Мониторинг показателей.</div>
         </div>
+        <div class="menu-tile" id="btn-open-adepts">
+             <div class="tile-icon">
+                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="10" r="4" />
+                    <path d="M6 21v-2a4 4 0 0 1 12 0v2" />
+                    <path d="M6 7a9 9 0 0 0 0 6" /> 
+                    <path d="M3 4a15 15 0 0 0 0 12" />
+                    <path d="M18 7a9 9 0 0 1 0 6" />
+                    <path d="M21 4a15 15 0 0 1 0 12" />
+                 </svg>
+             </div>
+             <div class="tile-title">ADEPTS REGISTRY</div><div class="tile-desc">Реестр испытуемых. Контроль активации.</div>
+        </div>
         <div class="menu-tile" id="btn-open-ops">
             <div class="tile-icon">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><circle cx="12" cy="12" r="10"></circle><line x1="22" y1="12" x2="18" y2="12"></line><line x1="6" y1="12" x2="2" y2="12"></line><line x1="12" y1="6" x2="12" y2="2"></line><line x1="12" y1="22" x2="12" y2="18"></line></svg>
             </div>
             <div class="tile-title">TACTICAL</div><div class="tile-desc">Планирование боевых задач.</div>
         </div>
+        <div class="menu-tile" id="btn-open-keys">
+            <div class="tile-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+            </div>
+            <div class="tile-title">ACCESS KEYS</div><div class="tile-desc">Управление кодами доступа.</div>
+        </div>
         <div class="menu-tile" id="btn-open-research">
             <div class="tile-icon">☢</div><div class="tile-title">RESEARCH</div><div class="tile-desc">База данных разработок.</div>
+        </div>
+        <div class="menu-tile restricted-tile" id="btn-open-access" style="display:none;">
+            <div class="tile-icon" style="color: var(--term-blue);">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M8 11h.01"/><path d="M12 11h.01"/><path d="M16 11h.01"/><path d="M9 16s1 1 3 1 3-1 3-1"/></svg>
+            </div>
+            <div class="tile-title">ACCESS CONTROL</div><div class="tile-desc">Генерация ключей доступа персонала.</div>
         </div>
     </div>
 </div>
@@ -260,14 +299,15 @@
 <!-- PERSONNEL -->
 <div id="roster-screen" class="screen">
     <div class="hub-header"><div style="font-size: 24px; font-weight: bold;">UNIT ROSTER</div><button class="nav-btn btn-back-dash"><< DASHBOARD</button></div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><p style="color: var(--term-dim); margin: 0;">>> LIVE BIOMETRIC FEED</p><button id="btn-add-unit" class="nav-btn" style="font-size: 12px;">+ ADD UNIT</button></div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><p style="color: var(--term-dim); margin: 0;">>> LIVE BIOMETRIC FEED</p><button id="btn-add-unit" class="nav-btn role-restricted" style="font-size: 12px;">+ ADD UNIT</button></div>
     <table class="data-table">
         <thead>
             <tr>
                 <th style="width: 15%">ID INDEX</th>
-                <th style="width: 20%; color: #5865F2;">DISCORD TAG</th>
-                <th style="width: 25%">RANK / ROLE</th>
-                <th style="width: 25%">VITALS STATUS</th>
+                <th style="width: 15%; color: #5865F2;">DISCORD TAG</th>
+                <th style="width: 15%">STEAM ID</th>
+                <th style="width: 20%">RANK / ROLE</th>
+                <th style="width: 20%">VITALS STATUS</th>
                 <th style="width: 15%">ACTION</th>
             </tr>
         </thead>
@@ -275,17 +315,82 @@
     </table>
 </div>
 
-<!-- OPERATIONS (TACTICAL) -->
+<!-- ADEPTS REGISTRY -->
+<div id="adepts-screen" class="screen">
+    <div class="hub-header"><div style="font-size: 24px; font-weight: bold;">ADEPT REGISTRY</div><button class="nav-btn btn-back-dash"><< DASHBOARD</button></div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><p style="color: var(--term-dim); margin: 0;">>> BIOMATERIAL CATEGORIZATION</p><button id="btn-add-adept" class="nav-btn role-restricted" style="font-size: 12px;">+ REGISTER SUBJECT</button></div>
+    
+    <div class="adept-layout">
+        <div class="adept-col">
+            <h3>INITIATES (ACTIVE)</h3>
+            <table class="data-table adept-table">
+                <thead><tr><th>CODE</th><th>NAME</th><th>STATUS</th></tr></thead>
+                <tbody id="adepts-active-body"></tbody>
+            </table>
+        </div>
+        <div class="adept-col">
+            <h3>SUBJECTS (TEST)</h3>
+            <table class="data-table adept-table">
+                <thead><tr><th>CODE</th><th>NAME</th><th>STATUS</th></tr></thead>
+                <tbody id="adepts-subject-body"></tbody>
+            </table>
+        </div>
+        <div class="adept-col">
+            <h3>DETAINED (LABOR)</h3>
+            <table class="data-table adept-table">
+                <thead><tr><th>CODE</th><th>NAME</th><th>STATUS</th></tr></thead>
+                <tbody id="adepts-labor-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- KEYS SCREEN -->
+<div id="keys-screen" class="screen">
+    <div class="hub-header"><div style="font-size: 24px; font-weight: bold;">ACCESS KEY MANAGEMENT</div><button class="nav-btn btn-back-dash"><< DASHBOARD</button></div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><p style="color: var(--term-dim); margin: 0;">>> SECURE STORAGE: ENCRYPTED</p><button id="btn-add-key" class="nav-btn role-restricted" style="font-size: 12px;">+ ADD LOCK</button></div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width: 25%">IDENTIFIER / NAME</th>
+                <th style="width: 40%">LOCATION / DESCRIPTION</th>
+                <th style="width: 25%">ACCESS CODE</th>
+                <th style="width: 10%">ACTION</th>
+            </tr>
+        </thead>
+        <tbody id="keys-body"></tbody>
+    </table>
+</div>
+
+<!-- OPERATIONS -->
 <div id="operations-screen" class="screen">
     <div class="hub-header"><div style="font-size: 24px; font-weight: bold;">TACTICAL OPERATIONS</div><button class="nav-btn btn-back-dash"><< DASHBOARD</button></div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><p style="color: var(--term-dim); margin: 0;">>> MISSION CONTROL</p><button id="btn-add-op" class="nav-btn" style="font-size: 12px;">+ ADD OPERATION</button></div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><p style="color: var(--term-dim); margin: 0;">>> MISSION CONTROL</p><button id="btn-add-op" class="nav-btn role-restricted" style="font-size: 12px;">+ ADD OPERATION</button></div>
     <table class="data-table"><thead><tr><th style="width: 10%">CODENAME</th><th style="width: 15%">START</th><th style="width: 5%">UNITS</th><th style="width: 10%">SECTOR</th><th style="width: 25%">OBJECTIVES</th><th style="width: 10%">SECRECY</th><th style="width: 15%">STATUS</th><th style="width: 10%">ACTION</th></tr></thead><tbody id="operations-body"></tbody></table>
 </div>
 
 <!-- RESEARCH HUB -->
 <div id="main-hub" class="screen">
-    <div class="hub-header"><div><div style="font-size: 24px; font-weight: bold;">RESEARCH DATABASE</div><div style="font-size: 12px; color: var(--term-dim);">ACCESS LEVEL: BETA</div></div><div style="text-align: right;"><button class="nav-btn btn-back-dash"><< DASHBOARD</button><button id="btn-add-proj" class="nav-btn" style="margin-top: 5px;">+ ADD PROJECT</button></div></div>
+    <div class="hub-header"><div><div style="font-size: 24px; font-weight: bold;">RESEARCH DATABASE</div><div style="font-size: 12px; color: var(--term-dim);">ACCESS LEVEL: BETA</div></div><div style="text-align: right;"><button class="nav-btn btn-back-dash"><< DASHBOARD</button><button id="btn-add-proj" class="nav-btn role-restricted" style="margin-top: 5px;">+ ADD PROJECT</button></div></div>
     <div class="grid-container" id="research-grid"></div>
+</div>
+
+<!-- ACCESS CONTROL SCREEN -->
+<div id="access-screen" class="screen">
+    <div class="hub-header"><div style="font-size: 24px; font-weight: bold; color: var(--term-blue);">USER ACCESS CONTROL</div><button class="nav-btn btn-back-dash"><< DASHBOARD</button></div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><p style="color: var(--term-dim); margin: 0;">>> GENERATE AUTHENTICATION TOKENS</p><button id="btn-add-auth-key" class="nav-btn" style="font-size: 12px; color: var(--term-blue); border-color: var(--term-blue);">+ CREATE USER KEY</button></div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width: 30%">ACCESS KEY</th>
+                <th style="width: 20%">ROLE ASSIGNED</th>
+                <th style="width: 20%">CREATED BY</th>
+                <th style="width: 20%">CREATED AT</th>
+                <th style="width: 10%">ACTION</th>
+            </tr>
+        </thead>
+        <tbody id="access-body"></tbody>
+    </table>
 </div>
 
 <!-- MODALS -->
@@ -296,15 +401,14 @@
 <div id="modal-add-unit" class="modal-overlay">
     <div class="modal-box">
         <h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">ADD NEW UNIT</h1>
-        
         <p style="text-align: left; margin-bottom: 5px; color: var(--term-dim); font-size: 12px;">IDENTIFICATION INDEX:</p>
         <input type="text" id="new-unit-id" class="modal-input" placeholder="000-CODENAME" maxlength="15">
-        
         <div class="discord-input-container">
             <label class="discord-label">>> DISCORD COMM LINK (REQUIRED):</label>
             <input type="text" id="new-unit-discord" class="modal-input discord-input" placeholder="User#0000 / ID" maxlength="30">
         </div>
-
+        <p style="text-align: left; margin-bottom: 5px; color: var(--term-dim); font-size: 12px;">STEAM ID:</p>
+        <input type="text" id="new-unit-steam" class="modal-input" placeholder="STEAM_0:1:..." maxlength="30">
         <div>
             <button id="confirm-add-unit" class="modal-btn">CONFIRM</button>
             <button class="modal-btn cancel close-modal">CANCEL</button>
@@ -312,7 +416,94 @@
     </div>
 </div>
 
+<!-- ADD ADEPT MODAL -->
+<div id="modal-add-adept" class="modal-overlay">
+    <div class="modal-box">
+        <h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">REGISTER SUBJECT</h1>
+        <p style="text-align: left; margin-bottom: 5px; color: var(--term-dim); font-size: 12px;">CLASSIFICATION:</p>
+        <select id="new-adept-type" class="term-select" style="margin-bottom: 20px;">
+            <option value="ACTIVE">ACTIVE ADEPT (INITIATE)</option>
+            <option value="SUBJECT">SUBJECT (EXPERIMENT)</option>
+            <option value="DETAINED">DETAINED (LABOR)</option>
+        </select>
+        <p style="text-align: left; margin-bottom: 5px; color: var(--term-dim); font-size: 12px;">SUBJECT CODE:</p>
+        <input type="text" id="new-adept-code" class="modal-input" placeholder="A-001" maxlength="10">
+        <p style="text-align: left; margin-bottom: 5px; color: var(--term-dim); font-size: 12px;">NAME (ORIGINAL):</p>
+        <input type="text" id="new-adept-name" class="modal-input" placeholder="Иван Иванов" maxlength="30">
+        <p style="text-align: left; margin-bottom: 5px; color: var(--term-dim); font-size: 12px;">TIME (ADAPTATION/CAPTURE):</p>
+        <input type="text" id="new-adept-time" class="modal-input" placeholder="HH:MM / DATE" maxlength="20">
+        <div class="discord-input-container">
+            <label class="discord-label">>> DISCORD ID:</label>
+            <input type="text" id="new-adept-discord" class="modal-input discord-input" placeholder="123456789..." maxlength="30">
+        </div>
+        <p style="text-align: left; margin-bottom: 5px; color: var(--term-dim); font-size: 12px;">STEAM ID:</p>
+        <input type="text" id="new-adept-steam" class="modal-input" placeholder="STEAM_0:1:..." maxlength="30">
+        <div id="adept-labor-fields" style="display:none;">
+             <p style="text-align: left; margin-bottom: 5px; color: var(--term-dim); font-size: 12px;">WORK ASSIGNMENT:</p>
+             <input type="text" id="new-adept-work" class="modal-input" placeholder="Digging / Cleaning" maxlength="50">
+             <p style="text-align: left; margin-bottom: 5px; color: var(--term-dim); font-size: 12px;">RELEASE TIME:</p>
+             <input type="text" id="new-adept-release" class="modal-input" placeholder="HH:MM" maxlength="20">
+        </div>
+        <div>
+            <button id="confirm-add-adept" class="modal-btn">REGISTER</button>
+            <button class="modal-btn cancel close-modal">CANCEL</button>
+        </div>
+    </div>
+</div>
+
+<!-- VIEW ADEPT DETAILS MODAL -->
+<div id="modal-view-adept" class="modal-overlay">
+    <div class="modal-box" style="text-align: left;">
+        <h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px; text-align:center;">SUBJECT DOSSIER</h1>
+        <div id="view-adept-content"></div>
+        <div style="text-align: center; margin-top: 20px;">
+            <button id="view-adept-activate" class="btn-activate role-restricted" style="display:none;">ACTIVATE PROTOCOL</button>
+            <button id="view-adept-delete" class="modal-btn danger role-restricted">TERMINATE SUBJECT</button>
+            <button class="modal-btn cancel close-modal">CLOSE</button>
+        </div>
+    </div>
+</div>
+
+<!-- ADD KEY MODAL -->
+<div id="modal-add-key" class="modal-overlay">
+    <div class="modal-box">
+        <h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">ADD SECURE LOCK</h1>
+        <p style="text-align: left; margin-bottom: 5px; color: var(--term-dim); font-size: 12px;">LOCK IDENTIFIER (NAME):</p>
+        <input type="text" id="new-key-name" class="modal-input" placeholder="DOOR-B1" maxlength="20">
+        <p style="text-align: left; margin-bottom: 5px; color: var(--term-dim); font-size: 12px;">LOCATION / DESCRIPTION:</p>
+        <input type="text" id="new-key-desc" class="modal-input" placeholder="LABORATORY ENTRANCE" maxlength="50">
+        <p style="text-align: left; margin-bottom: 5px; color: var(--term-dim); font-size: 12px;">ACCESS CODE:</p>
+        <input type="text" id="new-key-code" class="modal-input" placeholder="1234" maxlength="10">
+        <div>
+            <button id="confirm-add-key" class="modal-btn">ADD LOCK</button>
+            <button class="modal-btn cancel close-modal">CANCEL</button>
+        </div>
+    </div>
+</div>
+
+<!-- ADD USER AUTH KEY MODAL -->
+<div id="modal-add-auth-key" class="modal-overlay">
+    <div class="modal-box" style="border-color: var(--term-blue);">
+        <h1 style="border-bottom: 2px solid var(--term-blue); padding-bottom: 10px; color: var(--term-blue);">GENERATE USER KEY</h1>
+        <p style="text-align: left; margin-bottom: 5px; color: var(--term-dim); font-size: 12px;">NEW AUTH KEY:</p>
+        <input type="text" id="new-auth-key-val" class="modal-input" placeholder="MY-SECURE-KEY" maxlength="20" style="border-color: var(--term-blue); color: var(--term-blue);">
+        <p style="text-align: left; margin-bottom: 5px; color: var(--term-dim); font-size: 12px;">ASSIGN ROLE:</p>
+        <select id="new-auth-role" class="term-select" style="margin-bottom: 20px; border-color: var(--term-blue); color: var(--term-blue);">
+            <option value="SUBORDINATE">SUBORDINATE (READ ONLY)</option>
+            <option value="COMMAND" id="opt-role-command">COMMAND (FULL ACCESS)</option>
+            <option value="ADMIN" id="opt-role-admin" style="display:none;">ADMINISTRATOR</option>
+        </select>
+        <div>
+            <button id="confirm-add-auth-key" class="modal-btn" style="border-color: var(--term-blue); color: var(--term-blue);">GENERATE</button>
+            <button class="modal-btn cancel close-modal">CANCEL</button>
+        </div>
+    </div>
+</div>
+
 <div id="modal-delete-unit" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">TERMINATE RECORD?</h1><p>THIS ACTION CANNOT BE UNDONE.</p><div style="margin-top: 30px;"><button id="confirm-delete-unit" class="modal-btn danger">TERMINATE</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
+<div id="modal-delete-adept" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">PURGE SUBJECT?</h1><p>CONFIRM DATA DELETION.</p><div style="margin-top: 30px;"><button id="confirm-delete-adept" class="modal-btn danger">PURGE</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
+<div id="modal-delete-key" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">DELETE LOCK DATA?</h1><p>CONFIRM REMOVAL OF ACCESS CODE.</p><div style="margin-top: 30px;"><button id="confirm-delete-key" class="modal-btn danger">DELETE</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
+<div id="modal-delete-auth-key" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">REVOKE ACCESS?</h1><p>CONFIRM DELETION OF USER KEY.</p><div style="margin-top: 30px;"><button id="confirm-delete-auth-key" class="modal-btn danger">REVOKE</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
 
 <div id="modal-add-project" class="modal-overlay"><div class="modal-box"><h1 style="border-bottom: 2px solid var(--term-green); padding-bottom: 10px;">INIT NEW PROTOCOL</h1><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">CODENAME (FILE NAME):</p><input type="text" id="new-proj-code" class="modal-input" placeholder="e.g. GBS-5" style="margin: 0 0 15px 0;"><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">DESCRIPTION:</p><input type="text" id="new-proj-desc" class="modal-input" placeholder="BRIEF SUMMARY" style="margin: 0 0 15px 0;"><p style="text-align: left; margin-bottom: 5px; font-size: 12px; color: var(--term-dim);">ACCESS CLEARANCE:</p><select id="new-proj-status" class="term-select" style="margin-bottom: 20px;"><option value="ALPHA">ALPHA</option><option value="BETA">BETA (CURRENT)</option><option value="OMEGA">OMEGA</option></select><label for="project-file-upload" class="nav-btn" style="display:block; margin-bottom:15px; cursor:pointer; border-style:dashed;">>> UPLOAD SOURCE FILE (.HTML)</label><input type="file" id="project-file-upload" style="display:none" accept=".html"><div id="file-name-display" style="color:var(--term-dim); font-size:12px; margin-bottom:20px;">NO DATA CARTRIDGE INSERTED</div><div><button id="confirm-add-proj" class="modal-btn">INITIALIZE</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
 <div id="modal-delete-project" class="modal-overlay"><div class="modal-box alert"><h1 style="border-bottom: 2px solid var(--term-alert); padding-bottom: 10px;">ERASE PROTOCOL?</h1><p>CONFIRM DELETION OF PROJECT DATA.</p><div style="margin-top: 30px;"><button id="confirm-delete-proj" class="modal-btn danger">ERASE</button><button class="modal-btn cancel close-modal">CANCEL</button></div></div></div>
@@ -329,133 +520,7 @@
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-    // --- GLOBAL SCOPE ---
-    const SECRET_KEY = "LD-X7-OMEGA";
-    let delDocId = null;
-    let delCollection = null;
-    let uploadedFileContent = null;
-    let currentUser = null;
-    let db = null;
-    let auth = null;
-    let appId = 'last-day-terminal-standalone'; // Fallback App ID
-
-    // --- BOOT LOGIC (Must run independently of Firebase) ---
-    const bootLines = ["LAST DAY OS v.5.0.3", "INITIALIZING NETWORK...", "CONNECTING TO FIREBASE...", "SYNCING NOOSPHERE...", "SYSTEM READY."];
-    let lineIndex = 0;
-    const bootScreen = document.getElementById('boot-screen');
-    const loginScreen = document.getElementById('login-screen');
-    const passInput = document.getElementById('password-input');
-
-    function typeBoot() {
-        if (lineIndex < bootLines.length) {
-            const p = document.createElement('div');
-            p.style.fontFamily = "Share Tech Mono";
-            p.innerHTML = `> ${bootLines[lineIndex]}`;
-            bootScreen.appendChild(p);
-            lineIndex++;
-            setTimeout(typeBoot, 150);
-        } else {
-            setTimeout(() => { bootScreen.style.display = 'none'; loginScreen.style.display = 'flex'; passInput.focus(); }, 1000);
-        }
-    }
-    
-    // Explicitly attach to window to ensure it runs even if modules delay
-    window.onload = typeBoot;
-
-
-    // --- FIREBASE INIT ---
-    async function initFirebase() {
-        try {
-            // --- MANUAL CONFIG (ЗАПОЛНИТЕ ЭТО ДЛЯ ХОСТИНГА) ---
-            // Если вы загружаете это на хостинг, раскомментируйте и заполните данные ниже:
-            
-            const manualConfig = {
-                apiKey: "AIzaSyDItyHZsBjradE8WE-qtIutVKXux-mWoiI",
-                authDomain: "last-day-terminal.firebaseapp.com",
-                projectId: "last-day-terminal",
-                storageBucket: "last-day-terminal.firebasestorage.app",
-                messagingSenderId: "283501483006",
-                appId: "1:283501483006:web:68888bf5ea676579d9e6af"
-            };
-            
-
-            // Автоматическое определение конфига (Canvas vs Hosting)
-            let firebaseConfig;
-            
-            if (typeof __firebase_config !== 'undefined') {
-                // Мы в среде Canvas
-                firebaseConfig = JSON.parse(__firebase_config);
-                appId = typeof __app_id !== 'undefined' ? __app_id : appId;
-            } else if (typeof manualConfig !== 'undefined') {
-                 // Мы на хостинге с ручным конфигом
-                 firebaseConfig = manualConfig;
-            } else {
-                // Фолбэк чтобы не крашился скрипт (но данные не сохранятся)
-                console.warn("WARNING: Firebase Config not found. Using placeholder.");
-                firebaseConfig = { apiKey: "placeholder", projectId: "placeholder" }; 
-            }
-
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-
-            // Auth Flow
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
-            }
-
-            // Listeners
-            onAuthStateChanged(auth, (user) => {
-                currentUser = user;
-                if (user) {
-                    setupListeners();
-                }
-            });
-
-        } catch (error) {
-            console.error("Firebase Init Failed:", error);
-            // Визуально сообщаем об ошибке подключения, но не крашим интерфейс
-            const p = document.createElement('div');
-            p.style.color = 'red';
-            p.innerHTML = `> CONNECTION ERROR: ${error.message}`;
-            bootScreen.appendChild(p);
-        }
-    }
-
-    // --- DB HELPERS ---
-    function getColRef(colName) {
-        if (!db) return null;
-        return collection(db, 'artifacts', appId, 'public', 'data', colName);
-    }
-    
-    function getDocRef(colName, docId) {
-        if (!db) return null;
-        return doc(db, 'artifacts', appId, 'public', 'data', colName, docId);
-    }
-
-    async function updateDocField(collectionName, docId, field, value) {
-        if (!currentUser || !db) return;
-        const ref = getDocRef(collectionName, docId);
-        await updateDoc(ref, { [field]: value });
-    }
-
-    async function deleteDocument(collectionName, docId) {
-        if (!currentUser || !db) return;
-        await deleteDoc(getDocRef(collectionName, docId));
-    }
-
-    async function addDocument(collectionName, data) {
-        if (!currentUser || !db) return;
-        await addDoc(getColRef(collectionName), { ...data, timestamp: Date.now() });
-    }
-
-    // --- DEFAULTS ---
+    // --- TOP LEVEL VARIABLES ---
     const defaultFactions = [
         { name: "ОДИНОЧКИ (LONERS)", status: "NEUTRAL" }, { name: "ДОЛГ (DUTY)", status: "WAR" }, { name: "СВОБОДА (FREEDOM)", status: "WAR" }, 
         { name: "БАНДИТЫ (BANDITS)", status: "ALLIANCE" }, { name: "НАЕМНИКИ (MERCS)", status: "NEUTRAL" }, { name: "ВОЕННЫЕ (MILITARY)", status: "WAR" }, 
@@ -469,8 +534,445 @@
         { name: "МОНОЛИТ-СЕВЕР (MONOLITH NORTH)", status: "ALLIANCE" }, { name: "СВОБОДА-СЕВЕР (FREEDOM NORTH)", status: "WAR" }, 
         { name: "БАНДИТЫ-СЕВЕР (BANDITS NORTH)", status: "ALLIANCE" }
     ];
-
     const hardcodedProjects = [];
+
+    // --- IMPORTS ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc, query, orderBy, serverTimestamp, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+    // --- KEY HASHES ---
+    // GOD: ZONE-OVERLORD-X7
+    const HASH_GOD = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"; 
+    // ADMIN: LD-ADMIN-2025
+    const HASH_ADMIN = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"; 
+    // FALLBACKS
+    const PLAIN_GOD = "ZONE-OVERLORD-X7";
+    const PLAIN_ADMIN = "LD-ADMIN-2025";
+
+    const ROLES = {
+        GOD: 'GOD',
+        ADMIN: 'ADMIN',
+        COMMAND: 'COMMAND',
+        SUBORDINATE: 'SUBORDINATE'
+    };
+
+    let delDocId = null;
+    let delCollection = null;
+    let uploadedFileContent = null;
+    let currentUser = null;
+    let db = null;
+    let auth = null;
+    let appId = 'last-day-terminal-standalone'; 
+    let CURRENT_ROLE = null; 
+    let CURRENT_KEY_USED = null;
+
+    // --- GLOBAL FUNCTIONS & EXPORTS ---
+    // Defined early so safeListener can reference them if needed
+    
+    window.openScreen = (screenId) => { 
+        document.querySelectorAll('.screen').forEach(el => { 
+            el.style.display = 'none'; 
+            el.classList.remove('screen-transition'); 
+        }); 
+        const target = document.getElementById(screenId); 
+        target.style.display = 'flex'; 
+        target.classList.add('screen-transition'); 
+    };
+
+    window.closeDocument = () => { 
+        const frame = document.getElementById('doc-frame'); 
+        frame.src = "about:blank"; 
+        window.openScreen('main-hub'); 
+    };
+
+    window.accessDenied = () => document.getElementById('modal-access-denied').style.display = 'flex';
+    window.openCorrupted = () => document.getElementById('modal-corrupted').style.display = 'flex';
+    
+    window.openUserProject = (content) => { 
+        const frame = document.getElementById('doc-frame'); 
+        const doc = frame.contentWindow.document; 
+        doc.open(); 
+        doc.write(content); 
+        doc.close(); 
+        window.openScreen('doc-viewer'); 
+    }
+    
+    window.logout = () => { 
+        const passInput = document.getElementById('password-input');
+        const loginStatus = document.getElementById('login-status');
+        
+        passInput.value = ""; 
+        passInput.style.borderColor = "#00661a"; 
+        loginStatus.innerText = "WAITING FOR AUTH..."; 
+        loginStatus.style.color = "var(--term-dim)"; 
+        
+        // Reset role styles
+        document.body.classList.remove('role-god', 'role-admin', 'role-command', 'role-subordinate');
+        
+        // Reset state
+        CURRENT_ROLE = null; 
+        CURRENT_KEY_USED = null;
+        
+        window.openScreen('login-screen'); 
+    };
+    
+    window.closeModal = (id) => { 
+        document.getElementById(id).style.display = 'none'; 
+        if(id === 'modal-add-project') { 
+            uploadedFileContent = null; 
+            document.getElementById('project-file-upload').value = ''; 
+            document.getElementById('file-name-display').textContent = "NO DATA CARTRIDGE INSERTED"; 
+            document.getElementById('file-name-display').style.color = "var(--term-dim)"; 
+        } 
+    };
+    
+    window.openAddAdeptModal = () => { 
+        if(CURRENT_ROLE === ROLES.SUBORDINATE) return;
+        document.getElementById('modal-add-adept').style.display = 'flex'; 
+        document.getElementById('new-adept-type').value = 'ACTIVE';
+        document.getElementById('new-adept-code').value=''; 
+        document.getElementById('new-adept-name').value='';
+        document.getElementById('new-adept-time').value='';
+        document.getElementById('new-adept-discord').value='';
+        document.getElementById('new-adept-steam').value='';
+        document.getElementById('new-adept-work').value='';
+        document.getElementById('new-adept-release').value='';
+        document.getElementById('adept-labor-fields').style.display = 'none';
+    };
+    
+    window.openAddModal = () => { 
+        if(CURRENT_ROLE===ROLES.SUBORDINATE) return; 
+        document.getElementById('modal-add-unit').style.display='flex'; 
+        document.getElementById('new-unit-id').value=''; 
+        document.getElementById('new-unit-discord').value=''; 
+        document.getElementById('new-unit-steam').value=''; 
+    };
+    
+    window.openAddKeyModal = () => { 
+        if(CURRENT_ROLE===ROLES.SUBORDINATE) return; 
+        document.getElementById('modal-add-key').style.display='flex'; 
+        document.getElementById('new-key-name').value=''; 
+        document.getElementById('new-key-desc').value=''; 
+        document.getElementById('new-key-code').value=''; 
+    };
+    
+    window.openAddProjectModal = () => { 
+        if(CURRENT_ROLE===ROLES.SUBORDINATE) return; 
+        document.getElementById('modal-add-project').style.display='flex'; 
+        document.getElementById('new-proj-code').value=''; 
+        document.getElementById('new-proj-desc').value=''; 
+    };
+    
+    window.openAddOperationModal = () => { 
+        if(CURRENT_ROLE===ROLES.SUBORDINATE) return; 
+        document.getElementById('modal-add-operation').style.display='flex'; 
+        document.getElementById('new-op-code').value=''; 
+        document.getElementById('new-op-time').value=''; 
+    };
+
+    window.openAdeptDetails = function(a) {
+        const modal = document.getElementById('modal-view-adept');
+        const content = document.getElementById('view-adept-content');
+        const actBtn = document.getElementById('view-adept-activate');
+        const delBtn = document.getElementById('view-adept-delete');
+        
+        let fieldsHtml = `
+            <div class="info-row"><span class="info-label">CODE:</span><span class="info-val">${a.code}</span></div>
+            <div class="info-row"><span class="info-label">NAME:</span><span class="info-val">${a.name}</span></div>
+            <div class="info-row"><span class="info-label">TYPE:</span><span class="info-val">${a.type || 'UNKNOWN'}</span></div>
+            <div class="info-row"><span class="info-label">STATUS:</span><span class="info-val" style="color:${a.status==='ЖИВ'?'#0f0':a.status==='УСТРАНЕН'?'#f00':'#888'}">${a.status}</span></div>
+            <div class="info-row"><span class="info-label">TIME:</span><span class="info-val">${a.time}</span></div>
+            <div class="info-row"><span class="info-label">DISCORD:</span><span class="info-val" style="color:#7289da">${a.discordId || 'N/A'}</span></div>
+            <div class="info-row"><span class="info-label">STEAM:</span><span class="info-val">${a.steamId || 'N/A'}</span></div>
+        `;
+
+        if (a.type === 'ACTIVE') {
+            actBtn.style.display = 'block';
+            let isActivated = a.isActivated === true;
+            actBtn.disabled = isActivated || CURRENT_ROLE === ROLES.SUBORDINATE;
+            actBtn.innerText = isActivated ? "ACTIVATED" : "ACTIVATE PROTOCOL";
+            actBtn.style.color = isActivated ? "#444" : "var(--term-green)";
+            
+            const newActBtn = actBtn.cloneNode(true);
+            actBtn.parentNode.replaceChild(newActBtn, actBtn);
+            newActBtn.addEventListener('click', async () => {
+                newActBtn.innerText = "PROCESSING SIGNAL...";
+                newActBtn.style.color = "var(--term-warn)";
+                newActBtn.disabled = true;
+                await addActivationSignal({ targetDiscordId: a.discordId, targetCode: a.code, targetName: a.name });
+                await updateDocField('adepts', a.id, 'isActivated', true);
+                newActBtn.innerText = "ACTIVATED"; newActBtn.style.color = "#444";
+            });
+        } else {
+            actBtn.style.display = 'none';
+        }
+        
+        if (a.type === 'DETAINED') {
+            fieldsHtml += `<div class="info-row"><span class="info-label">ASSIGNMENT:</span><span class="info-val">${a.workDesc || 'MANUAL LABOR'}</span></div><div class="info-row"><span class="info-label">RELEASE TIME:</span><span class="info-val">${a.releaseTime || 'INDEFINITE'}</span></div>`;
+        }
+
+        const disabled = CURRENT_ROLE === ROLES.SUBORDINATE ? 'disabled' : '';
+        fieldsHtml += `
+            <div style="margin-top:20px; text-align:center;">
+                <p style="font-size:12px; color:#666;">UPDATE VITAL STATUS:</p>
+                <select id="detail-status-select" class="term-select" style="text-align:center;" ${disabled}>
+                    <option value="ЖИВ" ${a.status==='ЖИВ'?'selected':''}>ALIVE</option>
+                    <option value="УСТРАНЕН" ${a.status==='УСТРАНЕН'?'selected':''}>ELIMINATED</option>
+                    <option value="ПРОПАЛ" ${a.status==='ПРОПАЛ'?'selected':''}>MISSING</option>
+                </select>
+            </div>
+        `;
+        content.innerHTML = fieldsHtml;
+
+        setTimeout(() => {
+            if (CURRENT_ROLE !== ROLES.SUBORDINATE) {
+                const sel = document.getElementById('detail-status-select');
+                if(sel) {
+                    sel.addEventListener('change', (e) => {
+                        updateDocField('adepts', a.id, 'status', e.target.value);
+                        const statusDisplay = content.querySelector('.info-row:nth-child(4) .info-val'); 
+                        if(statusDisplay) statusDisplay.innerText = e.target.value;
+                    });
+                }
+            }
+        }, 100);
+
+        if (CURRENT_ROLE === ROLES.SUBORDINATE) {
+            delBtn.style.display = 'none';
+            actBtn.style.display = 'none';
+        } else {
+            delBtn.style.display = 'inline-block';
+            delBtn.onclick = () => { delDocId = a.id; delCollection = 'adepts'; modal.style.display = 'none'; document.getElementById('modal-delete-adept').style.display = 'flex'; };
+        }
+        modal.style.display = 'flex';
+    };
+
+    // --- UTILS ---
+    async function getHash(message) {
+        if (window.crypto && window.crypto.subtle) {
+            try {
+                const msgBuffer = new TextEncoder().encode(message);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            } catch (e) {
+                console.warn("Crypto Error, using fallback:", e);
+                return "FALLBACK_MODE";
+            }
+        } else {
+            return "FALLBACK_MODE";
+        }
+    }
+
+    function safeListener(id, event, handler) {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener(event, handler);
+        else console.warn(`Element ID not found: ${id}`);
+    }
+
+    // --- BOOT ---
+    const bootLines = ["LAST DAY OS v.5.1.8", "INITIALIZING SECURITY...", "CONNECTING TO FIREBASE...", "SYNCING NOOSPHERE...", "SYSTEM READY."];
+    let lineIndex = 0;
+    const bootScreen = document.getElementById('boot-screen');
+    const loginScreen = document.getElementById('login-screen');
+    const passInput = document.getElementById('password-input');
+    const loginStatus = document.getElementById('login-status');
+
+    function typeBoot() {
+        if (lineIndex < bootLines.length) {
+            const p = document.createElement('div');
+            p.style.fontFamily = "Share Tech Mono";
+            p.innerHTML = `> ${bootLines[lineIndex]}`;
+            bootScreen.appendChild(p);
+            lineIndex++;
+            setTimeout(typeBoot, 150);
+        } else {
+            setTimeout(() => { bootScreen.style.display = 'none'; loginScreen.style.display = 'flex'; passInput.focus(); }, 1000);
+        }
+    }
+    window.onload = typeBoot;
+
+    // --- FIREBASE INIT ---
+    async function initFirebase() {
+        try {
+            const manualConfig = {
+                apiKey: "AIzaSyDItyHZsBjradE8WE-qtIutVKXux-mWoiI",
+                authDomain: "last-day-terminal.firebaseapp.com",
+                projectId: "last-day-terminal",
+                storageBucket: "last-day-terminal.firebasestorage.app",
+                messagingSenderId: "283501483006",
+                appId: "1:283501483006:web:68888bf5ea676579d9e6af"
+            };
+            
+            let firebaseConfig;
+            if (typeof __firebase_config !== 'undefined') {
+                firebaseConfig = JSON.parse(__firebase_config);
+                appId = typeof __app_id !== 'undefined' ? __app_id : appId;
+            } else if (typeof manualConfig !== 'undefined') {
+                 firebaseConfig = manualConfig;
+            } else {
+                console.warn("WARNING: Firebase Config not found.");
+                firebaseConfig = { apiKey: "placeholder", projectId: "placeholder" }; 
+            }
+
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+
+            onAuthStateChanged(auth, (user) => {
+                currentUser = user;
+                if (user) {
+                    setupListeners(); 
+                }
+            });
+
+        } catch (error) {
+            console.error("Firebase Init Failed:", error);
+            const p = document.createElement('div');
+            p.style.color = 'red';
+            p.innerHTML = `> CONNECTION ERROR: ${error.message}`;
+            bootScreen.appendChild(p);
+        }
+    }
+
+    // --- AUTH ---
+    async function handleLogin(key) {
+        key = key.trim().toUpperCase();
+        loginStatus.innerText = "VERIFYING CREDENTIALS...";
+        
+        const inputHash = await getHash(key);
+        
+        if (inputHash === HASH_GOD || key === PLAIN_GOD) { loginSuccess(ROLES.GOD, key); return; }
+        if (inputHash === HASH_ADMIN || key === PLAIN_ADMIN) { loginSuccess(ROLES.ADMIN, key); return; }
+
+        loginStatus.innerText = "QUERYING DATABASE...";
+        if (!db) { loginFail("DB ERROR"); return; }
+
+        try {
+            let docData = null;
+            if (inputHash !== "FALLBACK_MODE") {
+                const qHash = query(getColRef('system_access'), where('keyHash', '==', inputHash));
+                const snapHash = await getDocs(qHash);
+                if (!snapHash.empty) docData = snapHash.docs[0].data();
+            }
+
+            if (!docData) {
+                const qKey = query(getColRef('system_access'), where('key', '==', key));
+                const snapKey = await getDocs(qKey);
+                if (!snapKey.empty) docData = snapKey.docs[0].data();
+            }
+
+            if (docData) {
+                loginSuccess(docData.role, key);
+            } else {
+                loginFail("INVALID ACCESS KEY");
+            }
+        } catch (e) {
+            console.error(e);
+            loginFail("AUTH SERVER TIMEOUT");
+        }
+    }
+
+    function loginSuccess(role, key) {
+        CURRENT_ROLE = role;
+        CURRENT_KEY_USED = key;
+        loginStatus.innerText = "ACCESS GRANTED. ROLE: " + role;
+        loginStatus.style.color = "var(--term-green)";
+        passInput.style.borderColor = "#00ff41";
+        updateUIForRole(role);
+        setTimeout(() => window.openScreen('dashboard-screen'), 500);
+    }
+
+    function loginFail(msg) {
+        document.getElementById('error-msg').innerText = ">> ACCESS DENIED: " + msg + " <<";
+        document.getElementById('error-msg').style.opacity = 1;
+        loginStatus.innerText = "AUTH FAILED";
+        loginStatus.style.color = "var(--term-alert)";
+        passInput.value = "";
+        setTimeout(() => document.getElementById('error-msg').style.opacity = 0, 2000);
+    }
+
+    function updateUIForRole(role) {
+        document.getElementById('user-role-display').innerText = role;
+        const body = document.body;
+        body.classList.remove('role-god', 'role-admin', 'role-command', 'role-subordinate');
+        body.classList.add('role-' + role.toLowerCase());
+
+        const accessTile = document.getElementById('btn-open-access');
+        if (role === ROLES.ADMIN || role === ROLES.COMMAND || role === ROLES.GOD) {
+            accessTile.style.display = 'flex';
+        } else {
+            accessTile.style.display = 'none';
+        }
+
+        const restrictedElements = document.querySelectorAll('.role-restricted');
+        const subordinateStyle = document.getElementById('subordinate-style');
+        
+        if (role === ROLES.SUBORDINATE) {
+            restrictedElements.forEach(el => el.style.display = 'none');
+            if (!subordinateStyle) {
+                const style = document.createElement('style');
+                style.id = 'subordinate-style';
+                style.innerHTML = `
+                    .role-subordinate .btn-delete, 
+                    .role-subordinate .btn-activate,
+                    .role-subordinate .term-select { pointer-events: none; opacity: 0.7; }
+                    .role-subordinate select { -webkit-appearance: none; border: none; }
+                `;
+                document.head.appendChild(style);
+            }
+        } else {
+            if (subordinateStyle) subordinateStyle.remove();
+            restrictedElements.forEach(el => el.style.display = 'inline-flex');
+        }
+    }
+
+    // --- DB ACTIONS ---
+    function getColRef(colName) {
+        if (!db) return null;
+        return collection(db, 'artifacts', appId, 'public', 'data', colName);
+    }
+    
+    function getDocRef(colName, docId) {
+        if (!db) return null;
+        return doc(db, 'artifacts', appId, 'public', 'data', colName, docId);
+    }
+
+    async function updateDocField(collectionName, docId, field, value) {
+        if (!currentUser || !db) return;
+        if (CURRENT_ROLE === ROLES.SUBORDINATE) return;
+        const ref = getDocRef(collectionName, docId);
+        await updateDoc(ref, { [field]: value });
+    }
+
+    async function deleteDocument(collectionName, docId) {
+        if (!currentUser || !db) return;
+        if (CURRENT_ROLE === ROLES.SUBORDINATE) return;
+        await deleteDoc(getDocRef(collectionName, docId));
+    }
+
+    async function addDocument(collectionName, data) {
+        if (!currentUser || !db) return;
+        if (CURRENT_ROLE === ROLES.SUBORDINATE) return;
+        await addDoc(getColRef(collectionName), { ...data, timestamp: Date.now() });
+    }
+
+    async function addActivationSignal(data) {
+         if (!currentUser || !db) return;
+         if (CURRENT_ROLE === ROLES.SUBORDINATE) return;
+         await addDoc(getColRef('signal_queue'), { 
+             ...data, 
+             type: 'ACTIVATION',
+             timestamp: serverTimestamp() 
+         });
+    }
 
     // --- RENDERERS ---
     function renderFactions(data) {
@@ -479,22 +981,31 @@
         tbody.innerHTML = '';
         
         let factionsToRender = (data && data.length > 0) ? data : defaultFactions;
-        const seen = new Set();
-        factionsToRender = factionsToRender.filter(item => {
-            const duplicate = seen.has(item.name);
-            seen.add(item.name);
-            return !duplicate;
-        });
         factionsToRender.sort((a, b) => a.name.localeCompare(b.name));
         
         factionsToRender.forEach(item => {
             const tr = document.createElement('tr');
             tr.setAttribute('data-status', item.status);
-            let threat = item.status === "WAR" ? "CRITICAL" : item.status === "ALLIANCE" ? "MINIMAL" : "MODERATE";
+            
+            let threat = "MODERATE";
+            let threatColor = "#ffcc00"; 
+            if (item.status === "WAR") { threat = "CRITICAL"; threatColor = "#ff3333"; }
+            else if (item.status === "ALLIANCE") { threat = "MINIMAL"; threatColor = "#00ff41"; }
+            else if (item.status === "UNKNOWN") { threat = "NO DATA"; threatColor = "#33ccff"; }
+
+            const disabled = CURRENT_ROLE === ROLES.SUBORDINATE ? 'disabled' : '';
+
             tr.innerHTML = `
                 <td style="font-weight:bold;">${item.name}</td>
-                <td><select class="term-select" style="background:#000;"><option value="NEUTRAL" ${item.status === 'NEUTRAL'?'selected':''}>НЕЙТРАЛИТЕТ</option><option value="ALLIANCE" ${item.status === 'ALLIANCE'?'selected':''}>СОЮЗ</option><option value="WAR" ${item.status === 'WAR'?'selected':''}>ВОЙНА</option></select></td>
-                <td style="color:${item.status==='WAR'?'#ff3333':'#00ff41'}">${threat}</td>`;
+                <td>
+                    <select class="term-select" style="background:#000;" ${disabled}>
+                        <option value="UNKNOWN" ${item.status === 'UNKNOWN'?'selected':''}>НЕ ЗНАКОМЫ</option>
+                        <option value="NEUTRAL" ${item.status === 'NEUTRAL'?'selected':''}>НЕЙТРАЛИТЕТ</option>
+                        <option value="ALLIANCE" ${item.status === 'ALLIANCE'?'selected':''}>СОЮЗ</option>
+                        <option value="WAR" ${item.status === 'WAR'?'selected':''}>ВОЙНА</option>
+                    </select>
+                </td>
+                <td style="color:${threatColor}">${threat}</td>`;
             if (item.id) tr.querySelector('select').addEventListener('change', (e) => updateDocField('factions', item.id, 'status', e.target.value));
             tbody.appendChild(tr);
         });
@@ -510,24 +1021,110 @@
                 const tr = document.createElement('tr');
                 let hc = u.health==="WOUNDED"?"#ffcc00":u.health==="CRITICAL"||u.health==="DECEASED"?"#ff3333":u.health==="M.I.A."?"#888":"#00ff41";
                 let discordDisplay = u.discordId ? `<span style="color:#7289da; font-size: 14px;">${u.discordId}</span>` : `<span style="color:#444; font-size: 10px;">// OFFLINE</span>`;
+                
+                const disabled = CURRENT_ROLE === ROLES.SUBORDINATE ? 'disabled' : '';
+                const btnDisplay = CURRENT_ROLE === ROLES.SUBORDINATE ? 'none' : 'inline-block';
+
                 tr.innerHTML = `
                     <td style="font-weight:bold; color:var(--term-green);">${u.unitId}</td>
                     <td>${discordDisplay}</td>
-                    <td><select class="term-select rank-select" style="border:none; background:transparent; padding:0;"><option ${u.rank==='ARCHITECT'?'selected':''}>ARCHITECT</option><option ${u.rank==='COGNITOR'?'selected':''}>COGNITOR</option><option ${u.rank==='OPERATOR'?'selected':''}>OPERATOR</option><option ${u.rank==='REDEEMED'?'selected':''}>REDEEMED</option><option ${u.rank==='NEOPHYTE'?'selected':''}>NEOPHYTE</option></select></td>
-                    <td><select class="term-select health-select" style="color:${hc}; border-color:${hc}; background:transparent;"><option value="ACTIVE" ${u.health==='ACTIVE'?'selected':''}>ACTIVE</option><option value="WOUNDED" ${u.health==='WOUNDED'?'selected':''}>WOUNDED</option><option value="CRITICAL" ${u.health==='CRITICAL'?'selected':''}>CRITICAL</option><option value="M.I.A." ${u.health==='M.I.A.'?'selected':''}>M.I.A.</option><option value="DECEASED" ${u.health==='DECEASED'?'selected':''}>DECEASED</option></select></td>
-                    <td><button class="btn-delete">[ X ]</button></td>`;
-                tr.querySelector('.rank-select').addEventListener('change', (e) => updateDocField('roster', u.id, 'rank', e.target.value));
-                tr.querySelector('.health-select').addEventListener('change', (e) => updateDocField('roster', u.id, 'health', e.target.value));
-                tr.querySelector('.btn-delete').addEventListener('click', () => { delDocId = u.id; delCollection = 'roster'; document.getElementById('modal-delete-unit').style.display = 'flex'; });
+                    <td style="font-size:12px; color:#aaa;">${u.steamId || 'N/A'}</td>
+                    <td><select class="term-select rank-select" style="border:none; background:transparent; padding:0;" ${disabled}><option ${u.rank==='ARCHITECT'?'selected':''}>ARCHITECT</option><option ${u.rank==='COGNITOR'?'selected':''}>COGNITOR</option><option ${u.rank==='OPERATOR'?'selected':''}>OPERATOR</option><option ${u.rank==='REDEEMED'?'selected':''}>REDEEMED</option><option ${u.rank==='NEOPHYTE'?'selected':''}>NEOPHYTE</option></select></td>
+                    <td><select class="term-select health-select" style="color:${hc}; border-color:${hc}; background:transparent;" ${disabled}><option value="ACTIVE" ${u.health==='ACTIVE'?'selected':''}>ACTIVE</option><option value="WOUNDED" ${u.health==='WOUNDED'?'selected':''}>WOUNDED</option><option value="CRITICAL" ${u.health==='CRITICAL'?'selected':''}>CRITICAL</option><option value="M.I.A." ${u.health==='M.I.A.'?'selected':''}>M.I.A.</option><option value="DECEASED" ${u.health==='DECEASED'?'selected':''}>DECEASED</option></select></td>
+                    <td><button class="btn-delete" style="display:${btnDisplay}">[ X ]</button></td>`;
+                
+                if (CURRENT_ROLE !== ROLES.SUBORDINATE) {
+                    tr.querySelector('.rank-select').addEventListener('change', (e) => updateDocField('roster', u.id, 'rank', e.target.value));
+                    tr.querySelector('.health-select').addEventListener('change', (e) => updateDocField('roster', u.id, 'health', e.target.value));
+                    tr.querySelector('.btn-delete').addEventListener('click', () => { delDocId = u.id; delCollection = 'roster'; document.getElementById('modal-delete-unit').style.display = 'flex'; });
+                }
                 tbody.appendChild(tr);
             });
         }
     }
 
-    function renderProjects(userProjects) {
-        const container = document.getElementById('research-grid');
-        if (!container) return;
-        container.innerHTML = '';
+    function renderAdepts(data) {
+        const activeBody = document.getElementById('adepts-active-body');
+        const subjectBody = document.getElementById('adepts-subject-body');
+        const laborBody = document.getElementById('adepts-labor-body');
+        if (activeBody) activeBody.innerHTML = '';
+        if (subjectBody) subjectBody.innerHTML = '';
+        if (laborBody) laborBody.innerHTML = '';
+
+        if (!data || data.length === 0) return;
+        data.sort((a, b) => a.timestamp - b.timestamp);
+
+        data.forEach(a => {
+            const tr = document.createElement('tr');
+            tr.className = "adept-row";
+            let stColor = a.status === "ЖИВ" ? "var(--term-green)" : a.status === "УСТРАНЕН" ? "var(--term-alert)" : "var(--term-gray)";
+            
+            tr.innerHTML = `
+                <td style="font-weight:bold; color: var(--term-green);">${a.code}</td>
+                <td>${a.name}</td>
+                <td style="color:${stColor}">${a.status}</td>
+            `;
+            tr.addEventListener('click', () => openAdeptDetails(a));
+
+            if (a.type === 'ACTIVE' && activeBody) activeBody.appendChild(tr);
+            else if (a.type === 'SUBJECT' && subjectBody) subjectBody.appendChild(tr);
+            else if (a.type === 'DETAINED' && laborBody) laborBody.appendChild(tr);
+            else if (activeBody) activeBody.appendChild(tr);
+        });
+    }
+
+    function renderAccessKeys(data) {
+        const tbody = document.getElementById('access-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        
+        if (data && data.length > 0) {
+            data.sort((a, b) => b.timestamp - a.timestamp);
+            data.forEach(k => {
+                let isVisible = false;
+                if (CURRENT_ROLE === ROLES.GOD) isVisible = true;
+                if (CURRENT_ROLE === ROLES.ADMIN && k.role !== ROLES.GOD) isVisible = true;
+                if (CURRENT_ROLE === ROLES.COMMAND && k.role === ROLES.SUBORDINATE) isVisible = true;
+
+                if (isVisible) {
+                    const tr = document.createElement('tr');
+                    const keyDisplay = k.key || (k.keyHash ? k.keyHash.substring(0, 10) + '...' : 'UNKNOWN');
+                    
+                    tr.innerHTML = `
+                        <td class="spoiler-cell spoiler-hidden" onclick="this.classList.toggle('spoiler-hidden')">${keyDisplay}</td>
+                        <td><span class="role-badge" style="border-color:${k.role==='COMMAND'?'var(--term-warn)':'var(--term-green)'}">${k.role}</span></td>
+                        <td style="font-size:12px; color:#888;">${k.createdBy || 'UNKNOWN'}</td>
+                        <td style="font-size:12px;">${new Date(k.timestamp).toLocaleDateString()}</td>
+                        <td><button class="btn-delete">[ REVOKE ]</button></td>`;
+                    
+                    tr.querySelector('.btn-delete').addEventListener('click', () => { 
+                        delDocId = k.id; 
+                        delCollection = 'system_access'; 
+                        document.getElementById('modal-delete-auth-key').style.display = 'flex'; 
+                    });
+                    tbody.appendChild(tr);
+                }
+            });
+        }
+    }
+
+    function renderKeys(data) {
+        const tbody = document.getElementById('keys-body');
+        if(!tbody) return; tbody.innerHTML = '';
+        if (data) {
+            data.sort((a,b)=>a.timestamp-b.timestamp);
+            data.forEach(k=>{
+                const tr=document.createElement('tr');
+                const btnDisplay = CURRENT_ROLE === ROLES.SUBORDINATE ? 'none' : 'inline-block';
+                tr.innerHTML=`<td style="font-weight:bold;color:var(--term-green);">${k.name}</td><td style="font-size:14px;">${k.desc||'N/A'}</td><td class="spoiler-cell spoiler-hidden" onclick="this.classList.toggle('spoiler-hidden')">${k.code}</td><td><button class="btn-delete" style="display:${btnDisplay}">[ X ]</button></td>`;
+                if(CURRENT_ROLE !== ROLES.SUBORDINATE) tr.querySelector('.btn-delete').addEventListener('click',()=>{delDocId=k.id;delCollection='keys';document.getElementById('modal-delete-key').style.display='flex';});
+                tbody.appendChild(tr);
+            });
+        }
+    }
+
+    function renderProjects(userProjects){
+        const container = document.getElementById('research-grid'); if(!container) return; container.innerHTML = '';
         hardcodedProjects.forEach(p => { const div = document.createElement('div'); div.className = "project-card"; container.appendChild(div); });
         if (userProjects && userProjects.length > 0) {
             userProjects.sort((a, b) => a.timestamp - b.timestamp);
@@ -538,31 +1135,35 @@
                 let statusClass = p.status === "BETA" ? "status-open" : "status-locked";
                 let footer = p.status === "BETA" ? ">> CLICK TO ACCESS" : `>> LEVEL_${p.status}_REQ`;
                 let footerColor = p.status === "BETA" ? "var(--term-dim)" : "var(--term-alert)";
-                div.innerHTML = `<div class="card-status ${statusClass}">${statusText}</div><div class="card-title">${p.title}</div><div class="card-desc">${p.desc}</div><div style="margin-top: 20px; color: ${footerColor}; font-size: 12px; border-top: 1px dashed var(--term-dim); padding-top: 5px;">${footer}</div>`;
+                let deleteBtn = CURRENT_ROLE !== ROLES.SUBORDINATE ? '<button class="btn-delete card-delete-pos">[ X ]</button>' : '';
+                div.innerHTML = `<div class="card-status ${statusClass}">${statusText}</div><div class="card-title">${p.title}</div><div class="card-desc">${p.desc}</div><div style="margin-top: 20px; color: ${footerColor}; font-size: 12px; border-top: 1px dashed var(--term-dim); padding-top: 5px;">${footer}</div>${deleteBtn}`;
                 div.addEventListener('click', () => { if(p.status === "BETA") { if (p.content) { window.openUserProject(p.content); } else { window.openCorrupted(); } } else { window.accessDenied(); } });
-                const delBtn = document.createElement('button'); delBtn.className = "btn-delete card-delete-pos"; delBtn.innerText = "[ X ]";
-                delBtn.addEventListener('click', (e) => { e.stopPropagation(); delDocId = p.id; delCollection = 'projects'; document.getElementById('modal-delete-project').style.display = 'flex'; });
-                div.appendChild(delBtn); container.appendChild(div);
+                if(CURRENT_ROLE !== ROLES.SUBORDINATE) {
+                    const dbEl = div.querySelector('.btn-delete');
+                    if(dbEl) dbEl.addEventListener('click', (e) => { e.stopPropagation(); delDocId = p.id; delCollection = 'projects'; document.getElementById('modal-delete-project').style.display = 'flex'; });
+                }
+                container.appendChild(div);
             });
         }
     }
 
-    function renderOperations(data) {
-        const tbody = document.getElementById('operations-body');
-        if (!tbody) return;
-        tbody.innerHTML = '';
-        if (data && data.length > 0) {
-            data.sort((a, b) => a.timestamp - b.timestamp);
-            data.forEach(op => {
-                const tr = document.createElement('tr');
+    function renderOperations(data){
+        const tbody=document.getElementById('operations-body'); if(!tbody)return; tbody.innerHTML='';
+        if(data){
+            data.sort((a,b)=>a.timestamp-b.timestamp);
+            data.forEach(op=>{
+                const tr=document.createElement('tr');
                 let sc = op.secrecy === "SECRET" ? "color:var(--term-alert);" : "color:var(--term-green);";
                 let stc = op.status==="COMPLETED"?"var(--term-green)":op.status==="FAILED"?"var(--term-alert)":op.status==="IN_PROGRESS"?"var(--term-warn)":op.status==="DECLASSIFIED"?"var(--term-orange)":"#888";
-                tr.innerHTML = `
-                    <td style="font-weight:bold; color:var(--term-green);">${op.code}</td><td>${op.time}</td><td>${op.units}</td><td>${op.sector}</td><td style="font-size:12px; color:#aaa;">${op.objectives||'N/A'}</td><td style="${sc} font-weight:bold;">${op.secrecy}</td>
-                    <td><select class="term-select status-select" style="color:${stc}; border-color:${stc}; background:#000;"><option value="PENDING" ${op.status==='PENDING'?'selected':''}>PENDING</option><option value="IN_PROGRESS" ${op.status==='IN_PROGRESS'?'selected':''}>IN PROGRESS</option><option value="COMPLETED" ${op.status==='COMPLETED'?'selected':''}>COMPLETED</option><option value="FAILED" ${op.status==='FAILED'?'selected':''}>FAILED</option><option value="DECLASSIFIED" ${op.status==='DECLASSIFIED'?'selected':''}>DECLASSIFIED</option></select></td>
-                    <td><button class="btn-delete">[ X ]</button></td>`;
-                tr.querySelector('.status-select').addEventListener('change', (e) => updateDocField('operations', op.id, 'status', e.target.value));
-                tr.querySelector('.btn-delete').addEventListener('click', () => { delDocId = op.id; delCollection = 'operations'; document.getElementById('modal-delete-operation').style.display = 'flex'; });
+                const disabled = CURRENT_ROLE === ROLES.SUBORDINATE ? 'disabled' : '';
+                const btnDisplay = CURRENT_ROLE === ROLES.SUBORDINATE ? 'none' : 'inline-block';
+                tr.innerHTML=`<td style="font-weight:bold;color:var(--term-green);">${op.code}</td><td>${op.time}</td><td>${op.units}</td><td>${op.sector}</td><td style="font-size:12px;color:#aaa;">${op.objectives||'N/A'}</td><td style="${sc}font-weight:bold;">${op.secrecy}</td>
+                <td><select class="term-select status-select" style="color:${stc};border-color:${stc};background:#000;" ${disabled}><option value="PENDING" ${op.status==='PENDING'?'selected':''}>PENDING</option><option value="IN_PROGRESS" ${op.status==='IN_PROGRESS'?'selected':''}>IN PROGRESS</option><option value="COMPLETED" ${op.status==='COMPLETED'?'selected':''}>COMPLETED</option><option value="FAILED" ${op.status==='FAILED'?'selected':''}>FAILED</option><option value="DECLASSIFIED" ${op.status==='DECLASSIFIED'?'selected':''}>DECLASSIFIED</option></select></td>
+                <td><button class="btn-delete" style="display:${btnDisplay}">[ X ]</button></td>`;
+                if(CURRENT_ROLE !== ROLES.SUBORDINATE) {
+                    tr.querySelector('.status-select').addEventListener('change', (e) => updateDocField('operations', op.id, 'status', e.target.value));
+                    tr.querySelector('.btn-delete').addEventListener('click', () => { delDocId = op.id; delCollection = 'operations'; document.getElementById('modal-delete-operation').style.display = 'flex'; });
+                }
                 tbody.appendChild(tr);
             });
         }
@@ -572,68 +1173,186 @@
         if (!db) return;
         onSnapshot(getColRef("factions"), (snapshot) => { if(snapshot.empty) { defaultFactions.forEach(f => addDocument('factions', f)); } else { renderFactions(snapshot.docs.map(d => ({id: d.id, ...d.data()}))); } });
         onSnapshot(getColRef("roster"), (snapshot) => { renderRoster(snapshot.docs.map(d => ({id: d.id, ...d.data()}))); });
+        onSnapshot(getColRef("adepts"), (snapshot) => { renderAdepts(snapshot.docs.map(d => ({id: d.id, ...d.data()}))); });
+        onSnapshot(getColRef("keys"), (snapshot) => { renderKeys(snapshot.docs.map(d => ({id: d.id, ...d.data()}))); });
         onSnapshot(getColRef("projects"), (snapshot) => { renderProjects(snapshot.docs.map(d => ({id: d.id, ...d.data()}))); });
         onSnapshot(getColRef("operations"), (snapshot) => { renderOperations(snapshot.docs.map(d => ({id: d.id, ...d.data()}))); });
+        onSnapshot(getColRef("system_access"), (snapshot) => { renderAccessKeys(snapshot.docs.map(d => ({id: d.id, ...d.data()}))); });
     }
 
     // Call init
     initFirebase();
-    renderFactions(defaultFactions); renderProjects([]); renderRoster([]); renderOperations([]);
-
-    // --- FILE UPLOAD LISTENER ---
-    document.getElementById('project-file-upload').addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        const display = document.getElementById('file-name-display');
-        if (!file) { display.textContent = "NO DATA CARTRIDGE INSERTED"; display.style.color = "var(--term-dim)"; uploadedFileContent = null; return; }
-        if (file.type !== 'text/html' && !file.name.toLowerCase().endsWith('.html')) { display.textContent = "ENCRYPTION MISMATCH: ONLY .HTML DATA ACCEPTED"; display.style.color = "var(--term-alert)"; uploadedFileContent = null; e.target.value = ''; return; }
-        const reader = new FileReader(); reader.onload = (event) => { uploadedFileContent = event.target.result; display.textContent = "DATA LOADED: " + file.name.toUpperCase(); display.style.color = "var(--term-green)"; }; reader.readAsText(file);
-    });
-
-    // --- GLOBAL WINDOW EXPORTS ---
-    window.openScreen = (screenId) => { document.querySelectorAll('.screen').forEach(el => { el.style.display = 'none'; el.classList.remove('screen-transition'); }); const target = document.getElementById(screenId); target.style.display = (screenId === 'doc-viewer') ? 'flex' : 'flex'; target.classList.add('screen-transition'); };
-    window.closeDocument = () => { const frame = document.getElementById('doc-frame'); frame.src = "about:blank"; window.openScreen('main-hub'); };
-    window.accessDenied = () => document.getElementById('modal-access-denied').style.display = 'flex';
-    window.openCorrupted = () => document.getElementById('modal-corrupted').style.display = 'flex';
-    window.openUserProject = (content) => { const frame = document.getElementById('doc-frame'); const doc = frame.contentWindow.document; doc.open(); doc.write(content); doc.close(); window.openScreen('doc-viewer'); }
-    window.logout = () => { document.getElementById('password-input').value = ""; document.getElementById('password-input').style.borderColor = "#00661a"; window.openScreen('login-screen'); };
-    window.closeModal = (id) => { document.getElementById(id).style.display = 'none'; if (id === 'modal-add-project') { document.getElementById('project-file-upload').value = ''; document.getElementById('file-name-display').textContent = "NO DATA CARTRIDGE INSERTED"; document.getElementById('file-name-display').style.color = "var(--term-dim)"; uploadedFileContent = null; } };
-    window.openAddModal = () => { document.getElementById('modal-add-unit').style.display = 'flex'; document.getElementById('new-unit-id').value = ''; document.getElementById('new-unit-discord').value = ''; document.getElementById('new-unit-id').focus(); };
-    window.openAddProjectModal = () => { document.getElementById('modal-add-project').style.display = 'flex'; document.getElementById('new-proj-code').value=''; document.getElementById('new-proj-desc').value=''; };
-    window.openAddOperationModal = () => { document.getElementById('modal-add-operation').style.display = 'flex'; document.getElementById('new-op-code').value=''; document.getElementById('new-op-time').value=''; };
-
-    document.getElementById('confirm-add-unit').addEventListener('click', () => { const v = document.getElementById('new-unit-id').value.trim().toUpperCase(); const d = document.getElementById('new-unit-discord').value.trim(); if(v) { addDocument('roster', { unitId: v, rank: "NEOPHYTE", health: "ACTIVE", discordId: d }); window.closeModal('modal-add-unit'); } });
-    document.getElementById('confirm-add-proj').addEventListener('click', () => { const c = document.getElementById('new-proj-code').value.trim().toUpperCase(); const d = document.getElementById('new-proj-desc').value.trim(); const s = document.getElementById('new-proj-status').value; if(c && d) { addDocument('projects', { code: c, title: "PROJECT: " + c, desc: d, status: s, content: uploadedFileContent }); window.closeModal('modal-add-project'); } });
-    document.getElementById('confirm-add-op').addEventListener('click', () => { const c = document.getElementById('new-op-code').value.trim().toUpperCase(); const t = document.getElementById('new-op-time').value.trim(); const u = document.getElementById('new-op-units').value.trim(); const s = document.getElementById('new-op-loc').value.trim().toUpperCase(); const o = document.getElementById('new-op-obj').value.trim().toUpperCase(); const sec = document.getElementById('new-op-secrecy').value; if(c && t) { addDocument('operations', { code:c, time:t, units:u, sector:s, objectives:o, secrecy:sec, status: "PENDING" }); window.closeModal('modal-add-operation'); } });
-
-    const performDelete = async (modalId) => { if(delDocId && delCollection) { await deleteDocument(delCollection, delDocId); delDocId = null; delCollection = null; window.closeModal(modalId); } };
-    document.getElementById('confirm-delete-unit').addEventListener('click', () => performDelete('modal-delete-unit'));
-    document.getElementById('confirm-delete-proj').addEventListener('click', () => performDelete('modal-delete-project'));
-    document.getElementById('confirm-delete-op').addEventListener('click', () => performDelete('modal-delete-operation'));
-    document.querySelectorAll('.close-modal').forEach(btn => { btn.addEventListener('click', (e) => { e.target.closest('.modal-overlay').style.display = 'none'; }); });
-
     passInput.addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
-            if (passInput.value.toUpperCase().trim() === SECRET_KEY) {
-                passInput.style.borderColor = "#00ff41";
-                setTimeout(() => window.openScreen('dashboard-screen'), 500);
-            } else {
-                document.getElementById('error-msg').style.opacity = 1;
-                passInput.value = "";
-                setTimeout(() => document.getElementById('error-msg').style.opacity = 0, 2000);
-            }
+            handleLogin(passInput.value);
         }
     });
 
-    document.getElementById('btn-open-relations').addEventListener('click', () => window.openScreen('relations-screen'));
-    document.getElementById('btn-open-roster').addEventListener('click', () => window.openScreen('roster-screen'));
-    document.getElementById('btn-open-ops').addEventListener('click', () => window.openScreen('operations-screen'));
-    document.getElementById('btn-open-research').addEventListener('click', () => window.openScreen('main-hub'));
+    safeListener('btn-open-relations', 'click', () => window.openScreen('relations-screen'));
+    safeListener('btn-open-roster', 'click', () => window.openScreen('roster-screen'));
+    safeListener('btn-open-adepts', 'click', () => window.openScreen('adepts-screen'));
+    safeListener('btn-open-keys', 'click', () => window.openScreen('keys-screen'));
+    safeListener('btn-open-ops', 'click', () => window.openScreen('operations-screen'));
+    safeListener('btn-open-research', 'click', () => window.openScreen('main-hub'));
+    safeListener('btn-open-access', 'click', () => window.openScreen('access-screen'));
+    safeListener('logout-btn', 'click', window.logout);
     
     document.querySelectorAll('.btn-back-dash').forEach(btn => btn.addEventListener('click', () => window.openScreen('dashboard-screen')));
-    document.getElementById('btn-add-unit').addEventListener('click', window.openAddModal);
-    document.getElementById('btn-add-proj').addEventListener('click', window.openAddProjectModal);
-    document.getElementById('btn-add-op').addEventListener('click', window.openAddOperationModal);
-    document.getElementById('logout-btn').addEventListener('click', window.logout);
+    
+    // FILE UPLOAD FIX
+    const fileInput = document.getElementById('project-file-upload');
+    if (fileInput) {
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            const display = document.getElementById('file-name-display');
+            
+            if (!file) { 
+                display.textContent = "NO DATA CARTRIDGE INSERTED"; 
+                display.style.color = "var(--term-dim)"; 
+                uploadedFileContent = null; 
+                return; 
+            }
+            
+            if (file.type !== 'text/html' && !file.name.toLowerCase().endsWith('.html')) { 
+                display.textContent = "ENCRYPTION MISMATCH: ONLY .HTML DATA ACCEPTED"; 
+                display.style.color = "var(--term-alert)"; 
+                uploadedFileContent = null; 
+                e.target.value = ''; 
+                return; 
+            }
+            
+            const reader = new FileReader(); 
+            reader.onload = (event) => { 
+                uploadedFileContent = event.target.result; 
+                display.textContent = "DATA LOADED: " + file.name.toUpperCase(); 
+                display.style.color = "var(--term-green)"; 
+            }; 
+            reader.readAsText(file);
+        });
+    }
+
+    // Add Buttons
+    function checkRoleAndOpen(action) {
+        if (CURRENT_ROLE === ROLES.SUBORDINATE) return;
+        action();
+    }
+
+    safeListener('btn-add-unit', 'click', () => checkRoleAndOpen(window.openAddModal));
+    safeListener('btn-add-adept', 'click', () => checkRoleAndOpen(window.openAddAdeptModal));
+    safeListener('btn-add-key', 'click', () => checkRoleAndOpen(window.openAddKeyModal));
+    safeListener('btn-add-proj', 'click', () => checkRoleAndOpen(window.openAddProjectModal));
+    safeListener('btn-add-op', 'click', () => checkRoleAndOpen(window.openAddOperationModal));
+    
+    // Access Control Button
+    safeListener('btn-add-auth-key', 'click', () => {
+        const modal = document.getElementById('modal-add-auth-key');
+        const roleSelect = document.getElementById('new-auth-role');
+        const optCommand = document.getElementById('opt-role-command');
+        const optAdmin = document.getElementById('opt-role-admin');
+        
+        optCommand.style.display = 'block';
+        optAdmin.style.display = 'none';
+
+        if (CURRENT_ROLE === ROLES.COMMAND) {
+            optCommand.style.display = 'none';
+            roleSelect.value = "SUBORDINATE";
+        } else if (CURRENT_ROLE === ROLES.GOD) {
+            optAdmin.style.display = 'block';
+        }
+        
+        document.getElementById('new-auth-key-val').value = '';
+        modal.style.display = 'flex';
+    });
+
+    // CONFIRM BUTTONS
+    safeListener('confirm-add-auth-key', 'click', async () => {
+        const k = document.getElementById('new-auth-key-val').value.trim().toUpperCase();
+        const r = document.getElementById('new-auth-role').value;
+        if (k) {
+            const hash = await getHash(k);
+            addDocument('system_access', { key: k, keyHash: hash, role: r, createdBy: CURRENT_KEY_USED });
+            window.closeModal('modal-add-auth-key');
+        }
+    });
+
+    safeListener('confirm-add-unit', 'click', () => { 
+        const v = document.getElementById('new-unit-id').value.trim().toUpperCase(); 
+        const d = document.getElementById('new-unit-discord').value.trim(); 
+        const s = document.getElementById('new-unit-steam').value.trim();
+        if(v) { addDocument('roster', { unitId: v, rank: "NEOPHYTE", health: "ACTIVE", discordId: d, steamId: s }); window.closeModal('modal-add-unit'); } 
+    });
+
+    safeListener('confirm-add-adept', 'click', () => { 
+        const type = document.getElementById('new-adept-type').value;
+        const c = document.getElementById('new-adept-code').value.trim().toUpperCase();
+        const n = document.getElementById('new-adept-name').value.trim();
+        const t = document.getElementById('new-adept-time').value.trim();
+        const d = document.getElementById('new-adept-discord').value.trim();
+        const s = document.getElementById('new-adept-steam').value.trim();
+        const work = document.getElementById('new-adept-work').value.trim();
+        const rel = document.getElementById('new-adept-release').value.trim();
+        if(c && n) { 
+            const data = { type, code: c, name: n, time: t, discordId: d, steamId: s, status: "ЖИВ" };
+            if (type === 'ACTIVE') data.isActivated = false;
+            else if (type === 'DETAINED') { data.workDesc = work; data.releaseTime = rel; }
+            addDocument('adepts', data); window.closeModal('modal-add-adept'); 
+        } 
+    });
+
+    safeListener('confirm-add-key', 'click', () => { 
+        const n=document.getElementById('new-key-name').value.trim().toUpperCase(); 
+        const d=document.getElementById('new-key-desc').value.trim(); 
+        const c=document.getElementById('new-key-code').value.trim(); 
+        if(n&&c){addDocument('keys', {name:n,desc:d,code:c}); window.closeModal('modal-add-key');}
+    });
+
+    safeListener('confirm-add-proj', 'click', () => { 
+        const c=document.getElementById('new-proj-code').value.trim().toUpperCase(); 
+        const d=document.getElementById('new-proj-desc').value.trim(); 
+        const s=document.getElementById('new-proj-status').value; 
+        if(c&&d){addDocument('projects', {code:c,title:"PROJECT: "+c,desc:d,status:s,content:uploadedFileContent}); window.closeModal('modal-add-project');}
+    });
+
+    safeListener('confirm-add-op', 'click', () => { 
+        const c=document.getElementById('new-op-code').value.trim().toUpperCase(); 
+        const t=document.getElementById('new-op-time').value.trim(); 
+        const u=document.getElementById('new-op-units').value.trim(); 
+        const s=document.getElementById('new-op-loc').value.trim().toUpperCase(); 
+        const o=document.getElementById('new-op-obj').value.trim().toUpperCase(); 
+        const sec=document.getElementById('new-op-secrecy').value; 
+        if(c&&t){addDocument('operations', {code:c,time:t,units:u,sector:s,objectives:o,secrecy:sec,status:"PENDING"}); window.closeModal('modal-add-operation');}
+    });
+
+    // Delete Logic
+    const performDelete = async (modalId) => { 
+        if(delDocId && delCollection && CURRENT_ROLE !== ROLES.SUBORDINATE) { 
+            await deleteDocument(delCollection, delDocId); 
+            delDocId = null; delCollection = null; 
+            window.closeModal(modalId); 
+        } 
+    };
+    
+    safeListener('confirm-delete-unit', 'click', () => performDelete('modal-delete-unit'));
+    safeListener('confirm-delete-adept', 'click', () => performDelete('modal-delete-adept'));
+    safeListener('confirm-delete-key', 'click', () => performDelete('modal-delete-key'));
+    safeListener('confirm-delete-proj', 'click', () => performDelete('modal-delete-project'));
+    safeListener('confirm-delete-op', 'click', () => performDelete('modal-delete-operation'));
+    safeListener('confirm-delete-auth-key', 'click', () => performDelete('modal-delete-auth-key'));
+
+    // Global listeners for modals
+    document.querySelectorAll('.close-modal').forEach(btn => { 
+        btn.addEventListener('click', (e) => { e.target.closest('.modal-overlay').style.display = 'none'; }); 
+    });
+    
+    const adeptTypeSelect = document.getElementById('new-adept-type');
+    if(adeptTypeSelect) {
+        adeptTypeSelect.addEventListener('change', (e) => {
+            const type = e.target.value;
+            const labor = document.getElementById('adept-labor-fields');
+            if(labor) labor.style.display = (type === 'DETAINED') ? 'block' : 'none';
+        });
+    }
+
 </script>
 </body>
 </html>

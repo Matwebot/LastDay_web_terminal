@@ -240,7 +240,7 @@
         <div class="error-msg" id="error-msg">>> ACCESS DENIED: INVALID HASH <<</div>
         <div id="login-status" style="margin-top:10px; font-size:12px; color:var(--term-dim);">WAITING FOR AUTH...</div>
     </div>
-    <div style="margin-top: 40px; font-size: 10px; color: var(--term-dim); text-align: center;">LAST DAY NETWORK // V.5.2.2 (SECURE)</div>
+    <div style="margin-top: 40px; font-size: 10px; color: var(--term-dim); text-align: center;">LAST DAY NETWORK // V.5.2.4 (FINAL SECURE)</div>
 </div>
 
 <!-- DASHBOARD -->
@@ -580,7 +580,6 @@
 
     // --- GLOBAL FUNCTIONS (DEFINED BEFORE USAGE) ---
     
-    // IMPORTANT: Attach these to window so HTML onClick/safeListener can find them
     window.openScreen = (screenId) => { 
         document.querySelectorAll('.screen').forEach(el => { 
             el.style.display = 'none'; 
@@ -815,7 +814,7 @@
     }
 
     // --- BOOT ---
-    const bootLines = ["LAST DAY OS v.5.2.2", "INITIALIZING SECURITY...", "CONNECTING TO FIREBASE...", "SYNCING NOOSPHERE...", "SYSTEM READY."];
+    const bootLines = ["LAST DAY OS v.5.2.4", "INITIALIZING SECURITY...", "CONNECTING TO FIREBASE...", "SYNCING NOOSPHERE...", "SYSTEM READY."];
     let lineIndex = 0;
     const bootScreen = document.getElementById('boot-screen');
     const loginScreen = document.getElementById('login-screen');
@@ -1132,30 +1131,29 @@
             data.forEach(k => {
                 let isVisible = false;
                 if (CURRENT_ROLE === ROLES.GOD) isVisible = true;
-                // Admin sees keys of ranks below them (Command, Subordinate), but NOT God and NOT other Admins (to prevent sabotage)
+                // Admin sees only Command and Subordinate
                 if (CURRENT_ROLE === ROLES.ADMIN && (k.role === ROLES.COMMAND || k.role === ROLES.SUBORDINATE)) isVisible = true;
-                // Command sees only Subordinates
+                // Command sees only Subordinate
                 if (CURRENT_ROLE === ROLES.COMMAND && k.role === ROLES.SUBORDINATE) isVisible = true;
 
                 if (isVisible) {
                     const tr = document.createElement('tr');
                     const keyDisplay = k.key || (k.keyHash ? k.keyHash.substring(0, 10) + '...' : 'UNKNOWN');
                     
-                    // "Created By" Cell Generation - Only for GOD
-                    let createdByCell = '';
+                    let creatorDisplay = "";
+                    let createdByCell = "";
                     if (CURRENT_ROLE === ROLES.GOD) {
-                        let creatorDisplay = k.createdBy;
-                        if (!creatorDisplay || creatorDisplay.length > 20) { 
-                            creatorDisplay = "REDACTED"; 
-                        }
+                         creatorDisplay = k.createdBy || "UNKNOWN";
+                         if (creatorDisplay.length > 20) creatorDisplay = "REDACTED";
                          createdByCell = `<td style="font-size:12px; color:#888;">${creatorDisplay}</td>`;
                     }
                     
-                    // Deletion Logic
                     let canDelete = false;
                     if (CURRENT_ROLE === ROLES.GOD) canDelete = true;
-                    if (CURRENT_ROLE === ROLES.ADMIN && (k.role === ROLES.COMMAND || k.role === ROLES.SUBORDINATE)) canDelete = true;
-                    if (CURRENT_ROLE === ROLES.COMMAND && k.role === ROLES.SUBORDINATE) canDelete = true;
+                    // Admin can delete Command and Subordinate
+                    else if (CURRENT_ROLE === ROLES.ADMIN && (k.role === ROLES.COMMAND || k.role === ROLES.SUBORDINATE)) canDelete = true;
+                    // Command can delete Subordinate
+                    else if (CURRENT_ROLE === ROLES.COMMAND && k.role === ROLES.SUBORDINATE) canDelete = true;
                     
                     const deleteBtn = canDelete ? `<td><button class="btn-delete">[ REVOKE ]</button></td>` : `<td></td>`;
 

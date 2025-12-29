@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LAST DAY // SECURE TERMINAL</title>
+    <title>LAST DAY // SECURE TERMINAL (HOSTING FIX)</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -277,7 +277,7 @@
         <div class="error-msg" id="error-msg">>> ACCESS DENIED: INVALID HASH <<</div>
         <div id="login-status" style="margin-top:10px; font-size:12px; color:var(--term-dim);">WAITING FOR AUTH...</div>
     </div>
-    <div style="margin-top: 40px; font-size: 10px; color: var(--term-dim); text-align: center;">LAST DAY NETWORK // V.6.2.5 (ICONS UPDATED)</div>
+    <div style="margin-top: 40px; font-size: 10px; color: var(--term-dim); text-align: center;">LAST DAY NETWORK // V.6.2.6 (HOSTING FIX)</div>
 </div>
 
 <!-- DASHBOARD -->
@@ -629,7 +629,11 @@
 
     window.updateDocField = async function(col, id, field, val) { 
         if(!db) return;
-        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', col, id), {[field]: val}); 
+        try {
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', col, id), {[field]: val}); 
+        } catch (e) {
+            console.error("Update failed:", e);
+        }
     };
     
     window.askDelete = function(col, id) { 
@@ -677,7 +681,7 @@
                 await batch.commit();
                 renderCanvas();
             }
-        } catch (error) { console.error("Delete failed:", error); }
+        } catch (error) { console.error("Delete failed:", error); alert("Error deleting: " + error.message); }
         window.closeModal('modal-delete-generic');
         deleteTargetType = null; deleteTargetId = null;
     }
@@ -686,10 +690,12 @@
         const wrapper = document.getElementById('canvas-wrapper');
         const centerX = wrapper.scrollLeft + (wrapper.clientWidth / 2) - 110; 
         const centerY = wrapper.scrollTop + (wrapper.clientHeight / 2) - 50;  
-        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'research_nodes'), {
-            branchId: currentBranchId, x: Math.max(0, centerX), y: Math.max(0, centerY),
-            title: "NEW NODE", code: "P-00", desc: "TBD", status: "PENDING", timestamp: Date.now()
-        });
+        try {
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'research_nodes'), {
+                branchId: currentBranchId, x: Math.max(0, centerX), y: Math.max(0, centerY),
+                title: "NEW NODE", code: "P-00", desc: "TBD", status: "PENDING", timestamp: Date.now()
+            });
+        } catch(e) { alert("Cannot add node: " + e.message); }
     };
 
     window.startLink = function(e, id) { e.stopPropagation(); e.preventDefault(); if(!isEditMode) return; isLinking = true; linkSourceId = id; };
@@ -698,7 +704,7 @@
     window.updateNodeStatus = async function(status) { if(!currentNodeEditingId) return; await window.updateDocField('research_nodes', currentNodeEditingId, 'status', status); window.closeModal('modal-node-details'); };
 
     // --- BOOT & AUTH ---
-    const bootLines = ["LAST DAY OS v.6.2.5", "INITIALIZING SECURITY...", "CONNECTING TO FIREBASE...", "SYNCING NOOSPHERE...", "SYSTEM READY."];
+    const bootLines = ["LAST DAY OS v.6.2.6", "INITIALIZING SECURITY...", "CONNECTING TO FIREBASE...", "SYNCING NOOSPHERE...", "SYSTEM READY."];
     let lineIndex = 0;
     function typeBoot() {
         document.getElementById('boot-screen').style.display = 'block';
@@ -711,12 +717,52 @@
 
     async function initFirebase() {
         try {
-            const config = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {apiKey:"placeholder"};
+            // --- ВАЖНО: ВСТАВЬТЕ СЮДА ВАШ КОНФИГ ДЛЯ ХОСТИНГА ---
+            // Если на хостинге не работает, замените объект ниже на ваш реальный конфиг из Firebase Console
+            let config;
+            if (typeof __firebase_config !== 'undefined') {
+                config = JSON.parse(__firebase_config);
+            } else {
+                console.warn("CANVAS CONFIG NOT FOUND. USING FALLBACK/HOSTING CONFIG.");
+                config = {
+                    apiKey: "YOUR_API_KEY_HERE",
+                    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+                    projectId: "YOUR_PROJECT_ID",
+                    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+                    messagingSenderId: "SENDER_ID",
+                    appId: "APP_ID"
+                };
+            }
+
             if(typeof __app_id !== 'undefined') appId = __app_id;
-            const app = initializeApp(config); db = getFirestore(app); auth = getAuth(app);
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token); else await signInAnonymously(auth);
-            onAuthStateChanged(auth, (user) => { currentUser = user; if (user) setupListeners(); });
-        } catch (e) { console.error(e); }
+            
+            console.log("Initializing Firebase with ID:", appId);
+            const app = initializeApp(config); 
+            db = getFirestore(app); 
+            auth = getAuth(app);
+            
+            // AUTH HANDLER
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                console.log("Authenticating via Canvas Token...");
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                console.log("Authenticating via Anonymous Auth (Hosting Mode)...");
+                await signInAnonymously(auth);
+            }
+            
+            onAuthStateChanged(auth, (user) => { 
+                currentUser = user; 
+                if (user) {
+                    console.log("Firebase Auth Success. UID:", user.uid);
+                    setupListeners(); 
+                } else {
+                    console.warn("User signed out.");
+                }
+            });
+        } catch (e) { 
+            console.error("FIREBASE INIT ERROR:", e); 
+            alert("CRITICAL SYSTEM FAILURE: FIREBASE INIT\n" + e.message + "\nCheck console for details.");
+        }
     }
 
     async function getHash(msg) { if (!window.crypto || !window.crypto.subtle) return "FALLBACK"; const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg)); return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
@@ -914,20 +960,38 @@
         if(!currentNodeEditingId) return;
         const updates = { code: document.getElementById('node-edit-code').value, title: document.getElementById('node-edit-name').value, desc: document.getElementById('node-edit-desc').value };
         if(uploadedNodeImg) updates.imageUrl = uploadedNodeImg; if(uploadedNodeHtml) updates.htmlContent = uploadedNodeHtml;
-        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'research_nodes', currentNodeEditingId), updates);
-        uploadedNodeImg = null; uploadedNodeHtml = null; window.closeModal('modal-node-details');
+        try {
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'research_nodes', currentNodeEditingId), updates);
+            uploadedNodeImg = null; uploadedNodeHtml = null; window.closeModal('modal-node-details');
+        } catch(e) { alert("Error saving node: " + e.message); }
     };
 
     document.getElementById('node-img-upload').onchange = (e) => { const r = new FileReader(); r.onload = (ev) => { uploadedNodeImg = ev.target.result; document.getElementById('node-img-status').innerText = "READY TO SAVE"; }; if(e.target.files[0]) r.readAsDataURL(e.target.files[0]); };
     document.getElementById('node-html-upload').onchange = (e) => { const r = new FileReader(); r.onload = (ev) => { uploadedNodeHtml = ev.target.result; document.getElementById('node-html-status').innerText = "READY TO SAVE"; }; if(e.target.files[0]) r.readAsText(e.target.files[0]); };
     document.getElementById('btn-add-branch').onclick = () => document.getElementById('modal-add-branch').style.display='flex';
-    document.getElementById('confirm-add-branch').onclick = async () => { const n = document.getElementById('new-branch-name').value.trim().toUpperCase(); if(n) { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'research_branches'), {name:n, timestamp:Date.now()}); window.closeModal('modal-add-branch'); } };
+    document.getElementById('confirm-add-branch').onclick = async () => { 
+        const n = document.getElementById('new-branch-name').value.trim().toUpperCase(); 
+        if(n) { 
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'research_branches'), {name:n, timestamp:Date.now()}); 
+                window.closeModal('modal-add-branch'); 
+            } catch(e) { alert("Cannot add branch: " + e.message); }
+        } 
+    };
 
     const bindAdd = (btnId, modalId, inputs, col, mapper) => {
         document.getElementById(btnId).onclick = () => document.getElementById(modalId).style.display='flex';
         document.getElementById(btnId.replace('btn-','confirm-')).onclick = async () => {
             const vals = inputs.map(id => document.getElementById(id).value.trim());
-            if(vals[0]) { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', col), mapper(vals)); window.closeModal(modalId); }
+            if(vals[0]) { 
+                try {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', col), mapper(vals)); 
+                    window.closeModal(modalId); 
+                } catch(e) {
+                    alert("Operation failed: " + e.message + "\nCheck database permissions and auth.");
+                    console.error(e);
+                }
+            }
         };
     };
 
@@ -940,7 +1004,10 @@
         const type = document.getElementById('new-adept-type').value;
         const d = { type, code: document.getElementById('new-adept-code').value.toUpperCase(), name: document.getElementById('new-adept-name').value, time: document.getElementById('new-adept-time').value, discordId: document.getElementById('new-adept-discord').value, status: "ЖИВ", timestamp: Date.now() };
         if(type==='ACTIVE') d.isActivated = false; if(type==='DETAINED') { d.workDesc = document.getElementById('new-adept-work').value; d.releaseTime = document.getElementById('new-adept-release').value; }
-        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'adepts'), d); window.closeModal('modal-add-adept');
+        try {
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'adepts'), d); 
+            window.closeModal('modal-add-adept');
+        } catch(e) { alert("Failed to register subject: " + e.message); }
     };
     
     document.getElementById('btn-add-proj').onclick = () => document.getElementById('modal-add-project').style.display='flex';
@@ -948,7 +1015,12 @@
     projFileIn.onchange = (e) => { const r = new FileReader(); r.onload=ev=>{projFileContent=ev.target.result; document.getElementById('file-name-display').innerText="LOADED";}; if(e.target.files[0]) r.readAsText(e.target.files[0]); };
     document.getElementById('confirm-add-proj').onclick = async () => {
         const c = document.getElementById('new-proj-code').value.toUpperCase();
-        if(c) { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), { code: c, title: "PROJECT: "+c, desc: document.getElementById('new-proj-desc').value, status: document.getElementById('new-proj-status').value, content: projFileContent, timestamp: Date.now() }); window.closeModal('modal-add-project'); }
+        if(c) { 
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), { code: c, title: "PROJECT: "+c, desc: document.getElementById('new-proj-desc').value, status: document.getElementById('new-proj-status').value, content: projFileContent, timestamp: Date.now() }); 
+                window.closeModal('modal-add-project'); 
+            } catch(e) { alert("Failed to add project: " + e.message); }
+        }
     };
     
     document.querySelectorAll('.btn-back-dash').forEach(b => b.onclick = () => { previousScreenId = 'dashboard-screen'; window.openScreen('dashboard-screen'); });
@@ -960,7 +1032,15 @@
     document.getElementById('new-adept-type').onchange = (e) => document.getElementById('adept-labor-fields').style.display = (e.target.value==='DETAINED'?'block':'none');
     
     document.getElementById('btn-add-auth-key').onclick = () => { document.getElementById('modal-add-auth-key').style.display='flex'; document.getElementById('opt-role-admin').style.display = (CURRENT_ROLE===ROLES.GOD?'block':'none'); document.getElementById('opt-role-command').style.display = (CURRENT_ROLE===ROLES.COMMAND?'none':'block'); };
-    document.getElementById('confirm-add-auth-key').onclick = async () => { const k = document.getElementById('new-auth-key-val').value.toUpperCase(); if(k) await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'system_access'), {key:k, keyHash: await getHash(k), role: document.getElementById('new-auth-role').value, createdBy: CURRENT_KEY_USED, timestamp: Date.now()}); window.closeModal('modal-add-auth-key'); };
+    document.getElementById('confirm-add-auth-key').onclick = async () => { 
+        const k = document.getElementById('new-auth-key-val').value.toUpperCase(); 
+        if(k) {
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'system_access'), {key:k, keyHash: await getHash(k), role: document.getElementById('new-auth-role').value, createdBy: CURRENT_KEY_USED, timestamp: Date.now()}); 
+                window.closeModal('modal-add-auth-key'); 
+            } catch(e) { alert("Failed to generate key: " + e.message); }
+        }
+    };
     
     function renderAccessRow(id, d) {
         if(CURRENT_ROLE===ROLES.SUBORDINATE) return document.createElement('tr'); if(CURRENT_ROLE===ROLES.COMMAND && d.role!==ROLES.SUBORDINATE) return document.createElement('tr'); if(CURRENT_ROLE===ROLES.ADMIN && d.role===ROLES.GOD) return document.createElement('tr');
@@ -989,7 +1069,13 @@
 
         document.getElementById('modal-view-adept').style.display='flex';
         act.style.display = (a.type==='ACTIVE' && CURRENT_ROLE!==ROLES.SUBORDINATE) ? 'block' : 'none'; act.disabled = a.isActivated; act.innerText = a.isActivated ? "ACTIVATED" : "ACTIVATE";
-        act.onclick = async () => { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'signal_queue'), {type:'ACTIVATION', targetCode:a.code, targetDiscordId:a.discordId, timestamp:serverTimestamp()}); await window.updateDocField('adepts',a.id,'isActivated',true); window.closeModal('modal-view-adept'); };
+        act.onclick = async () => { 
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'signal_queue'), {type:'ACTIVATION', targetCode:a.code, targetDiscordId:a.discordId, timestamp:serverTimestamp()}); 
+                await window.updateDocField('adepts',a.id,'isActivated',true); 
+                window.closeModal('modal-view-adept'); 
+            } catch(e) { alert("Error activating: " + e.message); }
+        };
         del.style.display = (CURRENT_ROLE!==ROLES.SUBORDINATE) ? 'block' : 'none'; del.onclick = () => window.askDelete('adepts', a.id);
     };
 

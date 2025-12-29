@@ -164,6 +164,11 @@
         .modal-btn.danger { border-color: var(--term-alert); color: var(--term-alert); } .modal-btn.danger:hover { background: var(--term-alert); color: #fff; }
         .modal-input { background: #000; border: 1px solid var(--term-dim); color: var(--term-green); padding: 10px; font-family: var(--font-ui); font-size: 20px; text-align: center; width: 100%; margin: 15px 0; outline: none; text-transform: uppercase; }
         
+        /* HIDE CREATED BY COLUMN BY DEFAULT */
+        .col-created-by { display: none; }
+        /* SHOW ONLY FOR GOD ROLE */
+        .role-god .col-created-by { display: table-cell; }
+
         /* CANVAS STYLES */
         #canvas-wrapper {
             position: relative; width: 100%; height: 80vh; 
@@ -277,7 +282,7 @@
         <div class="error-msg" id="error-msg">>> ACCESS DENIED: INVALID HASH <<</div>
         <div id="login-status" style="margin-top:10px; font-size:12px; color:var(--term-dim);">WAITING FOR AUTH...</div>
     </div>
-    <div style="margin-top: 40px; font-size: 10px; color: var(--term-dim); text-align: center;">LAST DAY NETWORK // V.6.3.1 (SYNCED)</div>
+    <div style="margin-top: 40px; font-size: 10px; color: var(--term-dim); text-align: center;">LAST DAY NETWORK // V.6.3.2 (SYNCED)</div>
 </div>
 
 <!-- DASHBOARD -->
@@ -466,7 +471,7 @@
         <p class="system-msg">>> GENERATE AUTHENTICATION TOKENS</p>
         <button id="btn-add-auth-key" class="nav-btn" style="color:var(--term-blue); border-color:var(--term-blue);">+ CREATE USER KEY</button>
     </div>
-    <table class="data-table"><thead><tr><th>ACCESS KEY</th><th>ROLE ASSIGNED</th><th>CREATED BY</th><th>CREATED AT</th><th>ACTION</th></tr></thead><tbody id="access-body"></tbody></table>
+    <table class="data-table"><thead><tr><th>ACCESS KEY</th><th>ROLE ASSIGNED</th><th class="col-created-by">CREATED BY</th><th>CREATED AT</th><th>ACTION</th></tr></thead><tbody id="access-body"></tbody></table>
 </div>
 
 <div id="doc-viewer" class="screen">
@@ -706,7 +711,7 @@
     window.updateNodeStatus = async function(status) { if(!currentNodeEditingId) return; await window.updateDocField('research_nodes', currentNodeEditingId, 'status', status); window.closeModal('modal-node-details'); };
 
     // --- BOOT & AUTH ---
-    const bootLines = ["LAST DAY OS v.6.3.1", "INITIALIZING SECURITY...", "CONNECTING TO FIREBASE...", "SYNCING NOOSPHERE...", "SYSTEM READY."];
+    const bootLines = ["LAST DAY OS v.6.3.2", "INITIALIZING SECURITY...", "CONNECTING TO FIREBASE...", "SYNCING NOOSPHERE...", "SYSTEM READY."];
     let lineIndex = 0;
     function typeBoot() {
         document.getElementById('boot-screen').style.display = 'block';
@@ -1109,7 +1114,8 @@
         }
 
         const tr = document.createElement('tr'); 
-        tr.innerHTML=`<td class="spoiler-cell spoiler-hidden" onclick="this.classList.toggle('spoiler-hidden')">${d.key||d.keyHash.substr(0,10)}</td><td>${d.role}</td><td>${d.createdBy||'UNK'}</td><td>${new Date(d.timestamp).toLocaleDateString()}</td><td><button class="btn-delete" onclick="window.askDelete('system_access','${id}')">REVOKE</button></td>`; 
+        // ADDED CLASS col-created-by TO CELL
+        tr.innerHTML=`<td class="spoiler-cell spoiler-hidden" onclick="this.classList.toggle('spoiler-hidden')">${d.key||d.keyHash.substr(0,10)}</td><td>${d.role}</td><td class="col-created-by">${d.createdBy||'UNK'}</td><td>${new Date(d.timestamp).toLocaleDateString()}</td><td><button class="btn-delete" onclick="window.askDelete('system_access','${id}')">REVOKE</button></td>`; 
         return tr;
     }
 

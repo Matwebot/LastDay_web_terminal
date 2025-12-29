@@ -948,22 +948,94 @@
     window.openNodeDetails = (n) => {
         currentNodeEditingId = n.id;
         document.getElementById('modal-node-details').style.display = 'flex';
-        document.getElementById('node-edit-code').value = n.code || '';
-        document.getElementById('node-edit-name').value = n.title || '';
-        document.getElementById('node-edit-desc').value = n.desc || '';
-        document.getElementById('node-admin-controls').style.display = (CURRENT_ROLE === ROLES.GOD || CURRENT_ROLE === ROLES.ADMIN) ? 'block' : 'none';
+        
+        // Элементы формы
+        const inpCode = document.getElementById('node-edit-code');
+        const inpName = document.getElementById('node-edit-name');
+        const inpDesc = document.getElementById('node-edit-desc');
+        
+        inpCode.value = n.code || '';
+        inpName.value = n.title || '';
+        inpDesc.value = n.desc || '';
+
+        // --- ЛОГИКА ПРАВ ДОСТУПА (PERMISSIONS) ---
+        const isGod = (CURRENT_ROLE === ROLES.GOD);
+        const isAdmin = (CURRENT_ROLE === ROLES.ADMIN);
+        const isCommand = (CURRENT_ROLE === ROLES.COMMAND);
+        const isSubordinate = (CURRENT_ROLE === ROLES.SUBORDINATE);
+
+        // Кто может менять метаданные (текст, картинки)
+        const canEditMetadata = isGod || isAdmin; 
+        // Кто может менять файлы данных (HTML)
+        const canEditHtml = isGod || isAdmin || isCommand; 
+
+        // 1. Блокировка текстовых полей
+        inpCode.disabled = !canEditMetadata;
+        inpName.disabled = !canEditMetadata;
+        inpDesc.disabled = !canEditMetadata;
+
+        // 2. Админ-контроли (Approve/Reject)
+        document.getElementById('node-admin-controls').style.display = (isGod || isAdmin) ? 'block' : 'none';
+
+        // 3. Управление загрузкой (показываем контейнер, если есть хоть какие-то права)
+        const uploadControls = document.getElementById('node-upload-controls');
+        uploadControls.style.display = isSubordinate ? 'none' : 'block';
+
+        // 4. Картинки (только Админ/Бог)
+        const lblImg = document.querySelector('label[for="node-img-upload"]');
+        const statusImg = document.getElementById('node-img-status');
+        if (canEditMetadata) {
+            lblImg.style.display = 'block';
+            statusImg.style.display = 'block';
+        } else {
+            lblImg.style.display = 'none';
+            statusImg.style.display = 'none';
+        }
         document.getElementById('node-img-status').innerText = n.imageUrl ? "IMAGE LOADED" : "NO IMAGE";
+
+        // 5. HTML Файлы (Админ/Бог + Команд)
+        const lblHtml = document.querySelector('label[for="node-html-upload"]');
+        const statusHtml = document.getElementById('node-html-status');
+        if (canEditHtml) {
+            lblHtml.style.display = 'block';
+            statusHtml.style.display = 'block';
+        } else {
+            lblHtml.style.display = 'none';
+            statusHtml.style.display = 'none';
+        }
         document.getElementById('node-html-status').innerText = n.htmlContent ? "FILE LOADED" : "NO FILE";
         
-        const viewBtn = document.getElementById('btn-view-node-file'); const clearBtn = document.getElementById('btn-clear-node-file');
-        if(n.htmlContent) { viewBtn.style.display = 'inline-block'; viewBtn.onclick = () => { window.openUserProject(n.htmlContent, 'research-canvas-screen'); }; if(CURRENT_ROLE !== ROLES.SUBORDINATE) { clearBtn.style.display = 'inline-block'; clearBtn.onclick = async () => { await updateDocField('research_nodes', n.id, 'htmlContent', null); window.closeModal('modal-node-details'); }; } } else { viewBtn.style.display = 'none'; clearBtn.style.display = 'none'; }
+        // 6. Кнопки файла (Открыть/Очистить)
+        const viewBtn = document.getElementById('btn-view-node-file'); 
+        const clearBtn = document.getElementById('btn-clear-node-file');
         
+        if(n.htmlContent) { 
+            viewBtn.style.display = 'inline-block'; 
+            viewBtn.onclick = () => { window.openUserProject(n.htmlContent, 'research-canvas-screen'); }; 
+            
+            // Кнопка "Очистить файл" доступна, если можно редактировать HTML
+            if(canEditHtml) { 
+                clearBtn.style.display = 'inline-block'; 
+                clearBtn.onclick = async () => { 
+                    await updateDocField('research_nodes', n.id, 'htmlContent', null); 
+                    window.closeModal('modal-node-details'); 
+                }; 
+            } else {
+                clearBtn.style.display = 'none';
+            }
+        } else { 
+            viewBtn.style.display = 'none'; 
+            clearBtn.style.display = 'none'; 
+        }
+        
+        // 7. Превью картинки
         const imgContainer = document.getElementById('full-img-container');
         const fullImg = document.getElementById('full-node-img');
         if(n.imageUrl) { imgContainer.style.display = 'block'; fullImg.src = n.imageUrl; } else { imgContainer.style.display = 'none'; }
 
-        document.querySelectorAll('#modal-node-details .modal-input').forEach(i => i.disabled = (CURRENT_ROLE === ROLES.SUBORDINATE));
-        document.getElementById('node-upload-controls').style.display = (CURRENT_ROLE === ROLES.SUBORDINATE) ? 'none' : 'block';
+        // 8. Кнопка сохранения
+        const saveBtn = document.getElementById('confirm-save-node');
+        saveBtn.style.display = isSubordinate ? 'none' : 'inline-block';
     };
     
     document.getElementById('btn-edit-mode').addEventListener('click', () => { 
@@ -979,8 +1051,35 @@
     
     document.getElementById('confirm-save-node').onclick = async () => {
         if(!currentNodeEditingId) return;
-        const updates = { code: document.getElementById('node-edit-code').value, title: document.getElementById('node-edit-name').value, desc: document.getElementById('node-edit-desc').value };
-        if(uploadedNodeImg) updates.imageUrl = uploadedNodeImg; if(uploadedNodeHtml) updates.htmlContent = uploadedNodeHtml;
+
+        // Повторная проверка прав при сохранении
+        const isGod = (CURRENT_ROLE === ROLES.GOD);
+        const isAdmin = (CURRENT_ROLE === ROLES.ADMIN);
+        const isCommand = (CURRENT_ROLE === ROLES.COMMAND);
+        
+        const canEditMetadata = isGod || isAdmin;
+        const canEditHtml = isGod || isAdmin || isCommand;
+
+        const updates = {};
+        
+        // Если есть права на метаданные - сохраняем тексты и картинку
+        if (canEditMetadata) {
+            updates.code = document.getElementById('node-edit-code').value;
+            updates.title = document.getElementById('node-edit-name').value;
+            updates.desc = document.getElementById('node-edit-desc').value;
+            if(uploadedNodeImg) updates.imageUrl = uploadedNodeImg;
+        }
+
+        // Если есть права на HTML - сохраняем файл
+        if (canEditHtml) {
+            if(uploadedNodeHtml) updates.htmlContent = uploadedNodeHtml;
+        }
+
+        if (Object.keys(updates).length === 0) {
+            window.closeModal('modal-node-details');
+            return;
+        }
+
         try {
             await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'research_nodes', currentNodeEditingId), updates);
             uploadedNodeImg = null; uploadedNodeHtml = null; window.closeModal('modal-node-details');

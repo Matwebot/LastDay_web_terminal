@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LAST DAY // SECURE TERMINAL (HOSTING FIX)</title>
+    <title>LAST DAY // SECURE TERMINAL (SYNCED)</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -277,7 +277,7 @@
         <div class="error-msg" id="error-msg">>> ACCESS DENIED: INVALID HASH <<</div>
         <div id="login-status" style="margin-top:10px; font-size:12px; color:var(--term-dim);">WAITING FOR AUTH...</div>
     </div>
-    <div style="margin-top: 40px; font-size: 10px; color: var(--term-dim); text-align: center;">LAST DAY NETWORK // V.6.2.6 (HOSTING FIX)</div>
+    <div style="margin-top: 40px; font-size: 10px; color: var(--term-dim); text-align: center;">LAST DAY NETWORK // V.6.3.1 (SYNCED)</div>
 </div>
 
 <!-- DASHBOARD -->
@@ -572,7 +572,9 @@
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    // --- ПРАВИЛЬНЫЙ ИМПОРТ ДЛЯ БРАУЗЕРА (CDN) ---
+    // Не меняйте эти ссылки на "firebase/app", это сломает код в браузере!
+    import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getFirestore, collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc, query, where, getDocs, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
@@ -704,7 +706,7 @@
     window.updateNodeStatus = async function(status) { if(!currentNodeEditingId) return; await window.updateDocField('research_nodes', currentNodeEditingId, 'status', status); window.closeModal('modal-node-details'); };
 
     // --- BOOT & AUTH ---
-    const bootLines = ["LAST DAY OS v.6.2.6", "INITIALIZING SECURITY...", "CONNECTING TO FIREBASE...", "SYNCING NOOSPHERE...", "SYSTEM READY."];
+    const bootLines = ["LAST DAY OS v.6.3.1", "INITIALIZING SECURITY...", "CONNECTING TO FIREBASE...", "SYNCING NOOSPHERE...", "SYSTEM READY."];
     let lineIndex = 0;
     function typeBoot() {
         document.getElementById('boot-screen').style.display = 'block';
@@ -717,36 +719,46 @@
 
     async function initFirebase() {
         try {
-            // --- ВАЖНО: ВСТАВЬТЕ СЮДА ВАШ КОНФИГ ДЛЯ ХОСТИНГА ---
-            // Если на хостинге не работает, замените объект ниже на ваш реальный конфиг из Firebase Console
-            let config;
-            if (typeof __firebase_config !== 'undefined') {
-                config = JSON.parse(__firebase_config);
-            } else {
-                console.warn("CANVAS CONFIG NOT FOUND. USING FALLBACK/HOSTING CONFIG.");
-                config = {
-                    apiKey: "AIzaSyDItyHZsBjradE8WE-qtIutVKXux-mWoiI",
-                    authDomain: "last-day-terminal.firebaseapp.com",
-                    projectId: "last-day-terminal",
-                    storageBucket: "last-day-terminal.firebasestorage.app",
-                    messagingSenderId: "283501483006",
-                    appId: "1:283501483006:web:68888bf5ea676579d9e6af"
-                };
-            }
+            // --- КОНФИГУРАЦИЯ FIREBASE (ВАШ ПРОЕКТ) ---
+            // Мы используем ваши ключи для соединения с last-day-terminal
+            const config = {
+                apiKey: "AIzaSyDItyHZsBjradE8WE-qtIutVKXux-mWoiI",
+                authDomain: "last-day-terminal.firebaseapp.com",
+                projectId: "last-day-terminal",
+                storageBucket: "last-day-terminal.firebasestorage.app",
+                messagingSenderId: "283501483006",
+                appId: "1:283501483006:web:68888bf5ea676579d9e6af"
+            };
 
+            // Переписываем appId, если мы в Canvas (для обратной совместимости), 
+            // но на хостинге останется 'last-day-terminal-standalone'
             if(typeof __app_id !== 'undefined') appId = __app_id;
             
-            console.log("Initializing Firebase with ID:", appId);
-            const app = initializeApp(config); 
+            console.log("Initializing Firebase...");
+            
+            let app;
+            // ЗАЩИТА ОТ ДУБЛИРОВАНИЯ ПРИЛОЖЕНИЯ
+            if (getApps().length === 0) {
+                app = initializeApp(config);
+            } else {
+                app = getApps()[0];
+            }
+            
             db = getFirestore(app); 
             auth = getAuth(app);
             
             // AUTH HANDLER
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                 console.log("Authenticating via Canvas Token...");
-                await signInWithCustomToken(auth, __initial_auth_token);
+                try {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } catch (e) {
+                    console.warn("Canvas Token mismatch (expected for external DB). Falling back to Anonymous Auth...", e);
+                    await signInAnonymously(auth);
+                }
             } else {
-                console.log("Authenticating via Anonymous Auth (Hosting Mode)...");
+                console.log("Authenticating via Anonymous Auth...");
+                // Пытаемся войти анонимно. Если не включено в консоли - упадет в catch
                 await signInAnonymously(auth);
             }
             
@@ -760,8 +772,12 @@
                 }
             });
         } catch (e) { 
-            console.error("FIREBASE INIT ERROR:", e); 
-            alert("CRITICAL SYSTEM FAILURE: FIREBASE INIT\n" + e.message + "\nCheck console for details.");
+            console.error("FIREBASE INIT ERROR:", e);
+            if (e.code === 'auth/admin-restricted-operation-mode' || e.code === 'auth/operation-not-allowed') {
+                 alert("ОШИБКА ДОСТУПА: Включите 'Anonymous' (Анонимный вход) в Firebase Console -> Authentication -> Sign-in method!");
+            } else {
+                 alert("CRITICAL SYSTEM FAILURE: FIREBASE INIT\n" + e.message + "\nCheck console (F12) for details.");
+            }
         }
     }
 

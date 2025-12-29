@@ -1047,7 +1047,28 @@
     document.querySelectorAll('.close-modal').forEach(btn => { btn.addEventListener('click', (e) => { e.target.closest('.modal-overlay').style.display = 'none'; }); });
     document.getElementById('new-adept-type').onchange = (e) => document.getElementById('adept-labor-fields').style.display = (e.target.value==='DETAINED'?'block':'none');
     
-    document.getElementById('btn-add-auth-key').onclick = () => { document.getElementById('modal-add-auth-key').style.display='flex'; document.getElementById('opt-role-admin').style.display = (CURRENT_ROLE===ROLES.GOD?'block':'none'); document.getElementById('opt-role-command').style.display = (CURRENT_ROLE===ROLES.COMMAND?'none':'block'); };
+    document.getElementById('btn-add-auth-key').onclick = () => { 
+        document.getElementById('modal-add-auth-key').style.display='flex'; 
+        
+        // LOGIC UPDATE: Creation Permissions
+        const optAdmin = document.getElementById('opt-role-admin');
+        const optCommand = document.getElementById('opt-role-command');
+        
+        // Default: Hide privileged roles
+        optAdmin.style.display = 'none';
+        optCommand.style.display = 'none';
+
+        if (CURRENT_ROLE === ROLES.GOD) {
+            // GOD can create everything
+            optAdmin.style.display = 'block';
+            optCommand.style.display = 'block';
+        } else if (CURRENT_ROLE === ROLES.ADMIN) {
+            // ADMIN can create COMMAND and SUBORDINATE (Command option visible)
+            optCommand.style.display = 'block';
+        }
+        // COMMAND role sees neither, defaults to SUBORDINATE (always visible in select)
+    };
+
     document.getElementById('confirm-add-auth-key').onclick = async () => { 
         const k = document.getElementById('new-auth-key-val').value.toUpperCase(); 
         if(k) {
@@ -1059,9 +1080,39 @@
     };
     
     function renderAccessRow(id, d) {
-        if(CURRENT_ROLE===ROLES.SUBORDINATE) return document.createElement('tr'); if(CURRENT_ROLE===ROLES.COMMAND && d.role!==ROLES.SUBORDINATE) return document.createElement('tr'); if(CURRENT_ROLE===ROLES.ADMIN && d.role===ROLES.GOD) return document.createElement('tr');
-        const tr = document.createElement('tr'); tr.innerHTML=`<td class="spoiler-cell spoiler-hidden" onclick="this.classList.toggle('spoiler-hidden')">${d.key||d.keyHash.substr(0,10)}</td><td>${d.role}</td><td>${d.createdBy||'UNK'}</td><td>${new Date(d.timestamp).toLocaleDateString()}</td><td><button class="btn-delete" onclick="window.askDelete('system_access','${id}')">REVOKE</button></td>`; return tr;
+        // LOGIC UPDATE: Hierarchical Visibility
+        let isVisible = false;
+
+        if (CURRENT_ROLE === ROLES.GOD) {
+            // GOD sees everything
+            isVisible = true;
+        } else if (CURRENT_ROLE === ROLES.ADMIN) {
+            // ADMIN sees ONLY Command and Subordinate. 
+            // Cannot see GOD keys or other ADMIN keys.
+            if (d.role === ROLES.COMMAND || d.role === ROLES.SUBORDINATE) {
+                isVisible = true;
+            }
+        } else if (CURRENT_ROLE === ROLES.COMMAND) {
+            // COMMAND sees ONLY Subordinate.
+            // Cannot see GOD, ADMIN, or other COMMAND keys.
+            if (d.role === ROLES.SUBORDINATE) {
+                isVisible = true;
+            }
+        }
+        // Subordinate sees nothing (default false)
+
+        if (!isVisible) {
+            // Return hidden row to maintain table structure without showing content
+            const hiddenTr = document.createElement('tr');
+            hiddenTr.style.display = 'none';
+            return hiddenTr;
+        }
+
+        const tr = document.createElement('tr'); 
+        tr.innerHTML=`<td class="spoiler-cell spoiler-hidden" onclick="this.classList.toggle('spoiler-hidden')">${d.key||d.keyHash.substr(0,10)}</td><td>${d.role}</td><td>${d.createdBy||'UNK'}</td><td>${new Date(d.timestamp).toLocaleDateString()}</td><td><button class="btn-delete" onclick="window.askDelete('system_access','${id}')">REVOKE</button></td>`; 
+        return tr;
     }
+
     function renderKeyRow(id, d) { const tr = document.createElement('tr'); const del = CURRENT_ROLE !== ROLES.SUBORDINATE ? `<button class="btn-delete" onclick="window.askDelete('keys','${id}')">[X]</button>` : ''; tr.innerHTML=`<td><b>${d.name}</b></td><td>${d.desc}</td><td class="spoiler-cell spoiler-hidden" onclick="this.classList.toggle('spoiler-hidden')">${d.code}</td><td>${del}</td>`; return tr; }
     function renderOpRow(id, d) { const tr = document.createElement('tr'); const disabled = CURRENT_ROLE === ROLES.SUBORDINATE ? 'disabled' : ''; const del = CURRENT_ROLE !== ROLES.SUBORDINATE ? `<button class="btn-delete" onclick="window.askDelete('operations','${id}')">[X]</button>` : ''; tr.innerHTML=`<td>${d.code}</td><td>${d.time}</td><td>${d.units}</td><td>${d.sector}</td><td style="font-size:12px;">${d.objectives}</td><td style="color:${d.secrecy==='SECRET'?'red':'#0f0'}">${d.secrecy}</td><td><select class="term-select op-select" ${disabled} onchange="window.updateDocField('operations','${id}','status',this.value); window.colorizeSelect(this);"><option value="PENDING" ${d.status==='PENDING'?'selected':''}>PENDING</option><option value="IN_PROGRESS" ${d.status==='IN_PROGRESS'?'selected':''}>IN PROGRESS</option><option value="COMPLETED" ${d.status==='COMPLETED'?'selected':''}>COMPLETED</option><option value="FAILED" ${d.status==='FAILED'?'selected':''}>FAILED</option></select></td><td>${del}</td>`; 
         window.colorizeSelect(tr.querySelector('.op-select')); return tr; }
